@@ -11,6 +11,7 @@ final class ProfileViewController: UIViewController {
     // MARK: - Public Properties
     
     // MARK: - Private Properties
+    
     private lazy var navigationBar: UINavigationBar = {
         let navigationBar = UINavigationBar()
         navigationBar.setBackgroundImage(UIImage(), for: .default)
@@ -28,7 +29,6 @@ final class ProfileViewController: UIViewController {
     private lazy var profileImageView: UIImageView = {
         let profileImageView = UIImageView(image: UIImage(named: "Photo"))
         profileImageView.layer.cornerRadius = 35
-        profileImageView.backgroundColor = .nBlack
         profileImageView.clipsToBounds = true
         return profileImageView
     }()
@@ -36,7 +36,6 @@ final class ProfileViewController: UIViewController {
         let nameLabel = UILabel()
         nameLabel.font = .headline3
         nameLabel.textColor = .nBlack
-        nameLabel.text = "Joaquin Phoenix"
         return nameLabel
     }()
     
@@ -54,9 +53,7 @@ final class ProfileViewController: UIViewController {
         descriptionLabel.font = .caption2
         descriptionLabel.textColor = .nBlack
         
-        let descriptionText = """
-        Дизайнер из Казани, люблю цифровое искусство и бейглы. В моей коллекции уже 100+ NFT, и еще больше — на моём сайте. Открыт к коллаборациям.
-        """
+        let descriptionText = ""
         let attributedString = NSMutableAttributedString(string: descriptionText)
         let paragraphStyle = NSMutableParagraphStyle()
         paragraphStyle.lineSpacing = 4
@@ -70,7 +67,6 @@ final class ProfileViewController: UIViewController {
         let websiteLabel = UILabel()
         websiteLabel.font = .caption1
         websiteLabel.textColor = .nBlue
-        websiteLabel.text = "Joaquin Phoenix.com"
         return websiteLabel
     }()
     
@@ -88,6 +84,7 @@ final class ProfileViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         setupView()
+        loadProfile()
     }
     
     // MARK: - IB Actions
@@ -101,7 +98,7 @@ final class ProfileViewController: UIViewController {
     // MARK: - Private Methods
     private func setupView() {
         view.backgroundColor = .systemBackground
-
+        
         [navigationBar, stackView, descriptionLabel, websiteLabel, tableView].forEach { [weak self] view in
             guard let self = self else { return }
             view.translatesAutoresizingMaskIntoConstraints = false
@@ -142,6 +139,43 @@ final class ProfileViewController: UIViewController {
             tableView.trailingAnchor.constraint(equalTo: view.trailingAnchor)
         ])
     }
+    
+    private func loadProfile() {
+        ProfileService.shared.fetchProfile { [weak self] result in
+            DispatchQueue.main.async {
+                switch result {
+                case .success(let profile):
+                    self?.updateDisplayProfile(with: profile)
+                    self?.loadAvatar(from: "https://code.s3.yandex.net/landings-v2-ios-developer/space.PNG")
+                case .failure(let error):
+                    print("Ошибка при получении профиля: \(error.localizedDescription)")
+                }
+            }
+        }
+    }
+
+    private func loadAvatar(from urlString: String) {
+        guard let url = URL(string: urlString) else { return }
+        
+        ProfileImageService.shared.downloadAvatar(from: url) { [weak self] data, error in
+            if let error = error {
+                print("Ошибка загрузки аватара: \(error.localizedDescription)")
+                return
+            }
+            
+            if let data = data, let image = UIImage(data: data) {
+                DispatchQueue.main.async {
+                    self?.profileImageView.image = image
+                }
+            }
+        }
+    }
+    
+    private func updateDisplayProfile(with profile: Profile) {
+        nameLabel.text = profile.name
+        descriptionLabel.text = profile.description
+        websiteLabel.text = profile.website
+    }
 }
 
 // MARK: - UITableViewDataSource
@@ -163,7 +197,7 @@ extension ProfileViewController: UITableViewDataSource {
         default:
             break
         }
-                
+        
         return cell
     }
 }
