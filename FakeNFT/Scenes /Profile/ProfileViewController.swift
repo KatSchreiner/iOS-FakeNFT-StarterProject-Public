@@ -6,11 +6,17 @@
 //
 
 import UIKit
+import WebKit
 
 final class ProfileViewController: UIViewController {
     // MARK: - Public Properties
-    
+
     // MARK: - Private Properties
+    private lazy var webView: WKWebView = {
+        let webView = WKWebView()
+        webView.navigationDelegate = self
+        return webView
+    }()
     
     private lazy var navigationBar: UINavigationBar = {
         let navigationBar = UINavigationBar()
@@ -65,6 +71,9 @@ final class ProfileViewController: UIViewController {
     
     private lazy var websiteLabel: UILabel = {
         let websiteLabel = UILabel()
+        websiteLabel.isUserInteractionEnabled = true
+        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(didTapWebsiteLabel))
+        websiteLabel.addGestureRecognizer(tapGesture)
         websiteLabel.font = .caption1
         websiteLabel.textColor = .nBlue
         return websiteLabel
@@ -93,31 +102,42 @@ final class ProfileViewController: UIViewController {
         // TODO: Действие редактирования профиля
     }
     
+    @objc
+    private func didTapWebsiteLabel() {
+
+        guard let urlString = websiteLabel.text, let url = URL(string: urlString) else { return }
+        
+        if navigationController == nil {
+            print("Ошибка: У ProfileViewController нет UINavigationController")
+        }
+        
+        print("Переход на сайт: \(urlString)")
+        
+        let webViewController = WebViewController()
+        webViewController.urlString = urlString
+        navigationController?.pushViewController(webViewController, animated: true)
+    }
+    
     // MARK: - Public Methods
     
     // MARK: - Private Methods
     private func setupView() {
         view.backgroundColor = .systemBackground
         
-        [navigationBar, stackView, descriptionLabel, websiteLabel, tableView].forEach { [weak self] view in
+        [stackView, descriptionLabel, websiteLabel, webView, tableView].forEach { [weak self] view in
             guard let self = self else { return }
             view.translatesAutoresizingMaskIntoConstraints = false
             self.view.addSubview(view)
         }
         
-        navigationBar.items = [UINavigationItem(title: "")]
-        navigationBar.topItem?.rightBarButtonItem = editButton
+        navigationItem.rightBarButtonItem = editButton
         
         addConstraint()
     }
     
     private func addConstraint() {
         NSLayoutConstraint.activate([
-            navigationBar.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
-            navigationBar.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor),
-            navigationBar.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor),
-            
-            stackView.topAnchor.constraint(equalTo: navigationBar.bottomAnchor, constant: 16),
+            stackView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 16),
             stackView.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: 16),
             stackView.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -16),
             
@@ -175,6 +195,13 @@ final class ProfileViewController: UIViewController {
         nameLabel.text = profile.name
         descriptionLabel.text = profile.description
         websiteLabel.text = profile.website
+        
+        if let url = URL(string: profile.website), UIApplication.shared.canOpenURL(url) {
+            websiteLabel.text = profile.website
+        } else {
+            websiteLabel.text = "Некорректный сайт"
+        }
+        
     }
 }
 
@@ -207,4 +234,7 @@ extension ProfileViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
         54
     }
+}
+
+extension ProfileViewController: WKNavigationDelegate {
 }
