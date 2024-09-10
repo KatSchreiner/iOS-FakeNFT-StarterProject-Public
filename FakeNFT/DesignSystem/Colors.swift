@@ -44,6 +44,7 @@ extension UIColor {
 
     static let nBlack = UIColor(named: "nBlack") ?? UIColor.black
     static let nBlue = UIColor(named: "nBlue") ?? UIColor.blue
+    static let nGray = UIColor(named: "nGray") ?? UIColor.lightGray
     
     private static let yaBlackLight = UIColor(hexString: "1A1B22")
     private static let yaBlackDark = UIColor.white

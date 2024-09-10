@@ -12,6 +12,7 @@ final class ProfileService {
     
     private let networkClient: NetworkClient
     private(set) var profile: Profile?
+    private(set) var avatar: String?
     
     private init(networkClient: NetworkClient = DefaultNetworkClient()) {
         self.networkClient = networkClient
@@ -27,6 +28,11 @@ final class ProfileService {
                     let profile = try JSONDecoder().decode(Profile.self, from: data)
                     self.profile = profile
                     completion(.success(profile))
+                    
+                    let avatarURL = profile.avatar
+                    self.avatar = avatarURL
+                    print("URL аватара: \(avatarURL)")
+                    
                 } catch {
                     completion(.failure(.parsingError))
                     print("Ошибка декодирования: \(error.localizedDescription)")

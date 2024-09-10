@@ -7,8 +7,9 @@
 
 import UIKit
 import WebKit
+import Kingfisher
 
-final class ProfileViewController: UIViewController {
+final class ProfileViewController: UIViewController, WKNavigationDelegate {
     // MARK: - Public Properties
 
     // MARK: - Private Properties
@@ -99,7 +100,20 @@ final class ProfileViewController: UIViewController {
     // MARK: - IB Actions
     @objc
     func didTapEditProfile() {
-        // TODO: Действие редактирования профиля
+        let editProfileVC = EditProfileViewController()
+        
+        var avatarURL: String?
+        
+        if let avatarURLString = ProfileService.shared.avatar {
+            avatarURL = avatarURLString
+        }
+        
+        editProfileVC.profile = Profile(name: nameLabel.text ?? "", avatar: avatarURL ?? "" , description: descriptionLabel.text ?? "", website: websiteLabel.text ?? "")
+        
+        editProfileVC.imagePath = avatarURL
+        
+        let navigationController = UINavigationController(rootViewController: editProfileVC)
+        present(navigationController, animated: true, completion: nil)
     }
     
     @objc
@@ -166,26 +180,11 @@ final class ProfileViewController: UIViewController {
                 switch result {
                 case .success(let profile):
                     self?.updateDisplayProfile(with: profile)
-                    self?.loadAvatar(from: "https://code.s3.yandex.net/landings-v2-ios-developer/space.PNG")
+                    if let avatarURL = ProfileService.shared.avatar {
+                        self?.profileImageView.kf.setImage(with: URL(string: avatarURL))
+                    }
                 case .failure(let error):
                     print("Ошибка при получении профиля: \(error.localizedDescription)")
-                }
-            }
-        }
-    }
-
-    private func loadAvatar(from urlString: String) {
-        guard let url = URL(string: urlString) else { return }
-        
-        ProfileImageService.shared.downloadAvatar(from: url) { [weak self] data, error in
-            if let error = error {
-                print("Ошибка загрузки аватара: \(error.localizedDescription)")
-                return
-            }
-            
-            if let data = data, let image = UIImage(data: data) {
-                DispatchQueue.main.async {
-                    self?.profileImageView.image = image
                 }
             }
         }
@@ -195,13 +194,6 @@ final class ProfileViewController: UIViewController {
         nameLabel.text = profile.name
         descriptionLabel.text = profile.description
         websiteLabel.text = profile.website
-        
-        if let url = URL(string: profile.website), UIApplication.shared.canOpenURL(url) {
-            websiteLabel.text = profile.website
-        } else {
-            websiteLabel.text = "Некорректный сайт"
-        }
-        
     }
 }
 
@@ -234,7 +226,4 @@ extension ProfileViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
         54
     }
-}
-
-extension ProfileViewController: WKNavigationDelegate {
 }
