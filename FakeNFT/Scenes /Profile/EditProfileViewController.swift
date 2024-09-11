@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import Kingfisher
 
 final class EditProfileViewController: UIViewController, UITextViewDelegate {
     // MARK: - Public Properties
@@ -18,7 +19,6 @@ final class EditProfileViewController: UIViewController, UITextViewDelegate {
         profileImageView.layer.cornerRadius = 35
         profileImageView.clipsToBounds = true
         profileImageView.isUserInteractionEnabled = true
-        profileImageView.backgroundColor = .gray
         
         let label = createLabel(with: "Сменить\nфото")
         label.translatesAutoresizingMaskIntoConstraints = false
@@ -138,6 +138,10 @@ final class EditProfileViewController: UIViewController, UITextViewDelegate {
             nameTextField.text = profile.name
             descriptionTextField.text = profile.description
             websiteTextField.text = profile.website
+            
+            if let imagePath = imagePath, let url = URL(string: imagePath) {
+                profileImageView.kf.setImage(with: url)
+            }
         }
     }
     

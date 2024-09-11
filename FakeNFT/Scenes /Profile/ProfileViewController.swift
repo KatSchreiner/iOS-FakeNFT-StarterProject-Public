@@ -99,15 +99,16 @@ final class ProfileViewController: UIViewController, WKNavigationDelegate {
     func didTapEditProfile() {
         let editProfileVC = EditProfileViewController()
         
-        var avatarURL: String?
-        
         if let avatarURLString = ProfileService.shared.avatar {
-            avatarURL = avatarURLString
+            editProfileVC.imagePath = avatarURLString
         }
         
-        editProfileVC.profile = Profile(name: nameLabel.text ?? "", avatar: avatarURL ?? "" , description: descriptionLabel.text ?? "", website: websiteLabel.text ?? "")
-        
-        editProfileVC.imagePath = avatarURL
+        editProfileVC.profile = Profile(
+            name: nameLabel.text ?? "",
+            avatar: editProfileVC.imagePath ?? "",
+            description: descriptionLabel.text ?? "",
+            website: websiteLabel.text ?? ""
+        )
         
         let navigationController = UINavigationController(rootViewController: editProfileVC)
         present(navigationController, animated: true, completion: nil)
