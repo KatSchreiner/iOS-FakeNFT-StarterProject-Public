@@ -73,8 +73,6 @@ final class ProfileViewController: UIViewController, WKNavigationDelegate {
     private lazy var websiteLabel: UILabel = {
         let websiteLabel = UILabel()
         websiteLabel.isUserInteractionEnabled = true
-        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(didTapWebsiteLabel))
-        websiteLabel.addGestureRecognizer(tapGesture)
         websiteLabel.font = .caption1
         websiteLabel.textColor = .nBlue
         return websiteLabel
@@ -86,7 +84,6 @@ final class ProfileViewController: UIViewController, WKNavigationDelegate {
         tableView.delegate = self
         tableView.dataSource = self
         tableView.separatorStyle = .none
-        tableView.allowsSelection = false
         return tableView
     }()
     
@@ -114,22 +111,6 @@ final class ProfileViewController: UIViewController, WKNavigationDelegate {
         
         let navigationController = UINavigationController(rootViewController: editProfileVC)
         present(navigationController, animated: true, completion: nil)
-    }
-    
-    @objc
-    private func didTapWebsiteLabel() {
-
-        guard let urlString = websiteLabel.text, let url = URL(string: urlString) else { return }
-        
-        if navigationController == nil {
-            print("Ошибка: У ProfileViewController нет UINavigationController")
-        }
-        
-        print("Переход на сайт: \(urlString)")
-        
-        let webViewController = WebViewController()
-        webViewController.urlString = urlString
-        navigationController?.pushViewController(webViewController, animated: true)
     }
     
     // MARK: - Public Methods
@@ -225,5 +206,28 @@ extension ProfileViewController: UITableViewDataSource {
 extension ProfileViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
         54
+    }
+    
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        tableView.deselectRow(at: indexPath, animated: true)
+        
+        let celectedCell = indexPath.row
+        
+        switch celectedCell {
+        case 0:
+            let myNFTViewController = MyNFTViewController()
+            navigationController?.pushViewController(myNFTViewController, animated: true)
+        case 1:
+            let favoritesNFTViewController = FavoritesNFTViewController()
+            navigationController?.pushViewController(favoritesNFTViewController, animated: true)
+        case 2:
+            let developerInfo = WebViewController()
+            guard let urlString = websiteLabel.text, let url = URL(string: urlString) else { return }
+            
+            developerInfo.urlString = urlString
+            navigationController?.pushViewController(developerInfo, animated: true)
+        default:
+            break
+        }
     }
 }

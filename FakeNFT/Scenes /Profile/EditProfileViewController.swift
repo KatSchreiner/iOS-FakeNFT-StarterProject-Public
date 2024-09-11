@@ -148,6 +148,14 @@ final class EditProfileViewController: UIViewController, UITextViewDelegate {
             textField.text = self.imagePath
         }
         
+        alert.addAction(UIAlertAction(title: "Ok", style: .default, handler: { _ in
+            if let textField = alert.textFields?.first, let text = textField.text {
+                self.imagePath = text
+            }
+        }))
+        
+        alert.addAction(UIAlertAction(title: "Отмена", style: .cancel, handler: nil))
+        
         present(alert, animated: true, completion: nil)
     }
     
