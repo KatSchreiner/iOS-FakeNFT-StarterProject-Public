@@ -29,7 +29,7 @@ final class ProfileService {
                     self.profile = profile
                     completion(.success(profile))
                     
-                    let avatarURL = profile.avatar
+                    let avatarURL = "https://code.s3.yandex.net/landings-v2-ios-developer/space.PNG"
                     self.avatar = avatarURL
                     print("URL аватара: \(avatarURL)")
                     
