@@ -8,7 +8,7 @@
 import UIKit
 import Kingfisher
 
-final class EditProfileViewController: UIViewController, UITextViewDelegate {
+final class EditProfileViewController: UIViewController, UITextViewDelegate, UITextFieldDelegate {
     // MARK: - Public Properties
     var profile: Profile?
     var imagePath: String?
@@ -20,24 +20,48 @@ final class EditProfileViewController: UIViewController, UITextViewDelegate {
         profileImageView.clipsToBounds = true
         profileImageView.isUserInteractionEnabled = true
         
-        let label = createLabel(with: "Сменить\nфото")
-        label.translatesAutoresizingMaskIntoConstraints = false
-        label.font = .caption3
-        label.textColor = .white
-        label.numberOfLines = 2
-        label.textAlignment = .center
-        profileImageView.addSubview(label)
+        overlayView.translatesAutoresizingMaskIntoConstraints = false
+        profileImageView.addSubview(overlayView)
         
-        NSLayoutConstraint.activate([
-            label.centerXAnchor.constraint(equalTo: profileImageView.centerXAnchor),
-            label.centerYAnchor.constraint(equalTo: profileImageView.centerYAnchor)
-        ])
+        label.translatesAutoresizingMaskIntoConstraints = false
+        profileImageView.addSubview(label)
         
         let tapGesture = UITapGestureRecognizer(target: self, action: #selector(didTapProfileImageView))
         profileImageView.addGestureRecognizer(tapGesture)
         
         return profileImageView
     }()
+    
+    private lazy var overlayView: UIView = {
+        let view = UIView()
+        view.backgroundColor = UIColor.black.withAlphaComponent(0.5)
+        view.layer.cornerRadius = 35
+        view.clipsToBounds = true
+        return view
+    }()
+    
+    private lazy var label: UILabel = {
+        let label = createLabel(with: "Сменить\nфото")
+        label.font = .caption3
+        label.textColor = .white
+        label.numberOfLines = 2
+        label.textAlignment = .center
+        return label
+    }()
+    
+    private lazy var changePhotoLabel: UILabel = {
+            let label = createLabel(with: "Загрузить изображение")
+            label.font = .bodyRegular
+            label.textColor = .nBlack
+            label.textAlignment = .center
+            label.isUserInteractionEnabled = true
+            
+            let tapGesture = UITapGestureRecognizer(target: self, action: #selector(showAlertChangePhoto))
+            label.addGestureRecognizer(tapGesture)
+            label.alpha = 0
+            
+            return label
+        }()
     
     private lazy var clearButton: UIButton = {
         let clearButton = UIButton()
@@ -78,17 +102,15 @@ final class EditProfileViewController: UIViewController, UITextViewDelegate {
         super.viewDidLoad()
         setupView()
         loadProfileData()
+        nameTextField.delegate = self
+        descriptionTextField.delegate = self
+        websiteTextField.delegate = self
     }
     
     // MARK: - IB Actions
     @objc
     private func didTapCloseEditProfile() {
         dismiss(animated: true, completion: nil)
-    }
-    
-    @objc
-    private func didTapProfileImageView() {
-        showAlertChangePhoto()
     }
     
     @objc
@@ -110,41 +132,12 @@ final class EditProfileViewController: UIViewController, UITextViewDelegate {
         }
     }
     
-    // MARK: - Private Methods
-    private func setupView() {
-        view.backgroundColor = .systemBackground
-        navigationItem.rightBarButtonItem = closeButton
-        
-        [stackView, profileImageView].forEach { view in
-            view.translatesAutoresizingMaskIntoConstraints = false
-            self.view.addSubview(view)
+    @objc
+        private func didTapProfileImageView() {
+            changePhotoLabel.alpha = 1
         }
-        
-        NSLayoutConstraint.activate([
-            profileImageView.widthAnchor.constraint(equalToConstant: 70),
-            profileImageView.heightAnchor.constraint(equalToConstant: 70),
-            profileImageView.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-            profileImageView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 16),
-            stackView.topAnchor.constraint(equalTo: profileImageView.bottomAnchor, constant: 16),
-            stackView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
-            stackView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16)
-        ])
-        
-        updateTextViewHeight()
-    }
     
-    private func loadProfileData() {
-        if let profile = profile {
-            nameTextField.text = profile.name
-            descriptionTextField.text = profile.description
-            websiteTextField.text = profile.website
-            
-            if let imagePath = imagePath, let url = URL(string: imagePath) {
-                profileImageView.kf.setImage(with: url)
-            }
-        }
-    }
-    
+    @objc
     private func showAlertChangePhoto() {
         let alert = UIAlertController(title: "", message: "", preferredStyle: .alert)
         
@@ -163,6 +156,56 @@ final class EditProfileViewController: UIViewController, UITextViewDelegate {
         present(alert, animated: true, completion: nil)
     }
     
+    // MARK: - Private Methods
+    private func setupView() {
+        view.backgroundColor = .systemBackground
+        navigationItem.rightBarButtonItem = closeButton
+        
+        [stackView, profileImageView, changePhotoLabel].forEach { view in
+            view.translatesAutoresizingMaskIntoConstraints = false
+            self.view.addSubview(view)
+        }
+        
+        addConstraint()
+        updateTextViewHeight()
+    }
+    
+    private func addConstraint() {
+        NSLayoutConstraint.activate([
+            profileImageView.widthAnchor.constraint(equalToConstant: 70),
+            profileImageView.heightAnchor.constraint(equalToConstant: 70),
+            profileImageView.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            profileImageView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 16),
+            
+            changePhotoLabel.topAnchor.constraint(equalTo: profileImageView.bottomAnchor, constant: 10),
+            changePhotoLabel.centerXAnchor.constraint(equalTo: view.safeAreaLayoutGuide.centerXAnchor),
+            
+            stackView.topAnchor.constraint(equalTo: changePhotoLabel.bottomAnchor, constant: 16),
+            stackView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
+            stackView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
+            
+            label.centerXAnchor.constraint(equalTo: profileImageView.centerXAnchor),
+            label.centerYAnchor.constraint(equalTo: profileImageView.centerYAnchor),
+
+            overlayView.leadingAnchor.constraint(equalTo: profileImageView.leadingAnchor),
+            overlayView.trailingAnchor.constraint(equalTo: profileImageView.trailingAnchor),
+            overlayView.topAnchor.constraint(equalTo: profileImageView.topAnchor),
+            overlayView.bottomAnchor.constraint(equalTo: profileImageView.bottomAnchor)
+        ])
+    }
+    
+    private func loadProfileData() {
+        if let profile = profile {
+            nameTextField.text = profile.name
+            descriptionTextField.text = profile.description
+            websiteTextField.text = profile.website
+            
+            if let imagePath = imagePath, let url = URL(string: imagePath) {
+                profileImageView.kf.setImage(with: url)
+            }
+        }
+    }
+    
     private func createLabel(with text: String) -> UILabel {
         let label = UILabel()
         label.text = text
@@ -177,6 +220,7 @@ final class EditProfileViewController: UIViewController, UITextViewDelegate {
         textField.heightAnchor.constraint(equalToConstant: 44).isActive = true
         textField.layer.masksToBounds = true
         textField.textAlignment = .left
+        textField.isUserInteractionEnabled = true
         
         let textPadding = UIView(frame: CGRect(x: 0, y: 0, width: 15, height: textField.frame.height))
         textField.leftView = textPadding
@@ -197,6 +241,7 @@ final class EditProfileViewController: UIViewController, UITextViewDelegate {
         textView.layer.masksToBounds = true
         textView.textAlignment = .left
         textView.font = .bodyRegular
+        textView.isUserInteractionEnabled = true
         textView.textContainerInset = UIEdgeInsets(top: 8, left: 15, bottom: 8, right: 15)
         textView.delegate = self
         return textView
