@@ -16,18 +16,22 @@ final class ProfileService {
     
     private init(networkClient: NetworkClient = DefaultNetworkClient()) {
         self.networkClient = networkClient
+        print("ProfileService инициализирован с сетевым клиентом: \(networkClient)")
     }
     
     func fetchProfile(completion: @escaping (Result<Profile, NetworkClientError>) -> Void) {
+        print("Запрос профиля пользователя начат.")
         let request = ProfileRequest()
         
         networkClient.send(request: request) { result in
             switch result {
             case .success(let data):
+                print("Запрос профиля успешен. Получены данные: \(data)")
                 do {
                     let profile = try JSONDecoder().decode(Profile.self, from: data)
                     self.profile = profile
                     completion(.success(profile))
+                    print("Профиль успешно декодирован: \(profile)")
                     
                     let avatarURL = "https://code.s3.yandex.net/landings-v2-ios-developer/space.PNG"
                     self.avatar = avatarURL
