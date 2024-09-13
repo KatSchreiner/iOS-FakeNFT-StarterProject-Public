@@ -6,7 +6,6 @@
 //
 
 import UIKit
-import Kingfisher
 
 final class EditProfileViewController: UIViewController, UITextViewDelegate, UITextFieldDelegate {
     // MARK: - Public Properties
@@ -50,18 +49,18 @@ final class EditProfileViewController: UIViewController, UITextViewDelegate, UIT
     }()
     
     private lazy var changePhotoLabel: UILabel = {
-            let label = createLabel(with: "Загрузить изображение")
-            label.font = .bodyRegular
-            label.textColor = .nBlack
-            label.textAlignment = .center
-            label.isUserInteractionEnabled = true
-            
-            let tapGesture = UITapGestureRecognizer(target: self, action: #selector(showAlertChangePhoto))
-            label.addGestureRecognizer(tapGesture)
-            label.alpha = 0
-            
-            return label
-        }()
+        let label = createLabel(with: "Загрузить изображение")
+        label.font = .bodyRegular
+        label.textColor = .nBlack
+        label.textAlignment = .center
+        label.isUserInteractionEnabled = true
+        
+        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(showAlertChangePhoto))
+        label.addGestureRecognizer(tapGesture)
+        label.alpha = 0
+        
+        return label
+    }()
     
     private lazy var clearButton: UIButton = {
         let clearButton = UIButton()
@@ -82,15 +81,34 @@ final class EditProfileViewController: UIViewController, UITextViewDelegate, UIT
         return barButtonItem
     }()
     
+    private lazy var descriptionContainerView: UIView = {
+        let descriptionContainerView = UIView()
+        descriptionContainerView.addSubview(descriptionTextView)
+        descriptionContainerView.addSubview(clearDescriptionButton)
+        descriptionTextView.translatesAutoresizingMaskIntoConstraints = false
+        
+        return descriptionContainerView
+    }()
+    
+    private lazy var clearDescriptionButton: UIButton = {
+        let button = UIButton()
+        let image = UIImage(named: "cross")
+        button.isHidden = true
+        button.translatesAutoresizingMaskIntoConstraints = false
+        button.setImage(image, for: .normal)
+        button.addTarget(self, action: #selector(clearDescriptionText), for: .touchUpInside)
+        return button
+    }()
+    
     private lazy var nameLabel: UILabel = createLabel(with: "Имя")
     private lazy var nameTextField: UITextField = createTextField()
     private lazy var descriptionLabel: UILabel = createLabel(with: "Описание")
-    private lazy var descriptionTextField: UITextView = createTextView()
+    private lazy var descriptionTextView: UITextView = createDescriptionTextView()
     private lazy var websiteLabel: UILabel = createLabel(with: "Сайт")
     private lazy var websiteTextField: UITextField = createTextField()
     
     private lazy var stackView: UIStackView = {
-        let stackView = UIStackView(arrangedSubviews: [nameLabel, nameTextField, createSpacer(), descriptionLabel, descriptionTextField, createSpacer(), websiteLabel, websiteTextField])
+        let stackView = UIStackView(arrangedSubviews: [nameLabel, nameTextField, createSpacer(), descriptionLabel, descriptionContainerView, createSpacer(), websiteLabel, websiteTextField])
         stackView.axis = .vertical
         stackView.spacing = 8
         stackView.translatesAutoresizingMaskIntoConstraints = false
@@ -102,9 +120,6 @@ final class EditProfileViewController: UIViewController, UITextViewDelegate, UIT
         super.viewDidLoad()
         setupView()
         loadProfileData()
-        nameTextField.delegate = self
-        descriptionTextField.delegate = self
-        websiteTextField.delegate = self
     }
     
     // MARK: - IB Actions
@@ -114,28 +129,17 @@ final class EditProfileViewController: UIViewController, UITextViewDelegate, UIT
     }
     
     @objc
-    private func textFieldDidChange(_ textField: UITextField) {
-        clearButton.isHidden = textField.text?.isEmpty ?? true
-    }
-    
-    @objc
     private func clearText() {
-        if nameTextField.isFirstResponder {
-            nameTextField.text = ""
-            clearButton.isHidden = true
-        } else if descriptionTextField.isFirstResponder {
-            descriptionTextField.text = ""
-            clearButton.isHidden = true
-        } else if websiteTextField.isFirstResponder {
-            websiteTextField.text = ""
-            clearButton.isHidden = true
-        }
+        if nameTextField.isFirstResponder { nameTextField.text = "" }
+        else if descriptionTextView.isFirstResponder { descriptionTextView.text = "" }
+        else if websiteTextField.isFirstResponder { websiteTextField.text = "" }
+        clearButton.isHidden = true
     }
     
     @objc
-        private func didTapProfileImageView() {
-            changePhotoLabel.alpha = 1
-        }
+    private func didTapProfileImageView() {
+        changePhotoLabel.alpha = 1
+    }
     
     @objc
     private func showAlertChangePhoto() {
@@ -156,18 +160,69 @@ final class EditProfileViewController: UIViewController, UITextViewDelegate, UIT
         present(alert, animated: true, completion: nil)
     }
     
+    @objc
+    private func hideChangePhotoLabel() {
+        changePhotoLabel.alpha = 0
+    }
+    
+    @objc func hideKeyboard() {
+        view.endEditing(true)
+    }
+    
+    @objc
+    private func clearDescriptionText() {
+        descriptionTextView.text = ""
+        clearDescriptionButton.isHidden = true
+    }
+    
+    // MARK: - UITextFieldDelegate
+    @objc
+    private func textFieldDidChange(_ textField: UITextField) {
+        clearButton.isHidden = textField.text?.isEmpty ?? true
+    }
+    
+    @objc
+    func textFieldDidBeginEditing(_ textField: UITextField) {
+        clearButton.isHidden = false
+        updateClearButtonVisibility()
+    }
+    
+    @objc
+    func textFieldDidEndEditing(_ textField: UITextField) {
+        updateClearButtonVisibility() 
+    }
+    
+    // MARK: - UITextViewdDelegate
+    func textViewDidChange(_ textView: UITextView) {
+        updateTextViewHeight()
+        clearDescriptionButton.isHidden = textView.text.isEmpty
+    }
+    
+    func textViewDidBeginEditing(_ textView: UITextView) {
+        clearDescriptionButton.isHidden = false
+        updateClearButtonVisibility()
+    }
+    
+    func textViewDidEndEditing(_ textView: UITextView) {
+        clearDescriptionButton.isHidden = true
+        updateClearButtonVisibility()
+    }
+    
     // MARK: - Private Methods
     private func setupView() {
         view.backgroundColor = .systemBackground
         navigationItem.rightBarButtonItem = closeButton
+        
+        hideLabel()
+        hideKeyBoard()
         
         [stackView, profileImageView, changePhotoLabel].forEach { view in
             view.translatesAutoresizingMaskIntoConstraints = false
             self.view.addSubview(view)
         }
         
-        addConstraint()
         updateTextViewHeight()
+        addConstraint()
     }
     
     private func addConstraint() {
@@ -186,18 +241,29 @@ final class EditProfileViewController: UIViewController, UITextViewDelegate, UIT
             
             label.centerXAnchor.constraint(equalTo: profileImageView.centerXAnchor),
             label.centerYAnchor.constraint(equalTo: profileImageView.centerYAnchor),
-
+            
             overlayView.leadingAnchor.constraint(equalTo: profileImageView.leadingAnchor),
             overlayView.trailingAnchor.constraint(equalTo: profileImageView.trailingAnchor),
             overlayView.topAnchor.constraint(equalTo: profileImageView.topAnchor),
-            overlayView.bottomAnchor.constraint(equalTo: profileImageView.bottomAnchor)
+            overlayView.bottomAnchor.constraint(equalTo: profileImageView.bottomAnchor),
+            
+            descriptionTextView.leadingAnchor.constraint(equalTo: descriptionContainerView.leadingAnchor),
+            descriptionTextView.trailingAnchor.constraint(equalTo: descriptionContainerView.trailingAnchor),
+            descriptionTextView.topAnchor.constraint(equalTo: descriptionContainerView.topAnchor),
+            descriptionTextView.bottomAnchor.constraint(equalTo: descriptionContainerView.bottomAnchor),
+            descriptionTextView.heightAnchor.constraint(greaterThanOrEqualToConstant: 44),
+            
+            clearDescriptionButton.trailingAnchor.constraint(equalTo: descriptionTextView.trailingAnchor, constant: -10),
+            clearDescriptionButton.bottomAnchor.constraint(equalTo: descriptionTextView.bottomAnchor, constant: -10),
+            clearDescriptionButton.widthAnchor.constraint(equalToConstant: 30),
+            clearDescriptionButton.heightAnchor.constraint(equalToConstant: 30)
         ])
     }
     
     private func loadProfileData() {
         if let profile = profile {
             nameTextField.text = profile.name
-            descriptionTextField.text = profile.description
+            descriptionTextView.text = profile.description
             websiteTextField.text = profile.website
             
             if let imagePath = imagePath, let url = URL(string: imagePath) {
@@ -220,9 +286,8 @@ final class EditProfileViewController: UIViewController, UITextViewDelegate, UIT
         textField.heightAnchor.constraint(equalToConstant: 44).isActive = true
         textField.layer.masksToBounds = true
         textField.textAlignment = .left
-        textField.isUserInteractionEnabled = true
         
-        let textPadding = UIView(frame: CGRect(x: 0, y: 0, width: 15, height: textField.frame.height))
+        let textPadding = UIView(frame: CGRect(x: 0, y: 0, width: 16, height: textField.frame.height))
         textField.leftView = textPadding
         textField.leftViewMode = .always
         
@@ -230,10 +295,12 @@ final class EditProfileViewController: UIViewController, UITextViewDelegate, UIT
         textField.rightViewMode = .whileEditing
         
         textField.addTarget(self, action: #selector(textFieldDidChange(_:)), for: .editingChanged)
+        textField.addTarget(self, action: #selector(textFieldDidBeginEditing), for: .editingDidBegin)
+        textField.addTarget(self, action: #selector(textFieldDidEndEditing), for: .editingDidEnd)
         return textField
     }
     
-    private func createTextView() -> UITextView {
+    private func createDescriptionTextView() -> UITextView {
         let textView = UITextView()
         textView.layer.cornerRadius = 12
         textView.backgroundColor = .nGray
@@ -241,28 +308,51 @@ final class EditProfileViewController: UIViewController, UITextViewDelegate, UIT
         textView.layer.masksToBounds = true
         textView.textAlignment = .left
         textView.font = .bodyRegular
-        textView.isUserInteractionEnabled = true
+        textView.heightAnchor.constraint(equalToConstant: 44).isActive = true
         textView.textContainerInset = UIEdgeInsets(top: 8, left: 15, bottom: 8, right: 15)
         textView.delegate = self
         return textView
     }
     
+    private func updateTextViewHeight() {
+        let size = descriptionTextView.sizeThatFits(CGSize(width: descriptionTextView.bounds.width, height: .greatestFiniteMagnitude))
+        let newHeight = max(size.height, 44)
+        descriptionTextView.constraints.forEach { constraint in
+            if constraint.firstAttribute == .height {
+                constraint.constant = newHeight
+            }
+        }
+    }
+    
+    private func updateClearButtonVisibility() {
+        clearButton.isHidden = nameTextField.text?.isEmpty ?? true &&
+        websiteTextField.text?.isEmpty ?? true &&
+        descriptionTextView.text.isEmpty
+    }
+    
     private func createSpacer() -> UIView {
         let spacer = UIView()
-        spacer.heightAnchor.constraint(equalToConstant: 10).isActive = true
+        spacer.heightAnchor.constraint(equalToConstant: 5).isActive = true
         return spacer
     }
     
-    func textViewDidChange(_ textView: UITextView) {
-        updateTextViewHeight()
+    private func hideLabel() {
+        let hidePhotoLabelGesture = UITapGestureRecognizer(target: self, action: #selector(hideChangePhotoLabel))
+        hidePhotoLabelGesture.cancelsTouchesInView = false
+        hidePhotoLabelGesture.delegate = self
+        view.addGestureRecognizer(hidePhotoLabelGesture)
     }
     
-    private func updateTextViewHeight() {
-        let size = descriptionTextField.sizeThatFits(CGSize(width: descriptionTextField.bounds.width, height: .greatestFiniteMagnitude))
-        descriptionTextField.constraints.forEach { constraint in
-            if constraint.firstAttribute == .height {
-                constraint.constant = size.height
-            }
-        }
+    private func hideKeyBoard() {
+        let hideKeyboardGesture = UITapGestureRecognizer(target: self, action: #selector(hideKeyboard))
+        hideKeyboardGesture.cancelsTouchesInView = false
+        hideKeyboardGesture.delegate = self
+        view.addGestureRecognizer(hideKeyboardGesture)
+    }
+}
+
+extension EditProfileViewController: UIGestureRecognizerDelegate {
+    func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldRecognizeSimultaneouslyWith otherGestureRecognizer: UIGestureRecognizer) -> Bool {
+        return true
     }
 }
