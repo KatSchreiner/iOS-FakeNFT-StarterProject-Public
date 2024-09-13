@@ -130,9 +130,12 @@ final class EditProfileViewController: UIViewController, UITextViewDelegate, UIT
     
     @objc
     private func clearText() {
-        if nameTextField.isFirstResponder { nameTextField.text = "" }
-        else if descriptionTextView.isFirstResponder { descriptionTextView.text = "" }
-        else if websiteTextField.isFirstResponder { websiteTextField.text = "" }
+        print("Кнопка очистки нажата")
+        if nameTextField.isFirstResponder {
+            nameTextField.text = ""
+        } else if websiteTextField.isFirstResponder {
+            websiteTextField.text = ""
+        }
         clearButton.isHidden = true
     }
     
@@ -184,12 +187,11 @@ final class EditProfileViewController: UIViewController, UITextViewDelegate, UIT
     @objc
     func textFieldDidBeginEditing(_ textField: UITextField) {
         clearButton.isHidden = false
-        updateClearButtonVisibility()
     }
     
     @objc
     func textFieldDidEndEditing(_ textField: UITextField) {
-        updateClearButtonVisibility() 
+        
     }
     
     // MARK: - UITextViewdDelegate
@@ -200,12 +202,12 @@ final class EditProfileViewController: UIViewController, UITextViewDelegate, UIT
     
     func textViewDidBeginEditing(_ textView: UITextView) {
         clearDescriptionButton.isHidden = false
-        updateClearButtonVisibility()
+        
     }
     
     func textViewDidEndEditing(_ textView: UITextView) {
         clearDescriptionButton.isHidden = true
-        updateClearButtonVisibility()
+        
     }
     
     // MARK: - Private Methods
@@ -286,6 +288,7 @@ final class EditProfileViewController: UIViewController, UITextViewDelegate, UIT
         textField.heightAnchor.constraint(equalToConstant: 44).isActive = true
         textField.layer.masksToBounds = true
         textField.textAlignment = .left
+        textField.delegate = self
         
         let textPadding = UIView(frame: CGRect(x: 0, y: 0, width: 16, height: textField.frame.height))
         textField.leftView = textPadding
@@ -324,12 +327,6 @@ final class EditProfileViewController: UIViewController, UITextViewDelegate, UIT
         }
     }
     
-    private func updateClearButtonVisibility() {
-        clearButton.isHidden = nameTextField.text?.isEmpty ?? true &&
-        websiteTextField.text?.isEmpty ?? true &&
-        descriptionTextView.text.isEmpty
-    }
-    
     private func createSpacer() -> UIView {
         let spacer = UIView()
         spacer.heightAnchor.constraint(equalToConstant: 5).isActive = true
@@ -338,14 +335,12 @@ final class EditProfileViewController: UIViewController, UITextViewDelegate, UIT
     
     private func hideLabel() {
         let hidePhotoLabelGesture = UITapGestureRecognizer(target: self, action: #selector(hideChangePhotoLabel))
-        hidePhotoLabelGesture.cancelsTouchesInView = false
         hidePhotoLabelGesture.delegate = self
         view.addGestureRecognizer(hidePhotoLabelGesture)
     }
     
     private func hideKeyBoard() {
         let hideKeyboardGesture = UITapGestureRecognizer(target: self, action: #selector(hideKeyboard))
-        hideKeyboardGesture.cancelsTouchesInView = false
         hideKeyboardGesture.delegate = self
         view.addGestureRecognizer(hideKeyboardGesture)
     }
