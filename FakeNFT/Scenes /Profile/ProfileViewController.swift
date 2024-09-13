@@ -91,7 +91,7 @@ final class ProfileViewController: UIViewController, WKNavigationDelegate {
         let navigationController = UINavigationController(rootViewController: editProfileVC)
         present(navigationController, animated: true, completion: nil)
     }
-        
+    
     // MARK: - Private Methods
     private func setupView() {
         view.backgroundColor = .systemBackground
@@ -172,18 +172,18 @@ extension ProfileViewController: UITableViewDataSource {
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         guard let cell = tableView.dequeueReusableCell(withIdentifier: "ProfileTableViewCell", for: indexPath) as? ProfileTableViewCell else { return UITableViewCell() }
         
-        switch indexPath.row {
-        case 0:
-            cell.configure(with: "Мои NFT (112)")
-        case 1:
-            cell.configure(with: "Избранные NFT (11)")
-        case 2:
-            cell.configure(with: "О разработчике")
-        default:
-            break
-        }
+        cell.configure(with: cellText(for: indexPath.row))
         
         return cell
+    }
+    
+    private func cellText(for row: Int) -> String {
+        switch row {
+        case 0: return "Мои NFT (112)"
+        case 1: return "Избранные NFT (11)"
+        case 2: return "О разработчике"
+        default: return ""
+        }
     }
 }
 
@@ -196,23 +196,25 @@ extension ProfileViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
         
-        let celectedCell = indexPath.row
-        
-        switch celectedCell {
+        handleCellSelection(at: indexPath.row)
+    }
+    
+    private func handleCellSelection(at index: Int) {
+        switch index {
         case 0:
-            let myNFTViewController = MyNFTViewController()
-            navigationController?.pushViewController(myNFTViewController, animated: true)
+            navigationController?.pushViewController(MyNFTViewController(), animated: true)
         case 1:
-            let favoritesNFTViewController = FavoritesNFTViewController()
-            navigationController?.pushViewController(favoritesNFTViewController, animated: true)
+            navigationController?.pushViewController(FavoritesNFTViewController(), animated: true)
         case 2:
-            let developerInfo = WebViewController()
-            guard let urlString = websiteLabel.text, let url = URL(string: urlString) else { return }
-            
-            developerInfo.urlString = urlString
-            navigationController?.pushViewController(developerInfo, animated: true)
-        default:
-            break
+            navigateToDeveloperInfo()
+        default: break
         }
+    }
+    
+    private func navigateToDeveloperInfo() {
+        guard let urlString = websiteLabel.text, let url = URL(string: urlString) else { return }
+        let developerInfo = WebViewController()
+        developerInfo.urlString = urlString
+        navigationController?.pushViewController(developerInfo, animated: true)
     }
 }
