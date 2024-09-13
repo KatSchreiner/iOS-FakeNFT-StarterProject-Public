@@ -16,34 +16,34 @@ final class ProfileService {
     
     private init(networkClient: NetworkClient = DefaultNetworkClient()) {
         self.networkClient = networkClient
-        print("ProfileService инициализирован с сетевым клиентом: \(networkClient)")
+        print("[ProfileService:fetchProfile]: Инициализация сетевого клиента NetworkClient")
     }
     
     func fetchProfile(completion: @escaping (Result<Profile, NetworkClientError>) -> Void) {
-        print("Запрос профиля пользователя начат.")
+        print("[ProfileService:fetchProfile]: Запрос профиля пользователя начат...")
         let request = ProfileRequest()
         
         networkClient.send(request: request) { result in
             switch result {
             case .success(let data):
-                print("Запрос профиля успешен. Получены данные: \(data)")
+                print("[ProfileService:fetchProfile]: Запрос профиля успешен. Получены данные: \(data)")
                 do {
                     let profile = try JSONDecoder().decode(Profile.self, from: data)
                     self.profile = profile
                     completion(.success(profile))
-                    print("Профиль успешно декодирован: \(profile)")
+                    print("[ProfileService:fetchProfile]: Профиль успешно декодирован: \(profile)")
                     
                     let avatarURL = "https://code.s3.yandex.net/landings-v2-ios-developer/space.PNG"
                     self.avatar = avatarURL
-                    print("URL аватара: \(avatarURL)")
+                    print("[ProfileService:fetchProfile]: Получено URL аватара: \(avatarURL)")
                     
                 } catch {
                     completion(.failure(.parsingError))
-                    print("Ошибка декодирования: \(error.localizedDescription)")
+                    print("[ProfileService:fetchProfile]: Ошибка декодирования: \(error.localizedDescription)")
                 }
             case .failure(let error):
                 completion(.failure(error as! NetworkClientError))
-                print("Ошибка при получении профиля: \(error)")
+                print("[ProfileService:fetchProfile]: Ошибка при получении профиля: \(error)")
             }
         }
     }

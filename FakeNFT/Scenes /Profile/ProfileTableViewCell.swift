@@ -28,6 +28,7 @@ final class ProfileTableViewCell: UITableViewCell {
         contentView.addSubview(titleLabel)
         titleLabel.translatesAutoresizingMaskIntoConstraints = false
         
+        
         NSLayoutConstraint.activate([
             titleLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 16),
             titleLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -16),
@@ -40,5 +41,6 @@ final class ProfileTableViewCell: UITableViewCell {
         titleLabel.text = text
         accessoryView = UIImageView(image: UIImage(systemName: "chevron.right"))
         accessoryView?.tintColor = .nBlack
+        selectionStyle = .none
     }
 }

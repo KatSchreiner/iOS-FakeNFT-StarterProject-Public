@@ -75,6 +75,7 @@ final class ProfileViewController: UIViewController, WKNavigationDelegate {
     // MARK: - IB Actions
     @objc
     func didTapEditProfile() {
+        print("[ProfileViewController:didTapEditProfile]: Редактирование профиля")
         let editProfileVC = EditProfileViewController()
         
         if let avatarURLString = ProfileService.shared.avatar {
@@ -133,16 +134,18 @@ final class ProfileViewController: UIViewController, WKNavigationDelegate {
     }
     
     private func loadProfile() {
+        print("[ProfileViewController:loadProfile]: Загрузка данных профиля...")
         ProfileService.shared.fetchProfile { [weak self] result in
             DispatchQueue.main.async {
                 switch result {
                 case .success(let profile):
+                    print("[ProfileViewController:loadProfile]: Данные профиля успешно отображены")
                     self?.updateDisplayProfile(with: profile)
                     if let avatarURL = ProfileService.shared.avatar {
                         self?.profileImageView.kf.setImage(with: URL(string: avatarURL))
                     }
                 case .failure(let error):
-                    print("Ошибка при получении профиля: \(error.localizedDescription)")
+                    print("Ошибка при получении данных профиля: \(error.localizedDescription)")
                 }
             }
         }
