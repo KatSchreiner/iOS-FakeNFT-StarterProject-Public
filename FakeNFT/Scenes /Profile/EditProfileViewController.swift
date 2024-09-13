@@ -124,11 +124,12 @@ final class EditProfileViewController: UIViewController, UITextViewDelegate, UIT
     
     @objc
     private func clearText() {
-        print("Кнопка очистки нажата")
         if nameTextField.isFirstResponder {
             nameTextField.text = ""
+            print("[EditProfileViewController:clearText]: Текстовое поле 'Имя' очищено.")
         } else if websiteTextField.isFirstResponder {
             websiteTextField.text = ""
+            print("[EditProfileViewController:clearText]: Текстовое поле 'Сайт' очищено")
         }
         clearButton.isHidden = true
     }
@@ -168,6 +169,7 @@ final class EditProfileViewController: UIViewController, UITextViewDelegate, UIT
     
     @objc
     private func clearDescriptionText() {
+        print("[EditProfileViewController:clearDescriptionText]: Текстовое поле 'Описание' очищено.")
         descriptionTextView.text = ""
         clearDescriptionButton.isHidden = true
     }
