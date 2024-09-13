@@ -13,19 +13,6 @@ final class ProfileViewController: UIViewController, WKNavigationDelegate {
     // MARK: - Public Properties
 
     // MARK: - Private Properties
-    private lazy var webView: WKWebView = {
-        let webView = WKWebView()
-        webView.navigationDelegate = self
-        return webView
-    }()
-    
-    private lazy var navigationBar: UINavigationBar = {
-        let navigationBar = UINavigationBar()
-        navigationBar.setBackgroundImage(UIImage(), for: .default)
-        navigationBar.shadowImage = UIImage()
-        return navigationBar
-    }()
-    
     private lazy var editButton: UIBarButtonItem = {
         let image = UIImage(named: "square.and.pencil")
         let editButton = UIBarButtonItem(image: image, style: .plain, target: self, action: #selector(didTapEditProfile))
@@ -120,7 +107,7 @@ final class ProfileViewController: UIViewController, WKNavigationDelegate {
     private func setupView() {
         view.backgroundColor = .systemBackground
         
-        [stackView, descriptionLabel, websiteLabel, webView, tableView].forEach { [weak self] view in
+        [stackView, descriptionLabel, websiteLabel, tableView].forEach { [weak self] view in
             guard let self = self else { return }
             view.translatesAutoresizingMaskIntoConstraints = false
             self.view.addSubview(view)

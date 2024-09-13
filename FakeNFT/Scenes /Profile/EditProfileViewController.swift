@@ -87,7 +87,7 @@ final class EditProfileViewController: UIViewController, UITextViewDelegate, UIT
     }()
     
     private lazy var descriptionTextView: UITextView = createDescriptionTextView()
-
+    
     private lazy var clearDescriptionButton: UIButton = {
         let button = createButton(imageName: "cross", action: #selector(clearDescriptionText))
         button.isHidden = true
