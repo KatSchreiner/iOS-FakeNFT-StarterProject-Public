@@ -10,8 +10,6 @@ import WebKit
 import Kingfisher
 
 final class ProfileViewController: UIViewController, WKNavigationDelegate {
-    // MARK: - Public Properties
-
     // MARK: - Private Properties
     private lazy var editButton: UIBarButtonItem = {
         let image = UIImage(named: "square.and.pencil")
@@ -21,16 +19,16 @@ final class ProfileViewController: UIViewController, WKNavigationDelegate {
     }()
     
     private lazy var profileImageView: UIImageView = {
-        let profileImageView = UIImageView(image: UIImage(named: "Photo"))
-        profileImageView.layer.cornerRadius = 35
-        profileImageView.clipsToBounds = true
-        return profileImageView
+        let imageView = UIImageView(image: UIImage(named: "Photo"))
+        imageView.layer.cornerRadius = 35
+        imageView.clipsToBounds = true
+        return imageView
     }()
     private lazy var nameLabel: UILabel = {
-        let nameLabel = UILabel()
-        nameLabel.font = .headline3
-        nameLabel.textColor = .nBlack
-        return nameLabel
+        let label = UILabel()
+        label.font = .headline3
+        label.textColor = .nBlack
+        return label
     }()
     
     private lazy var stackView: UIStackView = {
@@ -42,27 +40,20 @@ final class ProfileViewController: UIViewController, WKNavigationDelegate {
     }()
     
     private lazy var descriptionLabel: UILabel = {
-        let descriptionLabel = UILabel()
-        descriptionLabel.numberOfLines = 0
-        descriptionLabel.font = .caption2
-        descriptionLabel.textColor = .nBlack
-        
-        let descriptionText = ""
-        let attributedString = NSMutableAttributedString(string: descriptionText)
-        let paragraphStyle = NSMutableParagraphStyle()
-        paragraphStyle.lineSpacing = 4
-        attributedString.addAttribute(.paragraphStyle, value: paragraphStyle, range: NSRange(location: 0, length: attributedString.length))
-        descriptionLabel.attributedText = attributedString
-        
-        return descriptionLabel
+        let label = UILabel()
+        label.numberOfLines = 0
+        label.font = .caption2
+        label.textColor = .nBlack
+        label.attributedText = createAttributedDescriptionText("")
+        return label
     }()
     
     private lazy var websiteLabel: UILabel = {
-        let websiteLabel = UILabel()
-        websiteLabel.isUserInteractionEnabled = true
-        websiteLabel.font = .caption1
-        websiteLabel.textColor = .nBlue
-        return websiteLabel
+        let label = UILabel()
+        label.isUserInteractionEnabled = true
+        label.font = .caption1
+        label.textColor = .nBlue
+        return label
     }()
     
     private lazy var tableView: UITableView = {
@@ -100,9 +91,7 @@ final class ProfileViewController: UIViewController, WKNavigationDelegate {
         let navigationController = UINavigationController(rootViewController: editProfileVC)
         present(navigationController, animated: true, completion: nil)
     }
-    
-    // MARK: - Public Methods
-    
+        
     // MARK: - Private Methods
     private func setupView() {
         view.backgroundColor = .systemBackground
@@ -163,6 +152,14 @@ final class ProfileViewController: UIViewController, WKNavigationDelegate {
         nameLabel.text = profile.name
         descriptionLabel.text = profile.description
         websiteLabel.text = profile.website
+    }
+    
+    private func createAttributedDescriptionText(_ text: String) -> NSAttributedString {
+        let attributedString = NSMutableAttributedString(string: text)
+        let paragraphStyle = NSMutableParagraphStyle()
+        paragraphStyle.lineSpacing = 4
+        attributedString.addAttribute(.paragraphStyle, value: paragraphStyle, range: NSMakeRange(0, attributedString.length))
+        return attributedString
     }
 }
 
