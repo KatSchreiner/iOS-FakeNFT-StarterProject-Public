@@ -63,12 +63,9 @@ final class EditProfileViewController: UIViewController, UITextViewDelegate, UIT
     }()
     
     private lazy var clearButton: UIButton = {
-        let clearButton = UIButton()
-        let image = UIImage(named: "cross")
-        clearButton.setImage(image, for: .normal)
-        clearButton.contentEdgeInsets = UIEdgeInsets(top: 0, left: 16, bottom: 0, right: 16)
-        clearButton.addTarget(self, action: #selector(clearText), for: .touchUpInside)
-        return clearButton
+        let button = createButton(imageName: "cross", action: #selector(clearText))
+        button.contentEdgeInsets = UIEdgeInsets(top: 0, left: 16, bottom: 0, right: 16)
+        return button
     }()
     
     private lazy var closeButton: UIBarButtonItem = {
@@ -86,24 +83,21 @@ final class EditProfileViewController: UIViewController, UITextViewDelegate, UIT
         descriptionContainerView.addSubview(descriptionTextView)
         descriptionContainerView.addSubview(clearDescriptionButton)
         descriptionTextView.translatesAutoresizingMaskIntoConstraints = false
-        
         return descriptionContainerView
     }()
     
+    private lazy var descriptionTextView: UITextView = createDescriptionTextView()
+
     private lazy var clearDescriptionButton: UIButton = {
-        let button = UIButton()
-        let image = UIImage(named: "cross")
+        let button = createButton(imageName: "cross", action: #selector(clearDescriptionText))
         button.isHidden = true
         button.translatesAutoresizingMaskIntoConstraints = false
-        button.setImage(image, for: .normal)
-        button.addTarget(self, action: #selector(clearDescriptionText), for: .touchUpInside)
         return button
     }()
     
     private lazy var nameLabel: UILabel = createLabel(with: "Имя")
     private lazy var nameTextField: UITextField = createTextField()
     private lazy var descriptionLabel: UILabel = createLabel(with: "Описание")
-    private lazy var descriptionTextView: UITextView = createDescriptionTextView()
     private lazy var websiteLabel: UILabel = createLabel(with: "Сайт")
     private lazy var websiteTextField: UITextField = createTextField()
     
@@ -202,12 +196,10 @@ final class EditProfileViewController: UIViewController, UITextViewDelegate, UIT
     
     func textViewDidBeginEditing(_ textView: UITextView) {
         clearDescriptionButton.isHidden = false
-        
     }
     
     func textViewDidEndEditing(_ textView: UITextView) {
         clearDescriptionButton.isHidden = true
-        
     }
     
     // MARK: - Private Methods
@@ -315,6 +307,14 @@ final class EditProfileViewController: UIViewController, UITextViewDelegate, UIT
         textView.textContainerInset = UIEdgeInsets(top: 8, left: 15, bottom: 8, right: 15)
         textView.delegate = self
         return textView
+    }
+    
+    private func createButton(imageName: String, action: Selector) -> UIButton {
+        let button = UIButton()
+        let image = UIImage(named: imageName)
+        button.setImage(image, for: .normal)
+        button.addTarget(self, action: action, for: .touchUpInside)
+        return button
     }
     
     private func updateTextViewHeight() {
