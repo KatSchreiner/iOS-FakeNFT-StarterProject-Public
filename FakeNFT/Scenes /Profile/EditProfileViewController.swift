@@ -7,8 +7,14 @@
 
 import UIKit
 
+protocol EditProfileDelegate: AnyObject {
+    func didUpdateProfile(with profile: Profile)
+}
+
 final class EditProfileViewController: UIViewController, UITextViewDelegate, UITextFieldDelegate {
     // MARK: - Public Properties
+    weak var delegate: EditProfileDelegate?
+    
     var profile: Profile?
     var imagePath: String?
     
@@ -119,6 +125,16 @@ final class EditProfileViewController: UIViewController, UITextViewDelegate, UIT
     // MARK: - IB Actions
     @objc
     private func didTapCloseEditProfile() {
+        let updatedProfile = Profile(
+            name: nameTextField.text ?? "",
+            avatar: imagePath ?? "",
+            description: descriptionTextView.text ?? "",
+            website: websiteTextField.text ?? ""
+        )
+        
+        delegate?.didUpdateProfile(with: updatedProfile)
+        print("[EditProfileViewController:didTapCloseEditProfile]: Данные профиля обновлены \(updatedProfile)")
+        
         dismiss(animated: true, completion: nil)
     }
     
@@ -150,6 +166,9 @@ final class EditProfileViewController: UIViewController, UITextViewDelegate, UIT
         alert.addAction(UIAlertAction(title: "Ok", style: .default, handler: { _ in
             if let textField = alert.textFields?.first, let text = textField.text {
                 self.imagePath = text
+                if let url = URL(string: text) {
+                    self.profileImageView.kf.setImage(with: url)
+                }
             }
         }))
         
@@ -261,8 +280,9 @@ final class EditProfileViewController: UIViewController, UITextViewDelegate, UIT
             nameTextField.text = profile.name
             descriptionTextView.text = profile.description
             websiteTextField.text = profile.website
-            
-            if let imagePath = imagePath, let url = URL(string: imagePath) {
+            let avatarURL = profile.avatar
+
+            if let url = URL(string: avatarURL) {
                 profileImageView.kf.setImage(with: url)
             }
         }

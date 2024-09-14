@@ -85,6 +85,7 @@ final class ProfileViewController: UIViewController, WKNavigationDelegate {
     func didTapEditProfile() {
         print("[ProfileViewController:didTapEditProfile]: Редактирование профиля")
         let editProfileVC = EditProfileViewController()
+        editProfileVC.delegate = self
         
         if let avatarURLString = ProfileService.shared.avatar {
             editProfileVC.imagePath = avatarURLString
@@ -244,5 +245,18 @@ extension ProfileViewController: UITableViewDelegate {
         let developerInfo = WebViewController()
         developerInfo.urlString = urlString
         navigationController?.pushViewController(developerInfo, animated: true)
+    }
+}
+
+extension ProfileViewController: EditProfileDelegate {
+    func didUpdateProfile(with profile: Profile) {
+        let avatarURL = profile.avatar
+        nameLabel.text = profile.name
+        descriptionLabel.text = profile.description
+        websiteLabel.text = profile.website
+        
+        if let url = URL(string: avatarURL) {
+            profileImageView.kf.setImage(with: url)
+        }
     }
 }
