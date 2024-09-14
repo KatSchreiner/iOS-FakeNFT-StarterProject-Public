@@ -8,6 +8,7 @@
 import UIKit
 import WebKit
 import Kingfisher
+import ProgressHUD
 
 final class ProfileViewController: UIViewController, WKNavigationDelegate {
     // MARK: - Private Properties
@@ -67,6 +68,10 @@ final class ProfileViewController: UIViewController, WKNavigationDelegate {
         tableView.separatorStyle = .none
         return tableView
     }()
+    
+    private var uiElements: [UIView] {
+        return [profileImageView, nameLabel, descriptionLabel, websiteLabel, tableView]
+    }
     
     // MARK: - View Life Cycle
     override func viewDidLoad() {
@@ -143,8 +148,13 @@ final class ProfileViewController: UIViewController, WKNavigationDelegate {
     
     private func loadProfile() {
         print("[ProfileViewController:loadProfile]: Загрузка данных профиля...")
+        ProgressHUD.show()
+        
+        setUIElementsVisible(false)
+        
         ProfileService.shared.fetchProfile { [weak self] result in
             DispatchQueue.main.async {
+                ProgressHUD.dismiss() 
                 switch result {
                 case .success(let profile):
                     print("[ProfileViewController:loadProfile]: Данные профиля успешно отображены")
@@ -152,6 +162,9 @@ final class ProfileViewController: UIViewController, WKNavigationDelegate {
                     if let avatarURL = ProfileService.shared.avatar {
                         self?.profileImageView.kf.setImage(with: URL(string: avatarURL))
                     }
+                    
+                    self?.setUIElementsVisible(true)
+                    
                 case .failure(let error):
                     print("Ошибка при получении данных профиля: \(error.localizedDescription)")
                 }
@@ -163,6 +176,10 @@ final class ProfileViewController: UIViewController, WKNavigationDelegate {
         nameLabel.text = profile.name
         descriptionLabel.text = profile.description
         websiteLabel.text = profile.website
+    }
+    
+    private func setUIElementsVisible(_ isVisible: Bool) {
+        uiElements.forEach { $0.isHidden = !isVisible }
     }
     
     private func createAttributedDescriptionText(_ text: String) -> NSAttributedString {

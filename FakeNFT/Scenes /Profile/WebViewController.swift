@@ -7,8 +7,9 @@
 
 import UIKit
 import WebKit
+import ProgressHUD
 
-final class WebViewController: UIViewController {
+final class WebViewController: UIViewController, WKNavigationDelegate {
     // MARK: - Public Properties
     var urlString: String?
     
@@ -42,6 +43,7 @@ final class WebViewController: UIViewController {
     // MARK: - Private Methods
     private func setupWebView() {
         webView = WKWebView()
+        webView.navigationDelegate = self
         webView.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(webView)
         
@@ -58,7 +60,13 @@ final class WebViewController: UIViewController {
     
     private func loadWebPage() {
         guard let urlString = urlString, let url = URL(string: urlString) else { return }
+        ProgressHUD.show()
+        
         let request = URLRequest(url: url)
         webView.load(request)
+    }
+    
+    func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
+        ProgressHUD.dismiss()
     }
 }
