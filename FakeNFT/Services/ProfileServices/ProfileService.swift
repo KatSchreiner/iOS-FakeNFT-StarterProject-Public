@@ -42,7 +42,7 @@ final class ProfileService {
                     print("[ProfileService:fetchProfile]: Ошибка декодирования: \(error.localizedDescription)")
                 }
             case .failure(let error):
-                completion(.failure(error as! NetworkClientError))
+                completion(.failure(error as? NetworkClientError ?? NetworkClientError.urlSessionError))
                 print("[ProfileService:fetchProfile]: Ошибка при получении профиля: \(error)")
             }
         }
