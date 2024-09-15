@@ -108,7 +108,11 @@ final class EditProfileViewController: UIViewController, UITextViewDelegate, UIT
     private lazy var websiteTextField: UITextField = createTextField()
     
     private lazy var stackView: UIStackView = {
-        let stackView = UIStackView(arrangedSubviews: [nameLabel, nameTextField, createSpacer(), descriptionLabel, descriptionContainerView, createSpacer(), websiteLabel, websiteTextField])
+        let stackView = UIStackView(arrangedSubviews: [
+            nameLabel, nameTextField, createSpacer(),
+            descriptionLabel, descriptionContainerView, createSpacer(),
+            websiteLabel, websiteTextField
+        ])
         stackView.axis = .vertical
         stackView.spacing = 8
         stackView.translatesAutoresizingMaskIntoConstraints = false
