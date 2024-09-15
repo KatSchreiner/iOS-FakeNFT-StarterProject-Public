@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import ProgressHUD
 
 protocol EditProfileDelegate: AnyObject {
     func didUpdateProfile(with profile: Profile)
@@ -171,12 +172,13 @@ final class EditProfileViewController: UIViewController, UITextViewDelegate, UIT
         alert.addTextField { textField in
             textField.text = self.imagePath
         }
-        
+        ProgressHUD.show()
         alert.addAction(UIAlertAction(title: "Ok", style: .default, handler: { _ in
             if let textField = alert.textFields?.first, let text = textField.text {
                 self.imagePath = text
                 if let url = URL(string: text) {
                     self.profileImageView.kf.setImage(with: url)
+                    ProgressHUD.dismiss()
                 }
             }
         }))

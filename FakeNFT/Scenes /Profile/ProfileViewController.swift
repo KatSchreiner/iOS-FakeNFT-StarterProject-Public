@@ -12,9 +12,9 @@ import ProgressHUD
 
 final class ProfileViewController: UIViewController, WKNavigationDelegate {
     // MARK: - Private Properties
-    let servicesAssembly: ServicesAssembly
+    private let servicesAssembly: ServicesAssembly
+    private let webView = WKWebView()
     
-    // MARK: - Private Properties
     private lazy var editButton: UIBarButtonItem = {
         let image = UIImage(named: "square.and.pencil")
         let editButton = UIBarButtonItem(image: image, style: .plain, target: self, action: #selector(didTapEditProfile))
@@ -251,7 +251,7 @@ extension ProfileViewController: UITableViewDelegate {
     
     private func navigateToDeveloperInfo() {
         guard let urlString = websiteLabel.text, let url = URL(string: urlString) else { return }
-        let developerInfo = WebViewController()
+        let developerInfo = WebViewController(webView: webView)
         developerInfo.urlString = urlString
         navigationController?.pushViewController(developerInfo, animated: true)
     }

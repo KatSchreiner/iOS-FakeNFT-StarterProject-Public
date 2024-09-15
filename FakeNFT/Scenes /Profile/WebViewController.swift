@@ -14,7 +14,7 @@ final class WebViewController: UIViewController, WKNavigationDelegate {
     var urlString: String?
     
     // MARK: - Private Properties
-    private var webView: WKWebView!
+    private var webView: WKWebView
     
     private lazy var backButton: UIBarButtonItem = {
         let backButton = UIBarButtonItem(title: "", style: .plain, target: self, action: #selector(didTapBack))
@@ -22,6 +22,17 @@ final class WebViewController: UIViewController, WKNavigationDelegate {
         backButton.image = UIImage(systemName: "chevron.left")
         return backButton
     }()
+    
+    // MARK: - Initializers
+    init(urlString: String? = nil, webView: WKWebView) {
+        self.urlString = urlString
+        self.webView = webView
+        super.init(nibName: nil, bundle: nil)
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
     
     // MARK: - View Life Cycle
     override func viewDidLoad() {
@@ -66,7 +77,7 @@ final class WebViewController: UIViewController, WKNavigationDelegate {
         webView.load(request)
     }
     
-    func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
+    func webView(_ webView: WKWebView, didFinish navigation: WKNavigation) {
         ProgressHUD.dismiss()
     }
 }
