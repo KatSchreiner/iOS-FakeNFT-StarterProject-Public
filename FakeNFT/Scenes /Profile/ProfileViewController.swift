@@ -12,6 +12,9 @@ import ProgressHUD
 
 final class ProfileViewController: UIViewController, WKNavigationDelegate {
     // MARK: - Private Properties
+    let servicesAssembly: ServicesAssembly
+    
+    // MARK: - Private Properties
     private lazy var editButton: UIBarButtonItem = {
         let image = UIImage(named: "square.and.pencil")
         let editButton = UIBarButtonItem(image: image, style: .plain, target: self, action: #selector(didTapEditProfile))
@@ -30,14 +33,6 @@ final class ProfileViewController: UIViewController, WKNavigationDelegate {
         label.font = .headline3
         label.textColor = .nBlack
         return label
-    }()
-    
-    private lazy var stackView: UIStackView = {
-        let stackView = UIStackView(arrangedSubviews: [profileImageView, nameLabel])
-        stackView.axis = .horizontal
-        stackView.spacing = 16
-        stackView.alignment = .center
-        return stackView
     }()
     
     private lazy var descriptionLabel: UILabel = {
@@ -74,6 +69,16 @@ final class ProfileViewController: UIViewController, WKNavigationDelegate {
         return [profileImageView, nameLabel, descriptionLabel, websiteLabel, tableView]
     }
     
+    // MARK: - Initializers
+    init(servicesAssembly: ServicesAssembly) {
+        self.servicesAssembly = servicesAssembly
+        super.init(nibName: nil, bundle: nil)
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+    
     // MARK: - View Life Cycle
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -88,7 +93,7 @@ final class ProfileViewController: UIViewController, WKNavigationDelegate {
         let editProfileVC = EditProfileViewController()
         editProfileVC.delegate = self
         
-        if let avatarURLString = ProfileService.shared.getAvatar() {
+        if let avatarURLString = servicesAssembly.profileServiceInstance.getAvatar() {
             editProfileVC.imagePath = avatarURLString
         }
         
@@ -114,7 +119,7 @@ final class ProfileViewController: UIViewController, WKNavigationDelegate {
     private func setupView() {
         view.backgroundColor = .systemBackground
         
-        [stackView, descriptionLabel, websiteLabel, tableView].forEach { [weak self] view in
+        [profileImageView, nameLabel, descriptionLabel, websiteLabel, tableView].forEach { [weak self] view in
             guard let self = self else { return }
             view.translatesAutoresizingMaskIntoConstraints = false
             self.view.addSubview(view)
@@ -127,14 +132,15 @@ final class ProfileViewController: UIViewController, WKNavigationDelegate {
     
     private func addConstraint() {
         NSLayoutConstraint.activate([
-            stackView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 16),
-            stackView.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: 16),
-            stackView.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -16),
-            
+            profileImageView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 16),
+            profileImageView.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: 16),
             profileImageView.widthAnchor.constraint(equalToConstant: 70),
             profileImageView.heightAnchor.constraint(equalToConstant: 70),
             
-            descriptionLabel.topAnchor.constraint(equalTo: stackView.bottomAnchor, constant: 20),
+            nameLabel.leadingAnchor.constraint(equalTo: profileImageView.trailingAnchor, constant: 16),
+            nameLabel.centerYAnchor.constraint(equalTo: profileImageView.centerYAnchor),
+            
+            descriptionLabel.topAnchor.constraint(equalTo: profileImageView.bottomAnchor, constant: 20),
             descriptionLabel.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: 16),
             descriptionLabel.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -16),
             descriptionLabel.heightAnchor.constraint(greaterThanOrEqualToConstant: 20),
@@ -143,7 +149,7 @@ final class ProfileViewController: UIViewController, WKNavigationDelegate {
             websiteLabel.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: 16),
             websiteLabel.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -16),
             
-            tableView.topAnchor.constraint(equalTo: websiteLabel.bottomAnchor, constant: 50),
+            tableView.topAnchor.constraint(equalTo: websiteLabel.bottomAnchor, constant: 45),
             tableView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
             tableView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             tableView.trailingAnchor.constraint(equalTo: view.trailingAnchor)
@@ -156,14 +162,14 @@ final class ProfileViewController: UIViewController, WKNavigationDelegate {
         
         setUIElementsVisible(false)
         
-        ProfileService.shared.fetchProfile { [weak self] result in
+        servicesAssembly.profileServiceInstance.fetchProfile { [weak self] result in
             DispatchQueue.main.async {
                 ProgressHUD.dismiss() 
                 switch result {
                 case .success(let profile):
                     print("[ProfileViewController:loadProfile]: Данные профиля успешно отображены")
                     self?.updateDisplayProfile(with: profile)
-                    if let avatarURL = ProfileService.shared.getAvatar() {
+                    if let avatarURL = self?.servicesAssembly.profileServiceInstance.getAvatar() {
                         self?.profileImageView.kf.setImage(with: URL(string: avatarURL))
                     }
                     
@@ -257,7 +263,7 @@ extension ProfileViewController: EditProfileDelegate {
         descriptionLabel.text = profile.description
         websiteLabel.text = profile.website
         
-        ProfileService.shared.setAvatar(profile.avatar)
+        servicesAssembly.profileServiceInstance.setAvatar(profile.avatar)
         
         if let url = URL(string: profile.avatar) {
             profileImageView.kf.setImage(with: url)

@@ -254,7 +254,7 @@ final class EditProfileViewController: UIViewController, UITextViewDelegate, UIT
             changePhotoLabel.topAnchor.constraint(equalTo: profileImageView.bottomAnchor, constant: 10),
             changePhotoLabel.centerXAnchor.constraint(equalTo: view.safeAreaLayoutGuide.centerXAnchor),
             
-            stackView.topAnchor.constraint(equalTo: changePhotoLabel.bottomAnchor, constant: 16),
+            stackView.topAnchor.constraint(equalTo: changePhotoLabel.bottomAnchor),
             stackView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
             stackView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
             

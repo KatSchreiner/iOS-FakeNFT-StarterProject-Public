@@ -7,14 +7,12 @@
 
 import Foundation
 
-final class ProfileService {
-    static let shared = ProfileService()
-    
+final class ProfileService {    
     private let networkClient: NetworkClient
     private(set) var profile: Profile?
     private var avatar: String?
     
-    private init(networkClient: NetworkClient = DefaultNetworkClient()) {
+    init(networkClient: NetworkClient = DefaultNetworkClient()) {
         self.networkClient = networkClient
         print("[ProfileService:fetchProfile]: Инициализация сетевого клиента NetworkClient")
     }
