@@ -66,6 +66,7 @@ final class ProfileViewController: UIViewController, WKNavigationDelegate {
         tableView.delegate = self
         tableView.dataSource = self
         tableView.separatorStyle = .none
+        tableView.isScrollEnabled = false
         return tableView
     }()
     
