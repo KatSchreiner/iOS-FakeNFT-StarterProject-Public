@@ -87,16 +87,18 @@ final class ProfileViewController: UIViewController, WKNavigationDelegate {
         let editProfileVC = EditProfileViewController()
         editProfileVC.delegate = self
         
-        if let avatarURLString = ProfileService.shared.avatar {
+        if let avatarURLString = ProfileService.shared.getAvatar() {
             editProfileVC.imagePath = avatarURLString
         }
         
-        editProfileVC.profile = Profile(
+        let currentProfile = Profile(
             name: nameLabel.text ?? "",
             avatar: editProfileVC.imagePath ?? "",
             description: descriptionLabel.text ?? "",
             website: websiteLabel.text ?? ""
         )
+        
+        editProfileVC.profile = currentProfile
         
         let navigationController = UINavigationController(rootViewController: editProfileVC)
         present(navigationController, animated: true, completion: nil)
@@ -160,7 +162,7 @@ final class ProfileViewController: UIViewController, WKNavigationDelegate {
                 case .success(let profile):
                     print("[ProfileViewController:loadProfile]: Данные профиля успешно отображены")
                     self?.updateDisplayProfile(with: profile)
-                    if let avatarURL = ProfileService.shared.avatar {
+                    if let avatarURL = ProfileService.shared.getAvatar() {
                         self?.profileImageView.kf.setImage(with: URL(string: avatarURL))
                     }
                     
@@ -250,12 +252,13 @@ extension ProfileViewController: UITableViewDelegate {
 
 extension ProfileViewController: EditProfileDelegate {
     func didUpdateProfile(with profile: Profile) {
-        let avatarURL = profile.avatar
         nameLabel.text = profile.name
         descriptionLabel.text = profile.description
         websiteLabel.text = profile.website
         
-        if let url = URL(string: avatarURL) {
+        ProfileService.shared.setAvatar(profile.avatar)
+        
+        if let url = URL(string: profile.avatar) {
             profileImageView.kf.setImage(with: url)
         }
     }

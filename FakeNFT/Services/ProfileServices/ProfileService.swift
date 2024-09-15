@@ -12,11 +12,19 @@ final class ProfileService {
     
     private let networkClient: NetworkClient
     private(set) var profile: Profile?
-    private(set) var avatar: String?
+    private var avatar: String?
     
     private init(networkClient: NetworkClient = DefaultNetworkClient()) {
         self.networkClient = networkClient
         print("[ProfileService:fetchProfile]: Инициализация сетевого клиента NetworkClient")
+    }
+    
+    func setAvatar(_ avatar: String?) {
+        self.avatar = avatar
+    }
+    
+    func getAvatar() -> String? {
+        return avatar
     }
     
     func fetchProfile(completion: @escaping (Result<Profile, NetworkClientError>) -> Void) {
@@ -34,7 +42,7 @@ final class ProfileService {
                     print("[ProfileService:fetchProfile]: Профиль успешно декодирован: \(profile)")
                     
                     let avatarURL = "https://code.s3.yandex.net/landings-v2-ios-developer/space.PNG"
-                    self.avatar = avatarURL
+                    self.setAvatar(avatarURL)
                     print("[ProfileService:fetchProfile]: Получено URL аватара: \(avatarURL)")
                     
                 } catch {

@@ -125,11 +125,18 @@ final class EditProfileViewController: UIViewController, UITextViewDelegate, UIT
     // MARK: - IB Actions
     @objc
     private func didTapCloseEditProfile() {
+        guard
+            let imagePath = imagePath,
+            let name = nameTextField.text,
+            let description = descriptionTextView.text,
+              let website = websiteTextField.text
+        else { return }
+        
         let updatedProfile = Profile(
-            name: nameTextField.text ?? "",
-            avatar: imagePath ?? "",
-            description: descriptionTextView.text ?? "",
-            website: websiteTextField.text ?? ""
+            name: name,
+            avatar: imagePath,
+            description: description,
+            website: website
         )
         
         delegate?.didUpdateProfile(with: updatedProfile)
@@ -142,10 +149,8 @@ final class EditProfileViewController: UIViewController, UITextViewDelegate, UIT
     private func clearText() {
         if nameTextField.isFirstResponder {
             nameTextField.text = ""
-            print("[EditProfileViewController:clearText]: Текстовое поле 'Имя' очищено.")
         } else if websiteTextField.isFirstResponder {
             websiteTextField.text = ""
-            print("[EditProfileViewController:clearText]: Текстовое поле 'Сайт' очищено")
         }
         clearButton.isHidden = true
     }
@@ -188,7 +193,6 @@ final class EditProfileViewController: UIViewController, UITextViewDelegate, UIT
     
     @objc
     private func clearDescriptionText() {
-        print("[EditProfileViewController:clearDescriptionText]: Текстовое поле 'Описание' очищено.")
         descriptionTextView.text = ""
         clearDescriptionButton.isHidden = true
     }
@@ -280,9 +284,8 @@ final class EditProfileViewController: UIViewController, UITextViewDelegate, UIT
             nameTextField.text = profile.name
             descriptionTextView.text = profile.description
             websiteTextField.text = profile.website
-            let avatarURL = profile.avatar
-
-            if let url = URL(string: avatarURL) {
+            
+            if let url = URL(string: imagePath ?? profile.avatar) {
                 profileImageView.kf.setImage(with: url)
             }
         }
