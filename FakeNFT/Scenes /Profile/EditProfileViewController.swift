@@ -17,9 +17,11 @@ final class EditProfileViewController: UIViewController, UITextViewDelegate, UIT
     weak var delegate: EditProfileDelegate?
     
     var profile: Profile?
-    var imagePath: String?
+    var newAvatarUrl: String?
     
     // MARK: - Private Properties
+    private let servicesAssembly: ServicesAssembly
+    
     private lazy var profileImageView: UIImageView = {
         let profileImageView = UIImageView()
         profileImageView.layer.cornerRadius = 35
@@ -120,34 +122,50 @@ final class EditProfileViewController: UIViewController, UITextViewDelegate, UIT
         return stackView
     }()
     
+    // MARK: - Initializers
+    init(servicesAssembly: ServicesAssembly) {
+        self.servicesAssembly = servicesAssembly
+        super.init(nibName: nil, bundle: nil)
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+    
     // MARK: - View Life Cycle
     override func viewDidLoad() {
         super.viewDidLoad()
         setupView()
-        loadProfileData()
     }
     
     // MARK: - IB Actions
     @objc
     private func didTapCloseEditProfile() {
-        guard
-            let imagePath = imagePath,
-            let name = nameTextField.text,
-            let description = descriptionTextView.text,
-              let website = websiteTextField.text
-        else { return }
+        guard let profile = profile else { return }
         
         let updatedProfile = Profile(
-            name: name,
-            avatar: imagePath,
-            description: description,
-            website: website
+            name: nameTextField.text ?? profile.name,
+            avatar: newAvatarUrl ?? profile.avatar,
+            description: descriptionTextView.text ?? profile.description,
+            website: websiteTextField.text ?? profile.website
         )
         
-        delegate?.didUpdateProfile(with: updatedProfile)
-        print("[EditProfileViewController:didTapCloseEditProfile]: Данные профиля обновлены \(updatedProfile)")
-        
-        dismiss(animated: true, completion: nil)
+        servicesAssembly.updateProfileInstanse.updateProfile(
+            avatar: updatedProfile.avatar,
+            name: updatedProfile.name,
+            description: updatedProfile.description,
+            website: updatedProfile.website) { result in
+                
+                switch result {
+                case .success(let updatedProfile):
+                    self.delegate?.didUpdateProfile(with: updatedProfile)
+                    DispatchQueue.main.async {
+                        self.dismiss(animated: true, completion: nil)
+                    }
+                case .failure(let error):
+                    print("[EditProfileViewController:didTapCloseEditProfile]: Ошибка обновления профиля: \(error.localizedDescription)")
+                }
+            }
     }
     
     @objc
@@ -170,14 +188,14 @@ final class EditProfileViewController: UIViewController, UITextViewDelegate, UIT
         let alert = UIAlertController(title: "", message: "", preferredStyle: .alert)
         
         alert.addTextField { textField in
-            textField.text = self.imagePath
+            textField.text = self.profile?.avatar
         }
         ProgressHUD.show()
         alert.addAction(UIAlertAction(title: "Ok", style: .default, handler: { _ in
             if let textField = alert.textFields?.first, let text = textField.text {
-                self.imagePath = text
                 if let url = URL(string: text) {
                     self.profileImageView.kf.setImage(with: url)
+                    self.newAvatarUrl = text
                     ProgressHUD.dismiss()
                 }
             }
@@ -248,6 +266,10 @@ final class EditProfileViewController: UIViewController, UITextViewDelegate, UIT
         
         updateTextViewHeight()
         addConstraint()
+        
+        if let profile = self.profile {
+            loadProfileData(with: profile)
+        }
     }
     
     private func addConstraint() {
@@ -285,16 +307,18 @@ final class EditProfileViewController: UIViewController, UITextViewDelegate, UIT
         ])
     }
     
-    private func loadProfileData() {
-        if let profile = profile {
-            nameTextField.text = profile.name
-            descriptionTextView.text = profile.description
-            websiteTextField.text = profile.website
-            
-            if let url = URL(string: imagePath ?? profile.avatar) {
-                profileImageView.kf.setImage(with: url)
-            }
-        }
+    private func loadProfileData(with profile: Profile) {        
+        nameTextField.text = profile.name
+        descriptionTextView.text = profile.description
+        websiteTextField.text = profile.website
+        
+        let avatarUrl = newAvatarUrl ?? profile.avatar
+        updateAvatar(url: avatarUrl)
+    }
+    
+    private func updateAvatar(url: String) {
+        guard let avatarUrl = URL(string: url) else { return }
+        profileImageView.kf.setImage(with: avatarUrl)
     }
     
     private func createLabel(with text: String) -> UILabel {

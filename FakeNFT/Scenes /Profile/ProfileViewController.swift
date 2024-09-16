@@ -14,6 +14,7 @@ final class ProfileViewController: UIViewController, WKNavigationDelegate {
     // MARK: - Private Properties
     private let servicesAssembly: ServicesAssembly
     private let webView = WKWebView()
+    private var currentProfile: Profile?
     
     private lazy var editButton: UIBarButtonItem = {
         let image = UIImage(named: "square.and.pencil")
@@ -90,21 +91,20 @@ final class ProfileViewController: UIViewController, WKNavigationDelegate {
     @objc
     func didTapEditProfile() {
         print("[ProfileViewController:didTapEditProfile]: Редактирование профиля")
-        let editProfileVC = EditProfileViewController()
+        let editProfileVC = EditProfileViewController(servicesAssembly: servicesAssembly)
         editProfileVC.delegate = self
         
-        if let avatarURLString = servicesAssembly.profileServiceInstance.getAvatar() {
-            editProfileVC.imagePath = avatarURLString
+        if let profile = currentProfile {
+            let currentProfileData = Profile(
+                name: nameLabel.text ?? "",
+                avatar: editProfileVC.newAvatarUrl ?? profile.avatar,
+                description: descriptionLabel.text ?? "",
+                website: websiteLabel.text ?? ""
+            )
+            editProfileVC.profile = currentProfileData
+        } else {
+            print("[ProfileViewController:didTapEditProfile]: Текущий профиль отсутствует")
         }
-        
-        let currentProfile = Profile(
-            name: nameLabel.text ?? "",
-            avatar: editProfileVC.imagePath ?? "",
-            description: descriptionLabel.text ?? "",
-            website: websiteLabel.text ?? ""
-        )
-        
-        editProfileVC.profile = currentProfile
         
         let navigationController = UINavigationController(rootViewController: editProfileVC)
         present(navigationController, animated: true, completion: nil)
@@ -167,12 +167,9 @@ final class ProfileViewController: UIViewController, WKNavigationDelegate {
                 ProgressHUD.dismiss() 
                 switch result {
                 case .success(let profile):
+                    self?.currentProfile = profile
                     print("[ProfileViewController:loadProfile]: Данные профиля успешно отображены")
                     self?.updateDisplayProfile(with: profile)
-                    if let avatarURL = self?.servicesAssembly.profileServiceInstance.getAvatar() {
-                        self?.profileImageView.kf.setImage(with: URL(string: avatarURL))
-                    }
-                    
                     self?.setUIElementsVisible(true)
                     
                 case .failure(let error):
@@ -186,6 +183,12 @@ final class ProfileViewController: UIViewController, WKNavigationDelegate {
         nameLabel.text = profile.name
         descriptionLabel.text = profile.description
         websiteLabel.text = profile.website
+        updateAvatar(url: profile.avatar)
+    }
+    
+    private func updateAvatar(url: String) {
+        guard let avatarUrl = URL(string: url) else { return }
+        profileImageView.kf.setImage(with: avatarUrl)
     }
     
     private func setUIElementsVisible(_ isVisible: Bool) {
@@ -259,14 +262,15 @@ extension ProfileViewController: UITableViewDelegate {
 
 extension ProfileViewController: EditProfileDelegate {
     func didUpdateProfile(with profile: Profile) {
+        self.currentProfile = profile
+        
         nameLabel.text = profile.name
         descriptionLabel.text = profile.description
         websiteLabel.text = profile.website
-        
-        servicesAssembly.profileServiceInstance.setAvatar(profile.avatar)
-        
         if let url = URL(string: profile.avatar) {
-            profileImageView.kf.setImage(with: url)
+            self.profileImageView.kf.setImage(with: url)
+        } else {
+            self.profileImageView.image = UIImage(named: "placeholder_avatar")
         }
     }
 }
