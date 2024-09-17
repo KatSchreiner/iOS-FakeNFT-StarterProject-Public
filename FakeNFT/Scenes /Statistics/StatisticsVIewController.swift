@@ -1,10 +1,10 @@
 import UIKit
 
 final class StatisticsViewController: UIViewController, UITableViewDelegate {
-    private let userData: [(name: String, rating: String, imageUrl: String)] = [
-            (name: "Alex", rating: "122", imageUrl: "https://example.com/image1.jpg"),
-            (name: "Jordan", rating: "95", imageUrl: "https://example.com/image2.jpg")
-        ]
+    private var userData: [(name: String, rating: String, imageUrl: String)] = [
+        (name: "Jordan", rating: "80", imageUrl: "https://example.com/image1.jpg"),
+        (name: "Alex", rating: "95", imageUrl: "https://example.com/image2.jpg")]
+    
     private lazy var tableView: UITableView = {
         let tableView = UITableView()
         tableView.register(StatisticsTableViewCell.self, forCellReuseIdentifier: "StatisticsTableViewCell")
@@ -40,10 +40,26 @@ final class StatisticsViewController: UIViewController, UITableViewDelegate {
             tableView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor)
         ])
     }
-    
+    private func updateTable() {
+        tableView.reloadData()
+    }
     @objc
     private func sortButtonTapped() {
-        //showAlert()
+        let alert = UIAlertController(title: nil, message: "Сортировка", preferredStyle: .actionSheet)
+        alert.addAction(UIAlertAction(title: "По имени", style: .default, handler: { [weak self] _ in
+            print("User click to sort by name button")
+            self?.userData.sort(by: { $0.name < $1.name })
+            self?.updateTable()
+        }))
+        alert.addAction(UIAlertAction(title: "По рейтингу", style: .default, handler: { [weak self] _ in
+            print("User click to sort by rating button")
+            self?.userData.sort(by: { $0.rating > $1.rating })
+            self?.updateTable()
+        }))
+        alert.addAction(UIAlertAction(title: "Закрыть", style: .cancel, handler: { _ in
+            print("User click to cancel action sheet")
+        }))
+        self.present(alert, animated: true, completion: nil)
     }
 }
 
