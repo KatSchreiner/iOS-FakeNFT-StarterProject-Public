@@ -33,6 +33,10 @@ final class StatisticsViewController: UIViewController {
         view.backgroundColor = UIColor.white
         navigationItem.title = nil
         navigationItem.rightBarButtonItem = sortButton
+        let backButton = UIBarButtonItem()
+        backButton.title = ""
+        backButton.tintColor = .black
+        navigationItem.backBarButtonItem = backButton
         view.addSubview(tableView)
         NSLayoutConstraint.activate([
             tableView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 20),
@@ -104,7 +108,10 @@ extension StatisticsViewController: UITableViewDataSource {
 
 extension StatisticsViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        // TO-DO
-        // Эпик 2/3
+        let user = userData[indexPath.row]
+        let userViewController = StatisticsUserPageViewController()
+        tableView.deselectRow(at: indexPath, animated: true)
+        userViewController.modalPresentationStyle = .fullScreen
+        navigationController?.pushViewController(userViewController, animated: true)
     }
 }
