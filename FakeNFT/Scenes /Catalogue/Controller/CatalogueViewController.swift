@@ -6,35 +6,40 @@ import ProgressHUD
 final class CatalogueViewController: UIViewController {
     
     // MARK: Properties
+    private let catalogView: CatalogueViewProtocol
     private var collections: [NFTCollection] = []
     private var sortedByNameAscending = false
     private var sortedByAmountAscending = false
-
-    private var catalogView: CatalogueView {
-        return self.view as! CatalogueView
-    }
     
     // MARK: - Initialization
-    
-    // MARK: - Life Cycle
-    override func loadView() {
-        self.view = CatalogueView()
+    init(catalogView: CatalogueViewProtocol) {
+        self.catalogView = catalogView
+        super.init(nibName: nil, bundle: nil)
     }
-
+    @available(*, unavailable)
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+    
+    // MARK: Life Cycle
+    override func loadView() {
+        self.view = catalogView as? UIView
+    }
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         setupView()
         setupNavigationBar()
         fetchCollections()
     }
-
-    // MARK: - Setup View
+    
+    // MARK: Setup View
     private func setupView() {
-        catalogView.tableView.delegate = self
-        catalogView.tableView.dataSource = self
-        catalogView.refreshControl.addTarget(self, action: #selector(refreshData), for: .valueChanged)
+        catalogView.setTableViewDelegate(self)
+        catalogView.setTableViewDataSource(self)
+        catalogView.addRefreshTarget(self, action: #selector(refreshData))
     }
-
+    
     private func setupNavigationBar() {
         let rightButton = UIBarButtonItem(
             image: UIImage(named: "Sort"),
@@ -45,8 +50,8 @@ final class CatalogueViewController: UIViewController {
         rightButton.tintColor = UIColor(named: "YP Black")
         navigationItem.rightBarButtonItem = rightButton
     }
-
-    // MARK: - Data Fetching
+    
+    // MARK: Data Fetching
     private func fetchCollections() {
         ProgressHUD.show()
         let oldCollections = collections
@@ -57,45 +62,41 @@ final class CatalogueViewController: UIViewController {
             self?.updateTableViewAnimated(oldCollections: oldCollections)
         }
     }
-
-    // MARK: - Actions
+    
+    // MARK: Actions
     @objc private func sortTapped() {
     }
-
+    
     @objc private func refreshData() {
         fetchCollections()
-        catalogView.refreshControl.endRefreshing()
+        catalogView.endRefreshing()
+        //catalogView.refreshControl.endRefreshing()
     }
-
+    
     // MARK: Table View Updates
     private func updateTableViewAnimated(oldCollections: [NFTCollection]) {
         let newCollections = collections
-
+        
         let oldIndexPaths = oldCollections.indices.map { IndexPath(row: $0, section: 0) }
         let newIndexPaths = newCollections.indices.map { IndexPath(row: $0, section: 0) }
-
+        
         let insertedIndexPaths = newIndexPaths.filter { !oldIndexPaths.contains($0) }
         let deletedIndexPaths = oldIndexPaths.filter { !newIndexPaths.contains($0) }
         let reloadedIndexPaths = newIndexPaths.filter { oldIndexPaths.contains($0) }
-
-        catalogView.tableView.performBatchUpdates {
-            if !deletedIndexPaths.isEmpty {
-                catalogView.tableView.deleteRows(at: deletedIndexPaths, with: .automatic)
-            }
-            if !insertedIndexPaths.isEmpty {
-                catalogView.tableView.insertRows(at: insertedIndexPaths, with: .automatic)
-            }
-            if !reloadedIndexPaths.isEmpty {
-                catalogView.tableView.reloadRows(at: reloadedIndexPaths, with: .automatic)
-            }
-        }
+        
+        catalogView.updateTable(
+            deletedRows: deletedIndexPaths,
+            insertedRows: insertedIndexPaths,
+            reloadedRows: reloadedIndexPaths,
+            completion: nil
+        )
     }
 }
 
 // MARK: - UITableViewDelegate
 extension CatalogueViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        catalogView.tableView.deselectRow(at: indexPath, animated: true)
+        catalogView.deselectRow(indexPath: indexPath, animated: true)
         
         if collections.indices.contains(indexPath.row) {
             let detailVC = NewViewController()
@@ -109,7 +110,7 @@ extension CatalogueViewController: UITableViewDelegate {
 // MARK: - UITableViewDataSource
 extension CatalogueViewController: UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-       return collections.count
+        return collections.count
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {

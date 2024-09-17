@@ -393,8 +393,8 @@
 		FEB01C462C979613001E8526 /* Controller */ = {
 			isa = PBXGroup;
 			children = (
-				FEB01C3F2C907A24001E8526 /* NewViewController.swift */,
 				FEB01C532C98E779001E8526 /* CatalogueViewController.swift */,
+				FEB01C3F2C907A24001E8526 /* NewViewController.swift */,
 			);
 			path = Controller;
 			sourceTree = "<group>";
