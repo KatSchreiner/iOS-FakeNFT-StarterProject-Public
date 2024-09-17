@@ -1,11 +1,11 @@
 import Foundation
 
 struct Statistics: Codable {
-    let avatar: String
     let name: String
+    let avatar: String
     let description: String
     let website: String
-    let nfts: [Int]
+    let nfts: [String]
     let rating: String
     let id: String
 }

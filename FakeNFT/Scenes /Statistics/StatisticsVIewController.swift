@@ -1,10 +1,11 @@
 import UIKit
+import ProgressHUD
 
-final class StatisticsViewController: UIViewController, UITableViewDelegate {
-    private var userData: [(name: String, rating: String, imageUrl: String)] = [
-        (name: "Jordan", rating: "80", imageUrl: "https://example.com/image1.jpg"),
-        (name: "Alex", rating: "95", imageUrl: "https://example.com/image2.jpg")]
-    
+final class StatisticsViewController: UIViewController {
+    //    private var userData: [(name: String, rating: String, imageUrl: String)] = [
+    //        (name: "Jordan", rating: "80", imageUrl: "https://example.com/image1.jpg"),
+    //        (name: "Alex", rating: "95", imageUrl: "https://example.com/image2.jpg")]
+    private var userData: [Statistics] = []
     private lazy var tableView: UITableView = {
         let tableView = UITableView()
         tableView.register(StatisticsTableViewCell.self, forCellReuseIdentifier: "StatisticsTableViewCell")
@@ -39,9 +40,30 @@ final class StatisticsViewController: UIViewController, UITableViewDelegate {
             tableView.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -16),
             tableView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor)
         ])
+        getUsers()
     }
     private func updateTable() {
         tableView.reloadData()
+    }
+    private func getUsers(){
+        view.isUserInteractionEnabled = false
+        ProgressHUD.show()
+        DispatchQueue.main.async {
+            StatisticsService.shared.fetchStatistics { [weak self] result in
+                self?.view.isUserInteractionEnabled = true
+                ProgressHUD.dismiss()
+                guard let self = self else { return }
+                switch result {
+                case .success(let users):
+                    self.userData = users
+                    print("In main \(userData)")
+                case .failure(let error):
+                    print("Error: \(error)")
+                    self.userData = []
+                }
+                updateTable()
+            }
+        }
     }
     @objc
     private func sortButtonTapped() {
@@ -53,7 +75,7 @@ final class StatisticsViewController: UIViewController, UITableViewDelegate {
         }))
         alert.addAction(UIAlertAction(title: "По рейтингу", style: .default, handler: { [weak self] _ in
             print("User click to sort by rating button")
-            self?.userData.sort(by: { $0.rating > $1.rating })
+            self?.userData.sort(by: { $0.nfts.count > $1.nfts.count })
             self?.updateTable()
         }))
         alert.addAction(UIAlertAction(title: "Закрыть", style: .cancel, handler: { _ in
@@ -75,7 +97,14 @@ extension StatisticsViewController: UITableViewDataSource {
             return UITableViewCell()
         }
         let user = userData[indexPath.row]
-        statisticsCell.configureCell(index: String(indexPath.row+1), name: user.name, rating: user.rating, url: user.imageUrl)
+        statisticsCell.configureCell(index: String(indexPath.row+1), name: user.name, rating: String(user.nfts.count), url: user.avatar)
         return statisticsCell
+    }
+}
+
+extension StatisticsViewController: UITableViewDelegate {
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        // TO-DO
+        // Эпик 2/3
     }
 }
