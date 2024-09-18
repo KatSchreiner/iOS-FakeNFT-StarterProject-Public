@@ -1,6 +1,11 @@
 import UIKit
 
-final class StatisticsService {
+protocol StatisticsServiceProtocol {
+    func fetchStatistics(completion: @escaping (Result<[Statistics], NetworkClientError>) -> Void)
+}
+
+
+final class StatisticsService: StatisticsServiceProtocol{
     static let shared = StatisticsService()
 
     private let networkClient: NetworkClient
@@ -25,8 +30,12 @@ final class StatisticsService {
                     print("Error decoding statistics: \(error.localizedDescription)")
                 }
             case .failure(let error):
-                completion(.failure(error as! NetworkClientError))
-                print("Error fetching statistics: \(error)")
+                if let networkError = error as? NetworkClientError {
+                    completion(.failure(networkError))
+                } else {
+                    completion(.failure(.urlSessionError))
+                }
+                print("Error fetching statistics: \(error.localizedDescription)")
             }
         }
     }

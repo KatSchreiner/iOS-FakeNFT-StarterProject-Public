@@ -3,6 +3,7 @@ import Kingfisher
 
 final class StatisticsTableViewCell: UITableViewCell {
     static let reuseIdentifier = "StatisticsTableViewCell"
+    
     private lazy var indexLabel: UILabel = {
         let indexLabel = UILabel()
         indexLabel.translatesAutoresizingMaskIntoConstraints = false
@@ -63,14 +64,15 @@ final class StatisticsTableViewCell: UITableViewCell {
     override func prepareForReuse() {
         super.prepareForReuse()
         photoImageView.kf.cancelDownloadTask()
-        configureCell()
+        configureCell(with: nil)
     }
     
-    func configureCell(index: String? = nil, name: String? = nil, rating: String? = nil, url: String? = nil) {
-        indexLabel.text = index
-        nameLabel.text = name
-        ratingLabel.text = rating
-        guard let url = url, let imageUrl = URL(string: url) else {
+    func configureCell(with model: StatisticsViewModel?) {
+        guard let model = model else { return }
+        indexLabel.text = model.index
+        nameLabel.text = model.name
+        ratingLabel.text = model.rating
+        guard let url = model.imageUrl, let imageUrl = URL(string: url) else {
             print("Image url is not correct")
             return
         }
