@@ -9,8 +9,8 @@ final class StatisticsUserNetworkService {
     // MARK: Initialization
     private init() {}
     
-    // MARK: - Private methods
-    private func fetchUser(userId: String, completion: @escaping (Result<Statistics, Error>) -> Void) {
+    // MARK: - Public methods
+    func fetchUser(userId: String, completion: @escaping (Result<Statistics, Error>) -> Void) {
         let request = StatisticsUserPageRequest(userId: userId)
         defaultNetwork.send(request: request, type: Statistics.self, onResponse: completion)
     }

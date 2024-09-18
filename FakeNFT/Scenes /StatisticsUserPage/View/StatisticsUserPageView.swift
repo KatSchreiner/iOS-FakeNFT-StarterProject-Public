@@ -1,6 +1,10 @@
 import UIKit
+import Kingfisher
 
-final class StatisticsUserPageView: UIView{
+protocol StatisticsUserPageViewProtocol: AnyObject {
+    func configure(with model: Statistics)
+}
+final class StatisticsUserPageView: UIView {
     
     // MARK: - Delegate
     weak var delegate: StatisticsUserPageViewDelegate?
@@ -19,7 +23,7 @@ final class StatisticsUserPageView: UIView{
     private lazy var nameLabel: UILabel = {
         let label = UILabel()
         label.font = .systemFont(ofSize: 22, weight: .bold)
-        label.textColor = .black
+        label.tintColor = .black
         label.text = "Joaquin Phoenix"
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
@@ -29,7 +33,7 @@ final class StatisticsUserPageView: UIView{
         let label = UILabel()
         label.numberOfLines = 0
         label.font = .systemFont(ofSize: 13, weight: .regular)
-        label.textColor = .black
+        label.tintColor = .black
         label.text = """
                 Дизайнер из Казани, люблю цифровое искусство и бейглы. В моей коллекции уже 100+ NFT, и еще больше — на моём сайте. Открыт к коллаборациям.
         """
@@ -53,22 +57,25 @@ final class StatisticsUserPageView: UIView{
         return button
     }()
     
+    private lazy var collectionButtonLabel: UILabel = {
+        let label = UILabel()
+        label.text = "Коллекция NFT (112)"
+        label.tintColor = .black
+        label.font = .systemFont(ofSize: 17, weight: .bold)
+        label.setContentHuggingPriority(.defaultHigh, for: .horizontal)
+        return label
+    }()
+    
     private lazy var collectionButton: UIButton = {
         let button = UIButton(type: .system)
         button.backgroundColor = .clear
         button.addTarget(self, action: #selector(openNFTCollection), for: .touchUpInside)
-        
-        let label = UILabel()
-        label.text = "Коллекция NFT (112)"
-        label.textColor = .black
-        label.font = .systemFont(ofSize: 17, weight: .bold)
-        label.setContentHuggingPriority(.defaultHigh, for: .horizontal)
-        
+
         let iconImageView = UIImageView(image: UIImage(named: "right_arrow"))
         iconImageView.contentMode = .scaleAspectFit
         iconImageView.setContentHuggingPriority(.defaultHigh, for: .horizontal)
 
-        let stackView = UIStackView(arrangedSubviews: [label, iconImageView])
+        let stackView = UIStackView(arrangedSubviews: [collectionButtonLabel, iconImageView])
         stackView.axis = .horizontal
         stackView.spacing = 8
         stackView.alignment = .center
@@ -140,5 +147,37 @@ final class StatisticsUserPageView: UIView{
     @objc private func openNFTCollection() {
         print("Open NFT collection")
         delegate?.didTapOpenNFTCollection()
+    }
+}
+
+// MARK: - StatisticsUserPageViewProtocol Methods
+extension StatisticsUserPageView: StatisticsUserPageViewProtocol {
+    func configure(with model: Statistics) {
+        nameLabel.text = model.name
+        descriptionLabel.text = model.description
+        collectionButtonLabel.text = "Коллекция NFT (\(model.nfts.count))"
+        print("In view: \(nameLabel.text) \(descriptionLabel.text), \(collectionButtonLabel.text)")
+        guard let imageUrl = URL(string: model.avatar) else {
+            print("Image url is not correct")
+            return
+        }
+        let imageSize = CGSize(width: 70, height: 70)
+        let processor = RoundCornerImageProcessor(cornerRadius: imageSize.width / 2)
+        photoImageView.kf.indicatorType = .activity
+        photoImageView.kf.setImage(with: imageUrl,
+                                   placeholder: UIImage(named: "placeholder"),
+                                   options: [
+                                    .processor(processor),
+                                    .transition(.fade(1))
+                                   ]) { result in
+                                       switch result {
+                                       case .success(let value):
+                                           print(value.image)
+                                           print(value.cacheType)
+                                           print(value.source)
+                                       case .failure(let error):
+                                           print("[showFullImage] \(error.localizedDescription)")
+                                       }
+                                   }
     }
 }

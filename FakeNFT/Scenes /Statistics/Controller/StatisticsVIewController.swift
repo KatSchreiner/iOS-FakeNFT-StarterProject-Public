@@ -114,7 +114,7 @@ extension StatisticsViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         statisticsView.deselectRow(indexPath: indexPath, animated: true)
         let user = userData[indexPath.row]
-        let userViewController = StatisticsUserPageViewController()
+        let userViewController = StatisticsUserPageViewController(userId: user.id)
         userViewController.modalPresentationStyle = .fullScreen
         navigationController?.pushViewController(userViewController, animated: true)
     }
