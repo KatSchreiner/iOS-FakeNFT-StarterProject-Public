@@ -31,7 +31,7 @@ extension UIColor {
     static let primary = UIColor(red: 10 / 255.0, green: 132 / 255.0, blue: 255 / 255.0, alpha: 1.0)
 
     // Secondary Colors
-    static let secondary = UIColor(red: 255 / 255, green: 193 / 255, blue: 7 / 255, alpha: 1.0)
+    static let secondary = UIColor(red: 254/255, green: 239/255, blue: 13/255, alpha: 1)
 
     // Background Colors
     static let background = UIColor.white
@@ -45,6 +45,7 @@ extension UIColor {
     static let nBlack = UIColor(named: "nBlack") ?? UIColor.black
     static let nBlue = UIColor(named: "nBlue") ?? UIColor.blue
     static let nGray = UIColor(named: "nGray") ?? UIColor.lightGray
+    static let nYellow = UIColor(named: "nYellow") ?? UIColor.yellow
     
     private static let yaBlackLight = UIColor(hexString: "1A1B22")
     private static let yaBlackDark = UIColor.white

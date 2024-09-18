@@ -147,7 +147,10 @@ final class EditProfileViewController: UIViewController, UITextViewDelegate, UIT
             name: nameTextField.text ?? profile.name,
             avatar: newAvatarUrl ?? profile.avatar,
             description: descriptionTextView.text ?? profile.description,
-            website: websiteTextField.text ?? profile.website
+            website: websiteTextField.text ?? profile.website,
+            nfts: profile.nfts,
+            likes: profile.likes,
+            id: profile.id
         )
         
         servicesAssembly.updateProfileInstanse.updateProfile(

@@ -99,7 +99,10 @@ final class ProfileViewController: UIViewController, WKNavigationDelegate {
                 name: nameLabel.text ?? "",
                 avatar: editProfileVC.newAvatarUrl ?? profile.avatar,
                 description: descriptionLabel.text ?? "",
-                website: websiteLabel.text ?? ""
+                website: websiteLabel.text ?? "",
+                nfts: profile.nfts,
+                likes: profile.likes,
+                id: profile.id
             )
             editProfileVC.profile = currentProfileData
         } else {
@@ -243,7 +246,7 @@ extension ProfileViewController: UITableViewDelegate {
     private func handleCellSelection(at index: Int) {
         switch index {
         case 0:
-            navigationController?.pushViewController(MyNFTViewController(), animated: true)
+            navigationController?.pushViewController(MyNftViewController(servicesAssembly: servicesAssembly, nfts: []), animated: true)
         case 1:
             navigationController?.pushViewController(FavoritesNFTViewController(), animated: true)
         case 2:

@@ -1,0 +1,99 @@
+//
+//  MyNftTableViewCell.swift
+//  FakeNFT
+//
+//  Created by Екатерина Шрайнер on 18.09.2024.
+//
+
+import UIKit
+import Kingfisher
+
+final class MyNftTableViewCell: UITableViewCell {
+    let nftImageView: UIImageView = {
+        let imageView = UIImageView()
+        imageView.translatesAutoresizingMaskIntoConstraints = false
+        imageView.contentMode = .scaleAspectFill
+        imageView.clipsToBounds = true
+        imageView.layer.cornerRadius = 12
+        imageView.backgroundColor = .gray
+        return imageView
+    }()
+    
+    let nameLabel: UILabel = {
+        let label = UILabel()
+        label.font = UIFont.systemFont(ofSize: 17, weight: .bold)
+        return label
+    }()
+    
+    let ratingView = RatingView()
+    
+    let authorLabel: UILabel = {
+        let label = UILabel()
+        label.font = UIFont.systemFont(ofSize: 13)
+        return label
+    }()
+    
+    let priceLabel: UILabel = {
+        let label = UILabel()
+        label.font = UIFont.systemFont(ofSize: 17, weight: .bold)
+        label.textColor = .black
+        return label
+    }()
+    
+    let priceTextLabel: UILabel = {
+        let label = UILabel()
+        label.font = UIFont.systemFont(ofSize: 13, weight: .regular)
+        label.text = "Цена"
+        return label
+    }()
+    
+    override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
+        super.init(style: style, reuseIdentifier: reuseIdentifier)
+        
+        let subviews = [nftImageView, nameLabel, ratingView, authorLabel, priceLabel, priceTextLabel]
+        
+        for subview in subviews {
+            subview.translatesAutoresizingMaskIntoConstraints = false
+            contentView.addSubview(subview)
+        }
+        
+        addConstraints()
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+    
+    private func addConstraints() {
+        NSLayoutConstraint.activate([
+            nftImageView.widthAnchor.constraint(equalToConstant: 108),
+            nftImageView.heightAnchor.constraint(equalToConstant: 108),
+            nftImageView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
+            nftImageView.centerYAnchor.constraint(equalTo: contentView.centerYAnchor),
+            
+            nameLabel.leadingAnchor.constraint(equalTo: nftImageView.trailingAnchor, constant: 16),
+            nameLabel.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 40),
+            
+            ratingView.leadingAnchor.constraint(equalTo: nftImageView.trailingAnchor, constant: 11),
+            ratingView.topAnchor.constraint(equalTo: nameLabel.bottomAnchor),
+            ratingView.heightAnchor.constraint(equalToConstant: 24),
+            
+            authorLabel.leadingAnchor.constraint(equalTo: nftImageView.trailingAnchor, constant: 16),
+            authorLabel.topAnchor.constraint(equalTo: ratingView.bottomAnchor),
+            authorLabel.widthAnchor.constraint(equalToConstant: 78),
+            
+            priceTextLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
+            priceTextLabel.leadingAnchor.constraint(equalTo: ratingView.leadingAnchor, constant: 150),
+            
+            priceTextLabel.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 45),
+            
+            priceLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
+            priceLabel.leadingAnchor.constraint(equalTo: ratingView.leadingAnchor, constant: 150),
+            priceLabel.topAnchor.constraint(equalTo: priceTextLabel.bottomAnchor, constant: 5)
+        ])
+    }
+    
+    func configure(with nft: NftList) {
+
+    }
+}
