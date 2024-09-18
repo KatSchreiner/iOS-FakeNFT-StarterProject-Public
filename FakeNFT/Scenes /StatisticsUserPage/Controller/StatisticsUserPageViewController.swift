@@ -42,7 +42,6 @@ final class StatisticsUserPageViewController: UIViewController {
     // MARK: - Private methods
     private func configure(with user: Statistics?) {
         guard let user = self.user else {
-            print("User is empty")
             return
         }
         statisticsUserPageView.configure(with: user)
@@ -59,11 +58,8 @@ final class StatisticsUserPageViewController: UIViewController {
             guard let self = self else { return }
             switch result {
             case .success(let user):
-                DispatchQueue.main.async {
-                    self.user = user
-                    self.configure(with: user)
-                    print("In statistics user \(String(describing: self.user))")
-                }
+                self.user = user
+                self.configure(with: user)
             case .failure(let error):
                 print("Error: \(error)")
             }
@@ -76,10 +72,10 @@ final class StatisticsUserPageViewController: UIViewController {
 // MARK: - StatisticsUserPageViewDelegate
 extension StatisticsUserPageViewController: StatisticsUserPageViewDelegate {
     func didTapOpenWebView() {
-        print("User tapped on 'Open Web View' button")
+        
     }
     
     func didTapOpenNFTCollection() {
-        print("User tapped on 'Open NFT Collection' button")
+        
     }
 }

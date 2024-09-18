@@ -23,7 +23,6 @@ final class StatisticsService: StatisticsServiceProtocol{
                 do {
                     let users = try JSONDecoder().decode([Statistics].self, from: data)
                     self.users = users
-                    print(users)
                     completion(.success(users))
                 } catch {
                     completion(.failure(.parsingError))

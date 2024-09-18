@@ -140,12 +140,10 @@ final class StatisticsUserPageView: UIView {
     
     // MARK: - Actions
     @objc private func openWebView() {
-        print("Open website")
         delegate?.didTapOpenWebView()
     }
         
     @objc private func openNFTCollection() {
-        print("Open NFT collection")
         delegate?.didTapOpenNFTCollection()
     }
 }
@@ -156,7 +154,6 @@ extension StatisticsUserPageView: StatisticsUserPageViewProtocol {
         nameLabel.text = model.name
         descriptionLabel.text = model.description
         collectionButtonLabel.text = "Коллекция NFT (\(model.nfts.count))"
-        print("In view: \(nameLabel.text) \(descriptionLabel.text), \(collectionButtonLabel.text)")
         guard let imageUrl = URL(string: model.avatar) else {
             print("Image url is not correct")
             return
