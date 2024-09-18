@@ -28,7 +28,7 @@ extension UIColor {
     // Ниже приведены примеры цветов, настоящие цвета надо взять из фигмы
 
     // Primary Colors
-    static let primary = UIColor(red: 0 / 255, green: 122 / 255, blue: 255 / 255, alpha: 1.0)
+    static let primary = UIColor(red: 10 / 255.0, green: 132 / 255.0, blue: 255 / 255.0, alpha: 1.0)
 
     // Secondary Colors
     static let secondary = UIColor(red: 255 / 255, green: 193 / 255, blue: 7 / 255, alpha: 1.0)
@@ -42,6 +42,10 @@ extension UIColor {
     static let textOnPrimary = UIColor.white
     static let textOnSecondary = UIColor.black
 
+    static let nBlack = UIColor(named: "nBlack") ?? UIColor.black
+    static let nBlue = UIColor(named: "nBlue") ?? UIColor.blue
+    static let nGray = UIColor(named: "nGray") ?? UIColor.lightGray
+    
     private static let yaBlackLight = UIColor(hexString: "1A1B22")
     private static let yaBlackDark = UIColor.white
     private static let yaLightGrayLight = UIColor(hexString: "#F7F7F8")
