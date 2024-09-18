@@ -70,7 +70,28 @@ final class MyNftViewController: UIViewController {
     
     @objc
     private func didTapSort() {
-
+        let alertController = UIAlertController(title: "Сортировка", message: "", preferredStyle: .actionSheet)
+        
+        let priceSortAction = UIAlertAction(title: "По цене", style: .default) { _ in
+            self.sortNfts(by: { $0.price < $1.price })
+        }
+        
+        let ratingSortAction = UIAlertAction(title: "По рейтингу", style: .default) { _ in
+            self.sortNfts(by: { $0.rating > $1.rating })
+        }
+        
+        let nameSortAction = UIAlertAction(title: "По названию", style: .default) { _ in
+            self.sortNfts(by: { $0.name < $1.name })
+        }
+        
+        let cancelAction = UIAlertAction(title: "Закрыть", style: .cancel, handler: nil)
+        
+        alertController.addAction(priceSortAction)
+        alertController.addAction(ratingSortAction)
+        alertController.addAction(nameSortAction)
+        alertController.addAction(cancelAction)
+        
+        present(alertController, animated: true, completion: nil)
     }
     
     // MARK: - Public Methods
@@ -120,7 +141,17 @@ final class MyNftViewController: UIViewController {
             }
         }
     }
-
+    
+    private func sortNfts(by comparator: @escaping (NftList, NftList) -> Bool) {
+        ProgressHUD.show()
+        DispatchQueue.global().async {
+            self.nfts.sort(by: comparator)
+            DispatchQueue.main.async {
+                ProgressHUD.dismiss()
+                self.tableView.reloadData()
+            }
+        }
+    }
 }
 
 // MARK: - UITabvleViewDataSource
