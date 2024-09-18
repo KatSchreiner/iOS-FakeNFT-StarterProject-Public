@@ -129,15 +129,10 @@ final class CatalogueViewController: UIViewController {
             self?.saveSelectedFilter(Filters.amount)
         }
         
-        let deleteOneRowAction = UIAlertAction(title: "Удалить первую строку", style: .destructive) { [weak self] _ in
-            self?.removeFirstCollection()
-        }
-        
         let cancelAction = UIAlertAction(title: "Закрыть", style: .cancel)
         
         alert.addAction(sortByNameAction)
         alert.addAction(sortByAmountAction)
-        alert.addAction(deleteOneRowAction)
         alert.addAction(cancelAction)
         present(alert, animated: true)
     }
