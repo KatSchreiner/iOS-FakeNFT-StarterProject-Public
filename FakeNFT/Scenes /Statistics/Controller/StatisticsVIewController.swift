@@ -2,10 +2,13 @@ import UIKit
 import ProgressHUD
 
 final class StatisticsViewController: UIViewController {
+    
+    // MARK: - Private Properties
     private var userData: [Statistics] = []
     private let statisticsService: StatisticsServiceProtocol
     private let statisticsView: StatisticsViewProtocol
     
+    // MARK: - Initializers
     init(statisticsService: StatisticsServiceProtocol, statisticsView: StatisticsViewProtocol) {
         self.statisticsService = statisticsService
         self.statisticsView = statisticsView
@@ -20,6 +23,7 @@ final class StatisticsViewController: UIViewController {
     override func loadView() {
         view = statisticsView as? UIView
     }
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         setupView()

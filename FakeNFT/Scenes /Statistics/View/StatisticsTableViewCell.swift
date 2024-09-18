@@ -2,8 +2,11 @@ import UIKit
 import Kingfisher
 
 final class StatisticsTableViewCell: UITableViewCell {
+    
+    // MARK: - Public Properties
     static let reuseIdentifier = "StatisticsTableViewCell"
     
+    // MARK: - Private Properties
     private lazy var indexLabel: UILabel = {
         let indexLabel = UILabel()
         indexLabel.translatesAutoresizingMaskIntoConstraints = false
@@ -55,18 +58,26 @@ final class StatisticsTableViewCell: UITableViewCell {
         return view
     }()
     
+    // MARK: - Initializers
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
         addSubiews()
         makeConstraints()
-        
     }
+    
+    @available(*, unavailable)
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+    
+    // MARK: - Overrides Methods
     override func prepareForReuse() {
         super.prepareForReuse()
         photoImageView.kf.cancelDownloadTask()
         configureCell(with: nil)
     }
     
+    // MARK: - Public Methods
     func configureCell(with model: StatisticsModel?) {
         guard let model = model else { return }
         indexLabel.text = model.index
@@ -95,11 +106,9 @@ final class StatisticsTableViewCell: UITableViewCell {
                                        }
                                    }
     }
-    @available(*, unavailable)
-    required init?(coder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
-    }
     
+    
+    // MARK: - Private Methods
     private func addSubiews(){
         [indexLabel, nameLabel, photoImageView, ratingLabel].forEach({contentView.addSubview($0)})
         contentView.insertSubview(greyView, at: 0)

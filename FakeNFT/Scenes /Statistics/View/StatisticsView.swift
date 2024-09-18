@@ -9,6 +9,7 @@ protocol StatisticsViewProtocol: AnyObject {
 }
 
 final class StatisticsView: UIView, StatisticsViewProtocol {
+    
     // MARK: View
     private lazy var tableView: UITableView = {
         let tableView = UITableView()
@@ -19,7 +20,6 @@ final class StatisticsView: UIView, StatisticsViewProtocol {
         return tableView
     }()
 
-    
     // MARK: Initialization
     override init(frame: CGRect) {
         super.init(frame: frame)
