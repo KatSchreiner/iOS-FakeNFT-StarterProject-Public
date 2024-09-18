@@ -47,6 +47,13 @@ final class MyNftTableViewCell: UITableViewCell {
         return label
     }()
     
+    private lazy var favoriteButton: UIButton = {
+        let favoriteButton = UIButton()
+        favoriteButton.setImage(UIImage(named: "favorite"), for: .normal)
+        favoriteButton.translatesAutoresizingMaskIntoConstraints = false
+        return favoriteButton
+    }()
+    
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
         
@@ -56,6 +63,8 @@ final class MyNftTableViewCell: UITableViewCell {
             subview.translatesAutoresizingMaskIntoConstraints = false
             contentView.addSubview(subview)
         }
+        
+        nftImageView.addSubview(favoriteButton)
         
         addConstraints()
     }
@@ -70,6 +79,9 @@ final class MyNftTableViewCell: UITableViewCell {
             nftImageView.heightAnchor.constraint(equalToConstant: 108),
             nftImageView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
             nftImageView.centerYAnchor.constraint(equalTo: contentView.centerYAnchor),
+            
+            favoriteButton.trailingAnchor.constraint(equalTo: nftImageView.trailingAnchor, constant: -10),
+            favoriteButton.topAnchor.constraint(equalTo: nftImageView.topAnchor, constant: 10),
             
             nameLabel.leadingAnchor.constraint(equalTo: nftImageView.trailingAnchor, constant: 16),
             nameLabel.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 40),
