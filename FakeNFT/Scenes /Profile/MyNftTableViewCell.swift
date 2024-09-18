@@ -94,6 +94,16 @@ final class MyNftTableViewCell: UITableViewCell {
     }
     
     func configure(with nft: NftList) {
-
+        nameLabel.text = nft.name
+        ratingView.setRating(nft.rating)
+        authorLabel.text = "От: \(nft.author)"
+        priceLabel.text = "\(nft.price) ETH"
+        
+        if let imageUrlString = nft.images.first, let url = URL(string: imageUrlString) {
+            nftImageView.kf.setImage(with: url)
+        } else {
+            print("Нет доступных изображений для NFT: \(nft.name)")
+            self.nftImageView.image = nil 
+        }
     }
 }

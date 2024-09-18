@@ -60,7 +60,7 @@ final class MyNftViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         setupView()
-
+        fetchNfts()
     }
     // MARK: - IB Actions
     @objc
@@ -101,6 +101,24 @@ final class MyNftViewController: UIViewController {
             noNftLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor),
             noNftLabel.centerYAnchor.constraint(equalTo: view.centerYAnchor)
         ])
+    }
+    
+    private func fetchNfts() {
+        ProgressHUD.show()
+        servicesAssembly.nftListInstanse.fetchNfts { result in
+            DispatchQueue.main.async {
+                ProgressHUD.dismiss()
+                switch result {
+                case .success(let nfts):
+                    self.nfts = nfts
+                    self.tableView.reloadData()
+                    self.noNftLabel.isHidden = !self.nfts.isEmpty
+                    self.tableView.isHidden = self.nfts.isEmpty
+                case .failure(let error):
+                    print("Ошибка при получении NFT: \(error)")
+                }
+            }
+        }
     }
 
 }

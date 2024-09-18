@@ -17,8 +17,8 @@ final class NftServiceImpl: NftService {
     }
 
     func loadNft(id: String, completion: @escaping NftCompletion) {
-        if let nft = storage.getNft(with: id) {
-            completion(.success(nft))
+        if let nfts = storage.getNft(with: id) {
+            completion(.success(nfts))
             return
         }
 
