@@ -67,7 +67,7 @@ final class StatisticsTableViewCell: UITableViewCell {
         configureCell(with: nil)
     }
     
-    func configureCell(with model: StatisticsViewModel?) {
+    func configureCell(with model: StatisticsModel?) {
         guard let model = model else { return }
         indexLabel.text = model.index
         nameLabel.text = model.name

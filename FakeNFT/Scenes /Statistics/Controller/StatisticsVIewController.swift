@@ -4,30 +4,11 @@ import ProgressHUD
 final class StatisticsViewController: UIViewController {
     private var userData: [Statistics] = []
     private let statisticsService: StatisticsServiceProtocol
-    private lazy var tableView: UITableView = {
-        let tableView = UITableView()
-        tableView.register(StatisticsTableViewCell.self, forCellReuseIdentifier: "StatisticsTableViewCell")
-        tableView.translatesAutoresizingMaskIntoConstraints = false
-        tableView.delegate = self
-        tableView.dataSource = self
-        tableView.separatorStyle = .none
-        tableView.rowHeight = 80
-        return tableView
-    }()
+    private let statisticsView: StatisticsViewProtocol
     
-    private lazy var sortButton: UIBarButtonItem = {
-        let sortButton = UIBarButtonItem(
-            image: UIImage(named: "sort_button"),
-            style: .plain,
-            target: self,
-            action: #selector(sortButtonTapped)
-        )
-        sortButton.tintColor = .black
-        return sortButton
-    }()
-    
-    init(statisticsService: StatisticsServiceProtocol) {
+    init(statisticsService: StatisticsServiceProtocol, statisticsView: StatisticsViewProtocol) {
         self.statisticsService = statisticsService
+        self.statisticsView = statisticsView
         super.init(nibName: nil, bundle: nil)
     }
     
@@ -35,29 +16,39 @@ final class StatisticsViewController: UIViewController {
         fatalError("init(coder:) has not been implemented")
     }
     
+    // MARK: Life Cycle
+    override func loadView() {
+        view = statisticsView as? UIView
+    }
     override func viewDidLoad() {
         super.viewDidLoad()
-        view.backgroundColor = UIColor.white
-        navigationItem.title = nil
-        navigationItem.rightBarButtonItem = sortButton
+        setupView()
+        setupNavigationBar()
+        getUsers()
+    }
+    
+    // MARK: Setup View
+    private func setupView() {
+        statisticsView.setTableViewDelegate(self)
+        statisticsView.setTableViewDataSource(self)
+    }
+    
+    private func setupNavigationBar() {
+        let rightButton = UIBarButtonItem(
+            image: UIImage(named: "sort_button"),
+            style: .plain,
+            target: self,
+            action: #selector(sortButtonTapped)
+        )
+        rightButton.tintColor = .black
+        navigationItem.rightBarButtonItem = rightButton
         let backButton = UIBarButtonItem()
         backButton.title = ""
         backButton.tintColor = .black
         navigationItem.backBarButtonItem = backButton
-        view.addSubview(tableView)
-        NSLayoutConstraint.activate([
-            tableView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 20),
-            tableView.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: 16),
-            tableView.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -16),
-            tableView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor)
-        ])
-        getUsers()
     }
     
-    private func updateTable() {
-        tableView.reloadData()
-    }
-    
+    // MARK: Data Fetching
     private func getUsers(){
         view.isUserInteractionEnabled = false
         ProgressHUD.show()
@@ -73,22 +64,22 @@ final class StatisticsViewController: UIViewController {
                 print("Error: \(error)")
                 self.userData = []
             }
-            updateTable()
+            statisticsView.updateTable()
         }
     }
     
-    @objc
-    private func sortButtonTapped() {
+    // MARK: Actions
+    @objc private func sortButtonTapped() {
         let alert = UIAlertController(title: nil, message: "Сортировка", preferredStyle: .actionSheet)
         alert.addAction(UIAlertAction(title: "По имени", style: .default, handler: { [weak self] _ in
             print("User click to sort by name button")
             self?.userData.sort(by: { $0.name < $1.name })
-            self?.updateTable()
+            self?.statisticsView.updateTable()
         }))
         alert.addAction(UIAlertAction(title: "По рейтингу", style: .default, handler: { [weak self] _ in
             print("User click to sort by rating button")
             self?.userData.sort(by: { $0.nfts.count > $1.nfts.count })
-            self?.updateTable()
+            self?.statisticsView.updateTable()
         }))
         alert.addAction(UIAlertAction(title: "Закрыть", style: .cancel, handler: { _ in
             print("User click to cancel action sheet")
@@ -110,16 +101,16 @@ extension StatisticsViewController: UITableViewDataSource {
             return UITableViewCell()
         }
         let user = userData[indexPath.row]
-        statisticsCell.configureCell(with: StatisticsViewModel(index: String(indexPath.row+1), name: user.name, rating: String(user.nfts.count), imageUrl: user.avatar))
+        statisticsCell.configureCell(with: StatisticsModel(index: String(indexPath.row+1), name: user.name, rating: String(user.nfts.count), imageUrl: user.avatar))
         return statisticsCell
     }
 }
 
 extension StatisticsViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        statisticsView.deselectRow(indexPath: indexPath, animated: true)
         let user = userData[indexPath.row]
         let userViewController = StatisticsUserPageViewController()
-        tableView.deselectRow(at: indexPath, animated: true)
         userViewController.modalPresentationStyle = .fullScreen
         navigationController?.pushViewController(userViewController, animated: true)
     }

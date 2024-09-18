@@ -22,8 +22,8 @@ final class TabBarController: UITabBarController {
         let catalogController = TestCatalogViewController(
             servicesAssembly: servicesAssembly
         )
-        
-        let statisticsViewController = StatisticsViewController(statisticsService: StatisticsService.shared)
+        let statisticsView = StatisticsView()
+        let statisticsViewController = StatisticsViewController(statisticsService: StatisticsService.shared, statisticsView: statisticsView)
         let statisticsNavigationController = UINavigationController(rootViewController: statisticsViewController)
         catalogController.tabBarItem = catalogTabBarItem
         statisticsNavigationController.tabBarItem = statisticsTabBarItem
