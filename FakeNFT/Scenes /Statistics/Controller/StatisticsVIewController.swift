@@ -19,7 +19,7 @@ final class StatisticsViewController: UIViewController {
         fatalError("init(coder:) has not been implemented")
     }
     
-    // MARK: Life Cycle
+    // MARK: - Life Cycle
     override func loadView() {
         view = statisticsView as? UIView
     }
@@ -31,7 +31,7 @@ final class StatisticsViewController: UIViewController {
         getUsers()
     }
     
-    // MARK: Setup View
+    // MARK: - Setup View
     private func setupView() {
         statisticsView.setTableViewDelegate(self)
         statisticsView.setTableViewDataSource(self)
@@ -52,7 +52,7 @@ final class StatisticsViewController: UIViewController {
         navigationItem.backBarButtonItem = backButton
     }
     
-    // MARK: Data Fetching
+    // MARK: - Data Fetching
     private func getUsers(){
         view.isUserInteractionEnabled = false
         ProgressHUD.show()
@@ -64,13 +64,13 @@ final class StatisticsViewController: UIViewController {
             case .success(let users):
                 self.userData = users
             case .failure(let error):
-                self.userData = []
+                print(error.localizedDescription)
             }
             statisticsView.updateTable()
         }
     }
     
-    // MARK: Actions
+    // MARK: - Actions
     @objc private func sortButtonTapped() {
         let alert = UIAlertController(title: nil, message: "Сортировка", preferredStyle: .actionSheet)
         alert.addAction(UIAlertAction(title: "По имени", style: .default, handler: { [weak self] _ in

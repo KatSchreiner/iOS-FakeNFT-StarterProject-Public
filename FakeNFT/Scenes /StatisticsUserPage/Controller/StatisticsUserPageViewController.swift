@@ -10,13 +10,13 @@ protocol StatisticsUserPageViewDelegate: AnyObject {
 final class StatisticsUserPageViewController: UIViewController {
     
     // MARK: - Private Properties
-    private let statisticsUserPageView: StatisticsUserPageViewProtocol
+    private let statisticsUserPageView: StatisticsUserPageView
     private let statisticsUserService: StatisticsUserNetworkService
     private let userId: String
     private var user: Statistics?
     
     // MARK: - Initializers
-    init(userId: String, statisticsUserPageView: StatisticsUserPageViewProtocol = StatisticsUserPageView()) {
+    init(userId: String, statisticsUserPageView: StatisticsUserPageView = StatisticsUserPageView()) {
         self.statisticsUserPageView = statisticsUserPageView
         self.statisticsUserService = StatisticsUserNetworkService.shared
         self.userId = userId
@@ -35,8 +35,8 @@ final class StatisticsUserPageViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .white
+        statisticsUserPageView.delegate = self
         getSingleUserProfile(userId: self.userId)
-        
     }
     
     // MARK: - Private methods
@@ -72,7 +72,14 @@ final class StatisticsUserPageViewController: UIViewController {
 // MARK: - StatisticsUserPageViewDelegate
 extension StatisticsUserPageViewController: StatisticsUserPageViewDelegate {
     func didTapOpenWebView() {
-        
+        guard let user = self.user else { return }
+        print("User website for \(user.name) is \(user.website) and his id is \(user.id)")
+        let webView = WebViewController(url: user.website)
+        let backButton = UIBarButtonItem()
+        backButton.title = ""
+        backButton.tintColor = .black
+        navigationItem.backBarButtonItem = backButton
+        navigationController?.pushViewController(webView, animated: true)
     }
     
     func didTapOpenNFTCollection() {
