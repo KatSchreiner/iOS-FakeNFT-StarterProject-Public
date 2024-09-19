@@ -22,6 +22,7 @@ final class StatisticsTableViewCell: UITableViewCell {
         nameLabel.text = "Alex"
         nameLabel.textColor = .black
         nameLabel.font = UIFont.systemFont(ofSize: 22, weight: .bold)
+        nameLabel.numberOfLines = 0
         return nameLabel
     }()
     

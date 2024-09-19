@@ -1,9 +1,6 @@
 import UIKit
 import Kingfisher
 
-//protocol StatisticsUserPageViewProtocol: AnyObject {
-//    func configure(with model: Statistics)
-//}
 final class StatisticsUserPageView: UIView {
     
     // MARK: - Delegate
@@ -176,34 +173,3 @@ final class StatisticsUserPageView: UIView {
         delegate?.didTapOpenNFTCollection()
     }
 }
-
-//// MARK: - StatisticsUserPageViewProtocol Methods
-//extension StatisticsUserPageView: StatisticsUserPageViewProtocol {
-//    func configure(with model: Statistics) {
-//        nameLabel.text = model.name
-//        descriptionLabel.text = model.description
-//        collectionButtonLabel.text = "Коллекция NFT (\(model.nfts.count))"
-//        guard let imageUrl = URL(string: model.avatar) else {
-//            print("Image url is not correct")
-//            return
-//        }
-//        let imageSize = CGSize(width: 70, height: 70)
-//        let processor = RoundCornerImageProcessor(cornerRadius: imageSize.width / 2)
-//        photoImageView.kf.indicatorType = .activity
-//        photoImageView.kf.setImage(with: imageUrl,
-//                                   placeholder: UIImage(named: "placeholder"),
-//                                   options: [
-//                                    .processor(processor),
-//                                    .transition(.fade(1))
-//                                   ]) { result in
-//                                       switch result {
-//                                       case .success(let value):
-//                                           print(value.image)
-//                                           print(value.cacheType)
-//                                           print(value.source)
-//                                       case .failure(let error):
-//                                           print("[showFullImage] \(error.localizedDescription)")
-//                                       }
-//                                   }
-//    }
-//}

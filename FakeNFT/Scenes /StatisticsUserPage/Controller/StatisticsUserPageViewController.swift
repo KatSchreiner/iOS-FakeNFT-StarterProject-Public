@@ -79,6 +79,7 @@ extension StatisticsUserPageViewController: StatisticsUserPageViewDelegate {
         backButton.title = ""
         backButton.tintColor = .black
         navigationItem.backBarButtonItem = backButton
+        webView.hidesBottomBarWhenPushed = true
         navigationController?.pushViewController(webView, animated: true)
     }
     

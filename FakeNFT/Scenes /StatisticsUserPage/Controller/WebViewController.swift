@@ -27,7 +27,7 @@ class WebViewController: UIViewController & WKNavigationDelegate {
     // MARK: - Initializers
     init(url: String) {
         guard let url = URL(string: url) else {
-            fatalError("URL is nul")
+            fatalError("URL is nil")
         }
         urlRequest = URLRequest(url: url)
         super.init(nibName: nil, bundle: nil)
@@ -57,39 +57,27 @@ class WebViewController: UIViewController & WKNavigationDelegate {
                 }
             }
         }
-        
+        urlRequest.timeoutInterval = TimeInterval(5)
         webView.load(urlRequest)
         ProgressHUD.show()
     }
-    // MARK: WKNavigationDelegate methods
+    
+    // MARK: - WKNavigationDelegate methods
     func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
         progressView.isHidden = true
         ProgressHUD.dismiss()
     }
     
+    func webView(_ webView: WKWebView, didFailProvisionalNavigation navigation: WKNavigation!, withError error: Error) {
+        if let urlError = error as? URLError, urlError.code == .notConnectedToInternet || urlError.code == .timedOut {
+                showAlertAndPop(withMessage: "Сайт недоступен из-за интернета.")
+            } else {
+                showAlertAndPop(withMessage: "\(error.localizedDescription)")
+            }
+        }
+    
     func webView(_ webView: WKWebView, didFail navigation: WKNavigation!, withError error: Error) {
-        let alertController = UIAlertController(
-            title: "Упс! Что-то пошло не так",
-            message: error.localizedDescription,
-            preferredStyle: .alert
-        )
-        
-        let repeatAction = UIAlertAction(title: "Повторить", style: .default) { [weak self] _ in
-            guard let self = self else { return }
-            webView.load(urlRequest)
-            ProgressHUD.show()
-        }
-        
-        let cancelAction = UIAlertAction(title: "Отмена", style: .cancel) { [weak self] _ in
-            guard let self = self else { return }
-            self.navigationController?.popViewController(animated: true)
-            ProgressHUD.dismiss()
-        }
-        
-        alertController.addAction(repeatAction)
-        alertController.addAction(cancelAction)
-        
-        present(alertController, animated: true)
+        showAlertAndPop(withMessage: "\(error.localizedDescription)")
     }
     
     
@@ -110,8 +98,27 @@ class WebViewController: UIViewController & WKNavigationDelegate {
         ])
     }
     
+    private func showAlertAndPop(withMessage message: String) {
+        ProgressHUD.dismiss()
+        let alertController = UIAlertController(title: "Ошибка", message: message, preferredStyle: .alert)
+        let cancelAction = UIAlertAction(title: "Отмена", style: .cancel) { [weak self] _ in
+               self?.navigationController?.popViewController(animated: true)
+        }
+        let repeatAction = UIAlertAction(title: "Повторить", style: .default) { [weak self] _ in
+            guard let self = self else { return }
+            urlRequest.timeoutInterval = TimeInterval(5)
+            webView.load(urlRequest)
+            ProgressHUD.show()
+        }
+        
+        alertController.addAction(repeatAction)
+        alertController.addAction(cancelAction)
+        present(alertController, animated: true)
+    }
+    
     // MARK: - Deinitialization
     deinit {
         observation?.invalidate()
+        observation = nil
     }
 }
