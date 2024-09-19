@@ -35,6 +35,10 @@ final class StatisticsUserPageViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .white
+        let backButton = UIBarButtonItem()
+        backButton.title = ""
+        backButton.tintColor = .black
+        navigationItem.backBarButtonItem = backButton
         statisticsUserPageView.delegate = self
         getSingleUserProfile(userId: self.userId)
     }
@@ -75,15 +79,12 @@ extension StatisticsUserPageViewController: StatisticsUserPageViewDelegate {
         guard let user = self.user else { return }
         print("User website for \(user.name) is \(user.website) and his id is \(user.id)")
         let webView = WebViewController(url: user.website)
-        let backButton = UIBarButtonItem()
-        backButton.title = ""
-        backButton.tintColor = .black
-        navigationItem.backBarButtonItem = backButton
         webView.hidesBottomBarWhenPushed = true
         navigationController?.pushViewController(webView, animated: true)
     }
     
     func didTapOpenNFTCollection() {
-        
+        let nftCollection = StatisticsNftCollection()
+        navigationController?.pushViewController(nftCollection, animated: true)
     }
 }

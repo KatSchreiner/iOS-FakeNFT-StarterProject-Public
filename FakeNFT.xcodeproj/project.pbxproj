@@ -55,6 +55,7 @@
 		8E3375652C9B69AD00848011 /* StatisticsUserPageRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8E3375642C9B69AD00848011 /* StatisticsUserPageRequest.swift */; };
 		8E3375672C9B6BB500848011 /* StatisticsUserPageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8E3375662C9B6BB500848011 /* StatisticsUserPageView.swift */; };
 		8E3375692C9B843200848011 /* WebViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8E3375682C9B843200848011 /* WebViewController.swift */; };
+		8E641FB72C9CB990000E1584 /* StatisticsNftCollection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8E641FB62C9CB990000E1584 /* StatisticsNftCollection.swift */; };
 		E19CD5AB2A98B56600CA39A5 /* NftImageCollectionViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = E19CD5AA2A98B56600CA39A5 /* NftImageCollectionViewCell.swift */; };
 		E1A1B9DA2AA01CE400C3AFBC /* TabBarController.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1A1B9D92AA01CE400C3AFBC /* TabBarController.swift */; };
 		E1CD40DC2A96BECC00BE7FE8 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = E1CD40DB2A96BECC00BE7FE8 /* Localizable.strings */; };
@@ -128,6 +129,7 @@
 		8E3375642C9B69AD00848011 /* StatisticsUserPageRequest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatisticsUserPageRequest.swift; sourceTree = "<group>"; };
 		8E3375662C9B6BB500848011 /* StatisticsUserPageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatisticsUserPageView.swift; sourceTree = "<group>"; };
 		8E3375682C9B843200848011 /* WebViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebViewController.swift; sourceTree = "<group>"; };
+		8E641FB62C9CB990000E1584 /* StatisticsNftCollection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatisticsNftCollection.swift; sourceTree = "<group>"; };
 		E19CD5AA2A98B56600CA39A5 /* NftImageCollectionViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NftImageCollectionViewCell.swift; sourceTree = "<group>"; };
 		E1A1B9D92AA01CE400C3AFBC /* TabBarController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TabBarController.swift; sourceTree = "<group>"; };
 		E1CD40D82A96BE7D00BE7FE8 /* ru */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ru; path = ru.lproj/Main.strings; sourceTree = "<group>"; };
@@ -445,6 +447,7 @@
 			children = (
 				8E3375532C9A317400848011 /* StatisticsUserPageViewController.swift */,
 				8E3375682C9B843200848011 /* WebViewController.swift */,
+				8E641FB62C9CB990000E1584 /* StatisticsNftCollection.swift */,
 			);
 			path = Controller;
 			sourceTree = "<group>";
@@ -633,6 +636,7 @@
 				0C79EE682A76DE0900EE90EA /* NftDetailPresenter.swift in Sources */,
 				3F68069B29CBBAF100B4F915 /* ProductDetailsTableViewController.swift in Sources */,
 				8E3375522C9A299800848011 /* StatisticsService.swift in Sources */,
+				8E641FB72C9CB990000E1584 /* StatisticsNftCollection.swift in Sources */,
 				0CFCB7402A78002A0009A829 /* ExamplePutService.swift in Sources */,
 				3F6806D529CBBEC700B4F915 /* NetworkTask.swift in Sources */,
 				8E3375672C9B6BB500848011 /* StatisticsUserPageView.swift in Sources */,

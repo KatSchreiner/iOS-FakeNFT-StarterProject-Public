@@ -59,15 +59,13 @@ final class StatisticsUserPageView: UIView {
         label.text = "Коллекция NFT (112)"
         label.tintColor = .black
         label.font = .systemFont(ofSize: 17, weight: .bold)
-        label.setContentHuggingPriority(.defaultHigh, for: .horizontal)
+        label.isUserInteractionEnabled = true
         return label
     }()
     
     private lazy var collectionButton: UIButton = {
         let button = UIButton(type: .system)
         button.backgroundColor = .clear
-        button.addTarget(self, action: #selector(openNFTCollection), for: .touchUpInside)
-
         let iconImageView = UIImageView(image: UIImage(named: "right_arrow"))
         iconImageView.contentMode = .scaleAspectFit
         iconImageView.setContentHuggingPriority(.defaultHigh, for: .horizontal)
@@ -76,6 +74,9 @@ final class StatisticsUserPageView: UIView {
         stackView.axis = .horizontal
         stackView.spacing = 8
         stackView.alignment = .center
+        
+        let gesture = UITapGestureRecognizer(target: self, action: #selector(openNFTCollection))
+        stackView.addGestureRecognizer(gesture)
         
         button.addSubview(stackView)
         stackView.translatesAutoresizingMaskIntoConstraints = false
@@ -86,6 +87,7 @@ final class StatisticsUserPageView: UIView {
             stackView.topAnchor.constraint(equalTo: button.topAnchor),
             stackView.bottomAnchor.constraint(equalTo: button.bottomAnchor)
         ])
+        button.addTarget(self, action: #selector(openNFTCollection), for: .touchUpInside)
         button.translatesAutoresizingMaskIntoConstraints = false
         return button
     }()
@@ -157,7 +159,6 @@ final class StatisticsUserPageView: UIView {
             siteButton.heightAnchor.constraint(equalToConstant: 40),
 
             collectionButton.topAnchor.constraint(equalTo: siteButton.bottomAnchor, constant: 56),
-            collectionButton.centerXAnchor.constraint(equalTo: centerXAnchor),
             collectionButton.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 16),
             collectionButton.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -16),
             collectionButton.heightAnchor.constraint(equalToConstant: 54)
