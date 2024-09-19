@@ -146,7 +146,6 @@ extension CatalogueViewController: UITableViewDelegate {
         
         if collections.indices.contains(indexPath.row) {
             let nfts = collections[indexPath.row].nfts
-            print("ℹ️ nfts:", nfts)
             let newViewControllerClient = DefaultNetworkClient()
             let newViewControllerService = CatalogueService(networkClient: newViewControllerClient)
 
@@ -180,7 +179,7 @@ extension CatalogueViewController: UITableViewDataSource {
                 case .success:
                     tableView.reloadRows(at: [indexPath], with: .automatic)
                 case .failure:
-                    print("Не удалось загрузить изображение")
+                    print("⚠️ Не удалось загрузить изображение")
                     return
                 }
             }
