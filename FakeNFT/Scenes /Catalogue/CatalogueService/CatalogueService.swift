@@ -1,8 +1,14 @@
 import Foundation
 
+// MARK: - CatalogueServiceProtocol
+protocol CatalogueServiceProtocol: AnyObject {
+    func fetchCollections(completion: @escaping (Result<[NFTCollections], Error>) -> Void)
+    func fetchNFT(id: String, completion: @escaping (Result<NFT, Error>) -> Void)
+}
+
 // MARK: CatalogueService
 
-class CatalogueService {
+final class CatalogueService: CatalogueServiceProtocol {
     private let pathCollections = "/api/v1/collections"
     private let pathNft = "/api/v1/nft/"
     private let networkClient: NetworkClient

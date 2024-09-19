@@ -5,7 +5,7 @@ final class TabBarController: UITabBarController {
     var servicesAssembly: ServicesAssembly!
 
     private let catalogueTabBarItem = UITabBarItem(
-        title: NSLocalizedString("Tab.catalogue", comment: ""),
+        title: NSLocalizedString("Tab.catalog", comment: ""),
         image: UIImage(systemName: "square.stack.3d.up.fill"),
         tag: 0
     )
@@ -14,8 +14,19 @@ final class TabBarController: UITabBarController {
         super.viewDidLoad()
         
         let catalogueView = CatalogueView()
-        let catalogueService = CatalogueService(networkClient: DefaultNetworkClient())
-        let catalogueViewController = CatalogueViewController(catalogueView: catalogueView, catalogueService: catalogueService)
+        let networkClient = DefaultNetworkClient()
+        let catalogueService = CatalogueService(networkClient: networkClient)
+        let filterStorage = FilterStorage()
+        
+        let catalogueViewController = CatalogueViewController(
+            catalogueView: catalogueView,
+            catalogueService: catalogueService,
+            filterStorage: filterStorage
+        )
+        
+        let catalogueRouter = CatalogueRouter(viewController: catalogueViewController)
+        catalogueViewController.router = catalogueRouter
+        
         let catalogueNavigationController = UINavigationController(rootViewController: catalogueViewController)
         
         catalogueViewController.tabBarItem = catalogueTabBarItem

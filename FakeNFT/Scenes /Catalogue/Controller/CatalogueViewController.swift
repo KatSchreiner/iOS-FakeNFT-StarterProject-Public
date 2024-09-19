@@ -6,14 +6,20 @@ import ProgressHUD
 final class CatalogueViewController: UIViewController {
     
     // MARK: Properties
+    private let filterStorage: FilterStorageProtocol
     private let catalogueView: CatalogueViewProtocol
-    private let catalogueService: CatalogueService
+    private let catalogueService: CatalogueServiceProtocol
+    var router: CatalogueRouterProtocol!
     private var collections: [NFTCollections] = []
     
     // MARK: Initialization
-    init(catalogueView: CatalogueViewProtocol, catalogueService: CatalogueService) {
+    init(catalogueView: CatalogueViewProtocol,
+         catalogueService: CatalogueServiceProtocol,
+         filterStorage: FilterStorageProtocol
+    ) {
         self.catalogueView = catalogueView
         self.catalogueService = catalogueService
+        self.filterStorage = filterStorage
         super.init(nibName: nil, bundle: nil)
     }
     @available(*, unavailable)
@@ -72,7 +78,16 @@ final class CatalogueViewController: UIViewController {
     
     // MARK: Actions
     @objc private func sortTapped() {
-        showSortAlert()
+        router.presentSortOptions(
+            sortByNameAction: { [weak self] in
+                self?.sortByName()
+                self?.filterStorage.saveFilter(.name)
+            },
+            sortByAmountAction: { [weak self] in
+                self?.sortByAmount()
+                self?.filterStorage.saveFilter(.amount)
+            }
+        )
     }
     
     @objc private func refreshData() {
@@ -82,8 +97,7 @@ final class CatalogueViewController: UIViewController {
     
     // MARK: Data sorting
     private func loadFilter() {
-        let savedFilterString = UserDefaults.standard.string(forKey: "selectedFilter")
-        let savedFilter = Filters(rawValue: savedFilterString ?? "") ?? Filters.defaultValue
+        let savedFilter = filterStorage.loadFilter()
         
         switch savedFilter {
         case .amount:
@@ -91,10 +105,6 @@ final class CatalogueViewController: UIViewController {
         case .name:
             sortByName()
         }
-    }
-    
-    private func saveSelectedFilter(_ filter: Filters) {
-        UserDefaults.standard.set(filter.rawValue, forKey: "selectedFilter")
     }
     
     private func sortByAmount() {
@@ -107,34 +117,6 @@ final class CatalogueViewController: UIViewController {
         let oldCollections = collections
         collections.sort { $0.name.localizedCompare($1.name) == .orderedAscending }
         updateTableViewAnimated(oldCollections: oldCollections)
-    }
-
-    private func removeFirstCollection() {
-        if !collections.isEmpty {
-            let oldCollections = collections
-            collections.remove(at: 0)
-            updateTableViewAnimated(oldCollections: oldCollections)
-        }
-    }
-    
-    private func showSortAlert() {
-        let alert = UIAlertController(title: nil, message: "Сортировка", preferredStyle: .actionSheet)
-        let sortByNameAction = UIAlertAction(title: "По названию", style: .default) { [weak self] _ in
-            self?.sortByName()
-            self?.saveSelectedFilter(Filters.name)
-        }
-        
-        let sortByAmountAction = UIAlertAction(title: "По количеству NFT", style: .default) { [weak self] _ in
-            self?.sortByAmount()
-            self?.saveSelectedFilter(Filters.amount)
-        }
-        
-        let cancelAction = UIAlertAction(title: "Закрыть", style: .cancel)
-        
-        alert.addAction(sortByNameAction)
-        alert.addAction(sortByAmountAction)
-        alert.addAction(cancelAction)
-        present(alert, animated: true)
     }
     
     // MARK: Table View Updates
@@ -165,10 +147,11 @@ extension CatalogueViewController: UITableViewDelegate {
         if collections.indices.contains(indexPath.row) {
             let nfts = collections[indexPath.row].nfts
             print("ℹ️ nfts:", nfts)
-            let client = DefaultNetworkClient()
-            let service = CatalogueService(networkClient: client)
-            let controller = NewViewController(nfts: nfts, catalogueService: service)
-            navigationController?.pushViewController(controller, animated: true)
+            let newViewControllerClient = DefaultNetworkClient()
+            let newViewControllerService = CatalogueService(networkClient: newViewControllerClient)
+
+            router.navigateToDetail(with: nfts, catalogueService: newViewControllerService)
+   
         } else {
             print("⚠️ Индекс вне диапазона.")
             return
