@@ -12,7 +12,7 @@ struct Profile: Codable {
     let avatar: String
     let description: String
     let website: String
-    var nfts: [String]
+    let nfts: [String]
     let likes: [String]
     let id: String
 }

@@ -6,7 +6,6 @@
 //
 
 import UIKit
-import ProgressHUD
 
 final class MyNftViewController: UIViewController {
     // MARK: - Public Properties
@@ -14,7 +13,7 @@ final class MyNftViewController: UIViewController {
     
     // MARK: - Private Properties
     private let servicesAssembly: ServicesAssembly
-    private var nfts: [NFT] = []
+    var nfts: [NFT] = []
     
     private lazy var tableView: UITableView = {
         let tableView = UITableView()
@@ -22,6 +21,7 @@ final class MyNftViewController: UIViewController {
         tableView.dataSource = self
         tableView.delegate = self
         tableView.separatorStyle = .none
+        tableView.allowsSelection = false
         return tableView
     }()
     
@@ -48,7 +48,7 @@ final class MyNftViewController: UIViewController {
     }()
     
     // MARK: - Initializers
-    init(servicesAssembly: ServicesAssembly, nfts: [String]) {
+    init(servicesAssembly: ServicesAssembly) {
         self.servicesAssembly = servicesAssembly
         super.init(nibName: nil, bundle: nil)
     }
@@ -113,11 +113,7 @@ final class MyNftViewController: UIViewController {
                 
         addConstraint()
         
-        guard let profile = profile else {
-            print("Profile is nil")
-            return
-        }
-        loadNfts(from: profile)
+        noNftLabel.isHidden = !nfts.isEmpty
     }
     
     private func addConstraint() {
@@ -130,29 +126,6 @@ final class MyNftViewController: UIViewController {
             noNftLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor),
             noNftLabel.centerYAnchor.constraint(equalTo: view.centerYAnchor)
         ])
-    }
-    
-    private func loadNfts(from profile: Profile) {
-
-        servicesAssembly.nftListInstanse.fetchNfts { result in
-            switch result {
-            case .success(let nfts):
-                let userNfts = nfts.filter { profile.nfts.contains($0.id) }
-                DispatchQueue.main.async {
-                    print("[MyNftViewController: loadNfts]: Найдено NFT для пользователя: \(userNfts.count)")
-                    print("[MyNftViewController: loadNfts]: Идентификаторы NFT в профиле: \(profile.nfts)")
-                    self.updateNftList(with: userNfts)
-                }
-            case .failure(let error):
-                print("Ошибка получения NFT: \(error)")
-            }
-        }
-    }
-    
-    func updateNftList(with nfts: [NFT]) {
-        self.nfts = nfts
-        self.tableView.reloadData() 
-        noNftLabel.isHidden = !nfts.isEmpty
     }
 }
 
@@ -175,7 +148,6 @@ extension MyNftViewController: UITableViewDataSource {
         cell.configure(with: nft)
         
         return cell
-        
     }
 }
 
@@ -184,4 +156,8 @@ extension MyNftViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
         140
     }
+    
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+            tableView.deselectRow(at: indexPath, animated: true)
+        }
 }

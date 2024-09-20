@@ -24,7 +24,7 @@ final class NftListService {
                 print("[NftListService: fetchNfts]: Запрос завершен успешно, получены данные.")
                 do {
                     let nfts = try JSONDecoder().decode([NFT].self, from: data)
-                    print("[NftListService: fetchNfts]: Данные успешно декодированы, количество: \(nfts)")
+                    print("[NftListService: fetchNfts]: Данные успешно декодированы, количество: \(nfts.count)")
                     completion(.success(nfts))
                 } catch {
                     print("[NftListService: fetchNfts]: Ошибка декодирования данных: \(error.localizedDescription)")

@@ -21,7 +21,7 @@ final class MyNftTableViewCell: UITableViewCell {
     
     let nameLabel: UILabel = {
         let label = UILabel()
-        label.font = UIFont.systemFont(ofSize: 17, weight: .bold)
+        label.font = .bodyBold
         return label
     }()
     
@@ -29,20 +29,22 @@ final class MyNftTableViewCell: UITableViewCell {
     
     let authorLabel: UILabel = {
         let label = UILabel()
-        label.font = UIFont.systemFont(ofSize: 13)
+        label.font = .caption2
+        label.numberOfLines = 0
+        label.lineBreakMode = .byWordWrapping
         return label
     }()
     
     let priceLabel: UILabel = {
         let label = UILabel()
-        label.font = UIFont.systemFont(ofSize: 17, weight: .bold)
+        label.font = .bodyBold
         label.textColor = .black
         return label
     }()
     
     let priceTextLabel: UILabel = {
         let label = UILabel()
-        label.font = UIFont.systemFont(ofSize: 13, weight: .regular)
+        label.font = .caption2
         label.text = "Цена"
         return label
     }()
@@ -84,7 +86,7 @@ final class MyNftTableViewCell: UITableViewCell {
             favoriteButton.topAnchor.constraint(equalTo: nftImageView.topAnchor, constant: 10),
             
             nameLabel.leadingAnchor.constraint(equalTo: nftImageView.trailingAnchor, constant: 16),
-            nameLabel.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 40),
+            nameLabel.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 25),
             
             ratingView.leadingAnchor.constraint(equalTo: nftImageView.trailingAnchor, constant: 11),
             ratingView.topAnchor.constraint(equalTo: nameLabel.bottomAnchor),
@@ -92,7 +94,7 @@ final class MyNftTableViewCell: UITableViewCell {
             
             authorLabel.leadingAnchor.constraint(equalTo: nftImageView.trailingAnchor, constant: 16),
             authorLabel.topAnchor.constraint(equalTo: ratingView.bottomAnchor),
-            authorLabel.widthAnchor.constraint(equalToConstant: 78),
+            authorLabel.widthAnchor.constraint(equalToConstant: 130),
             
             priceTextLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
             priceTextLabel.leadingAnchor.constraint(equalTo: ratingView.leadingAnchor, constant: 150),

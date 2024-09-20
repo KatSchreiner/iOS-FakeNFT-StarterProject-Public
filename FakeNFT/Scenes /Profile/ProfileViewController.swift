@@ -15,6 +15,8 @@ final class ProfileViewController: UIViewController, WKNavigationDelegate {
     private let servicesAssembly: ServicesAssembly
     private let webView = WKWebView()
     private var currentProfile: Profile?
+    private var userNfts: [NFT] = []
+    private var nftCount: Int = 0
     
     private lazy var editButton: UIBarButtonItem = {
         let image = UIImage(named: "square.and.pencil")
@@ -171,6 +173,7 @@ final class ProfileViewController: UIViewController, WKNavigationDelegate {
                 switch result {
                 case .success(let profile):
                     self?.currentProfile = profile
+                    self?.loadNfts(for: profile)
                     print("[ProfileViewController:loadProfile]: Данные профиля успешно отображены")
                     self?.updateDisplayProfile(with: profile)
                     self?.setUIElementsVisible(true)
@@ -187,11 +190,30 @@ final class ProfileViewController: UIViewController, WKNavigationDelegate {
         descriptionLabel.text = profile.description
         websiteLabel.text = profile.website
         updateAvatar(url: profile.avatar)
+        
+        nftCount = profile.nfts.count
+        tableView.reloadData()
     }
     
     private func updateAvatar(url: String) {
         guard let avatarUrl = URL(string: url) else { return }
         profileImageView.kf.setImage(with: avatarUrl)
+    }
+    
+    private func loadNfts(for profile: Profile) {
+        servicesAssembly.nftListInstanse.fetchNfts { result in
+            switch result {
+            case .success(let nfts):
+                self.userNfts = nfts.filter { profile.nfts.contains($0.id) }
+                DispatchQueue.main.async {
+                    print("[ProfileViewController:loadNfts]: Найдено NFT для пользователя: \(self.userNfts.count)")
+                    self.nftCount = self.userNfts.count
+                    self.tableView.reloadData()
+                }
+            case .failure(let error):
+                print("Ошибка получения NFT: \(error)")
+            }
+        }
     }
     
     private func setUIElementsVisible(_ isVisible: Bool) {
@@ -223,7 +245,7 @@ extension ProfileViewController: UITableViewDataSource {
     
     private func cellText(for row: Int) -> String {
         switch row {
-        case 0: return "Мои NFT (112)"
+        case 0: return "Мои NFT (\(nftCount))"
         case 1: return "Избранные NFT (11)"
         case 2: return "О разработчике"
         default: return ""
@@ -247,8 +269,9 @@ extension ProfileViewController: UITableViewDelegate {
         switch index {
         case 0:
             if let currentProfile = currentProfile {
-                let myNftVC = MyNftViewController(servicesAssembly: servicesAssembly, nfts: currentProfile.nfts)
+                let myNftVC = MyNftViewController(servicesAssembly: servicesAssembly)
                 myNftVC.profile = currentProfile
+                myNftVC.nfts = userNfts 
                 navigationController?.pushViewController(myNftVC, animated: true)
             }
         case 1:
