@@ -10,10 +10,11 @@ import ProgressHUD
 
 final class MyNftViewController: UIViewController {
     // MARK: - Public Properties
+    var profile: Profile?
     
     // MARK: - Private Properties
     private let servicesAssembly: ServicesAssembly
-    private var nfts: [NftList] = []
+    private var nfts: [NFT] = []
     
     private lazy var tableView: UITableView = {
         let tableView = UITableView()
@@ -42,13 +43,13 @@ final class MyNftViewController: UIViewController {
         let noNftLabel = UILabel()
         noNftLabel.font = .bodyBold
         noNftLabel.textColor = .nBlack
+        noNftLabel.text = "У Вас ещё нет NFT"
         return noNftLabel
     }()
     
     // MARK: - Initializers
-    init(servicesAssembly: ServicesAssembly, nfts: [NftList]) {
+    init(servicesAssembly: ServicesAssembly, nfts: [String]) {
         self.servicesAssembly = servicesAssembly
-        self.nfts = nfts
         super.init(nibName: nil, bundle: nil)
     }
     
@@ -60,7 +61,6 @@ final class MyNftViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         setupView()
-        fetchNfts()
     }
     // MARK: - IB Actions
     @objc
@@ -73,15 +73,18 @@ final class MyNftViewController: UIViewController {
         let alertController = UIAlertController(title: "Сортировка", message: "", preferredStyle: .actionSheet)
         
         let priceSortAction = UIAlertAction(title: "По цене", style: .default) { _ in
-            self.sortNfts(by: { $0.price < $1.price })
+            self.nfts.sort { $0.price < $1.price }
+            self.tableView.reloadData()
         }
         
         let ratingSortAction = UIAlertAction(title: "По рейтингу", style: .default) { _ in
-            self.sortNfts(by: { $0.rating > $1.rating })
+            self.nfts.sort { $0.rating > $1.rating }
+            self.tableView.reloadData()
         }
         
         let nameSortAction = UIAlertAction(title: "По названию", style: .default) { _ in
-            self.sortNfts(by: { $0.name < $1.name })
+            self.nfts.sort { $0.name < $1.name }
+            self.tableView.reloadData()
         }
         
         let cancelAction = UIAlertAction(title: "Закрыть", style: .cancel, handler: nil)
@@ -98,7 +101,7 @@ final class MyNftViewController: UIViewController {
     // MARK: - Private Methods
     private func setupView() {
         view.backgroundColor = .systemBackground
-        
+
         navigationItem.title = "Мои NFT"
         navigationItem.leftBarButtonItem = backButton
         navigationItem.rightBarButtonItem = sortButton
@@ -107,9 +110,14 @@ final class MyNftViewController: UIViewController {
             view.translatesAutoresizingMaskIntoConstraints = false
             self.view.addSubview(view)
         }
-        
+                
         addConstraint()
         
+        guard let profile = profile else {
+            print("Profile is nil")
+            return
+        }
+        loadNfts(from: profile)
     }
     
     private func addConstraint() {
@@ -124,33 +132,27 @@ final class MyNftViewController: UIViewController {
         ])
     }
     
-    private func fetchNfts() {
-        ProgressHUD.show()
+    private func loadNfts(from profile: Profile) {
+
         servicesAssembly.nftListInstanse.fetchNfts { result in
-            DispatchQueue.main.async {
-                ProgressHUD.dismiss()
-                switch result {
-                case .success(let nfts):
-                    self.nfts = nfts
-                    self.tableView.reloadData()
-                    self.noNftLabel.isHidden = !self.nfts.isEmpty
-                    self.tableView.isHidden = self.nfts.isEmpty
-                case .failure(let error):
-                    print("Ошибка при получении NFT: \(error)")
+            switch result {
+            case .success(let nfts):
+                let userNfts = nfts.filter { profile.nfts.contains($0.id) }
+                DispatchQueue.main.async {
+                    print("[MyNftViewController: loadNfts]: Найдено NFT для пользователя: \(userNfts.count)")
+                    print("[MyNftViewController: loadNfts]: Идентификаторы NFT в профиле: \(profile.nfts)")
+                    self.updateNftList(with: userNfts)
                 }
+            case .failure(let error):
+                print("Ошибка получения NFT: \(error)")
             }
         }
     }
     
-    private func sortNfts(by comparator: @escaping (NftList, NftList) -> Bool) {
-        ProgressHUD.show()
-        DispatchQueue.global().async {
-            self.nfts.sort(by: comparator)
-            DispatchQueue.main.async {
-                ProgressHUD.dismiss()
-                self.tableView.reloadData()
-            }
-        }
+    func updateNftList(with nfts: [NFT]) {
+        self.nfts = nfts
+        self.tableView.reloadData() 
+        noNftLabel.isHidden = !nfts.isEmpty
     }
 }
 

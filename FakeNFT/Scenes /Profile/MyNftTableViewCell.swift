@@ -105,7 +105,7 @@ final class MyNftTableViewCell: UITableViewCell {
         ])
     }
     
-    func configure(with nft: NftList) {
+    func configure(with nft: NFT) {
         nameLabel.text = nft.name
         ratingView.setRating(nft.rating)
         authorLabel.text = "От: \(nft.author)"

@@ -9,31 +9,31 @@ import Foundation
 
 final class NftListService {
     private let networkClient: NetworkClient
-
-        init(networkClient: NetworkClient = DefaultNetworkClient()) {
-            self.networkClient = networkClient
-        }
-
-        func fetchNfts(completion: @escaping (Result<[NftList], NetworkClientError>) -> Void) {
-            let request = NftListRequest()
-            print("[NftListService:fetchNfts]: Запрос на получение NFT начат...")
-
-            networkClient.send(request: request) { result in
-                switch result {
-                case .success(let data):
-                    print("[NftListService:fetchNfts]: Запрос выполнен успешно. Получены данные: \(data)")
-                    do {
-                        let nfts = try JSONDecoder().decode([NftList].self, from: data)
-                        print("[NftListService:fetchNfts]: Данные успешно декодированы в модель NftList: \(nfts)")
-                        completion(.success(nfts))
-                    } catch {
-                        print("[NftListService:fetchNfts]: Ошибка декодирования: \(error.localizedDescription)")
-                        completion(.failure(.parsingError))
-                    }
-                case .failure(let error):
-                    print("[NftListService:fetchNfts]: Ошибка при запросе: \(error.localizedDescription)")
-                    completion(.failure(error as? NetworkClientError ?? NetworkClientError.urlSessionError))
+    
+    init(networkClient: NetworkClient = DefaultNetworkClient()) {
+        self.networkClient = networkClient
+    }
+    
+    func fetchNfts(completion: @escaping (Result<[NFT], NetworkClientError>) -> Void) {
+        print("[NftListService: fetchNfts]: Запрос на получение NFT начат...")
+        let request = NftRequest()
+        
+        networkClient.send(request: request) { result in
+            switch result {
+            case .success(let data):
+                print("[NftListService: fetchNfts]: Запрос завершен успешно, получены данные.")
+                do {
+                    let nfts = try JSONDecoder().decode([NFT].self, from: data)
+                    print("[NftListService: fetchNfts]: Данные успешно декодированы, количество: \(nfts)")
+                    completion(.success(nfts))
+                } catch {
+                    print("[NftListService: fetchNfts]: Ошибка декодирования данных: \(error.localizedDescription)")
+                    completion(.failure(.parsingError))
                 }
+            case .failure(let error):
+                print("[NftListService: fetchNfts]: Ошибка при получении NFT: \(error)")
+                completion(.failure(error as? NetworkClientError ?? NetworkClientError.urlSessionError))
             }
         }
+    }
 }

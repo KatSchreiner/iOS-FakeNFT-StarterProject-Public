@@ -1,5 +1,5 @@
 //
-//  NftListRequest.swift
+//  NftRequest.swift
 //  FakeNFT
 //
 //  Created by Екатерина Шрайнер on 18.09.2024.
@@ -7,9 +7,10 @@
 
 import Foundation
 
-struct NftListRequest: NetworkRequest {    
+struct NftRequest: NetworkRequest {
     var endpoint: URL? {
-        URL(string: "\(RequestConstants.baseURL)/api/v1/nft")
+        let baseURL = RequestConstants.baseURL
+        return URL(string: "\(baseURL)/api/v1/nft")
     }
 
     var httpMethod: HttpMethod {

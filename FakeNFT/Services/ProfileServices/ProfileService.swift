@@ -23,7 +23,7 @@ final class ProfileService {
         networkClient.send(request: request) { result in
             switch result {
             case .success(let data):
-                print("[ProfileService:fetchProfile]: Запрос профиля успешен. Получены данные: \(data)")
+                print("[ProfileService:fetchProfile]: Запрос профиля успешен.")
                 do {
                     let profile = try JSONDecoder().decode(Profile.self, from: data)
                     self.profile = profile
@@ -39,6 +39,4 @@ final class ProfileService {
             }
         }
     }
-    
-    
 }

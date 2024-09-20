@@ -246,7 +246,11 @@ extension ProfileViewController: UITableViewDelegate {
     private func handleCellSelection(at index: Int) {
         switch index {
         case 0:
-            navigationController?.pushViewController(MyNftViewController(servicesAssembly: servicesAssembly, nfts: []), animated: true)
+            if let currentProfile = currentProfile {
+                let myNftVC = MyNftViewController(servicesAssembly: servicesAssembly, nfts: currentProfile.nfts)
+                myNftVC.profile = currentProfile
+                navigationController?.pushViewController(myNftVC, animated: true)
+            }
         case 1:
             navigationController?.pushViewController(FavoritesNFTViewController(), animated: true)
         case 2:
