@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import ProgressHUD
 
 final class MyNftViewController: UIViewController {
     // MARK: - Public Properties
@@ -74,18 +75,15 @@ final class MyNftViewController: UIViewController {
         let alertController = UIAlertController(title: "Сортировка", message: "", preferredStyle: .actionSheet)
         
         let priceSortAction = UIAlertAction(title: "По цене", style: .default) { _ in
-            self.nfts.sort { $0.price < $1.price }
-            self.tableView.reloadData()
+            self.sortNFTs(by: .price)
         }
         
         let ratingSortAction = UIAlertAction(title: "По рейтингу", style: .default) { _ in
-            self.nfts.sort { $0.rating > $1.rating }
-            self.tableView.reloadData()
+            self.sortNFTs(by: .rating)
         }
         
         let nameSortAction = UIAlertAction(title: "По названию", style: .default) { _ in
-            self.nfts.sort { $0.name < $1.name }
-            self.tableView.reloadData()
+            self.sortNFTs(by: .name)
         }
         
         let cancelAction = UIAlertAction(title: "Закрыть", style: .cancel, handler: nil)
@@ -98,7 +96,6 @@ final class MyNftViewController: UIViewController {
         present(alertController, animated: true, completion: nil)
     }
     
-    // MARK: - Public Methods
     // MARK: - Private Methods
     private func setupView() {
         view.backgroundColor = .systemBackground
@@ -130,6 +127,22 @@ final class MyNftViewController: UIViewController {
     
     private func updateNoNftLabelVisibility() {
         noNftLabel.isHidden = !nfts.isEmpty
+    }
+    
+    private func sortNFTs(by criteria: SortCriteria) {
+        ProgressHUD.show()
+        
+        switch criteria {
+        case .price:
+            nfts.sort { $0.price < $1.price }
+        case .rating:
+            nfts.sort { $0.rating > $1.rating }
+        case .name:
+            nfts.sort { $0.name < $1.name }
+        }
+        
+        tableView.reloadData()
+        ProgressHUD.dismiss()
     }
 }
 
@@ -164,4 +177,10 @@ extension MyNftViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
     }
+}
+
+enum SortCriteria {
+    case price
+    case rating
+    case name
 }
