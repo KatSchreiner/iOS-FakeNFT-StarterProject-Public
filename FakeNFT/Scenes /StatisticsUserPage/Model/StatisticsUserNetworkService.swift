@@ -1,10 +1,12 @@
 import Foundation
 
 final class StatisticsUserNetworkService {
-    
+        
     // MARK: - Public Properties
-    let defaultNetwork = DefaultNetworkClient()
     static let shared = StatisticsUserNetworkService()
+    
+    // MARK: - Private Properties
+    private let defaultNetwork = DefaultNetworkClient()
     
     // MARK: Initialization
     private init() {}

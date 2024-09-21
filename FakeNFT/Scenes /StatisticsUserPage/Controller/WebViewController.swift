@@ -2,7 +2,7 @@ import UIKit
 import WebKit
 import ProgressHUD
 
-class WebViewController: UIViewController & WKNavigationDelegate {
+final class WebViewController: UIViewController & WKNavigationDelegate {
     
     // MARK: - Private Properties
     private var urlRequest: URLRequest
