@@ -10,10 +10,10 @@ import UIKit
 final class MyNftViewController: UIViewController {
     // MARK: - Public Properties
     var profile: Profile?
+    var nfts: [NFT] = []
     
     // MARK: - Private Properties
     private let servicesAssembly: ServicesAssembly
-    var nfts: [NFT] = []
     
     private lazy var tableView: UITableView = {
         let tableView = UITableView()
@@ -62,6 +62,7 @@ final class MyNftViewController: UIViewController {
         super.viewDidLoad()
         setupView()
     }
+    
     // MARK: - IB Actions
     @objc
     private func didTapBack() {
@@ -101,7 +102,7 @@ final class MyNftViewController: UIViewController {
     // MARK: - Private Methods
     private func setupView() {
         view.backgroundColor = .systemBackground
-
+        
         navigationItem.title = "Мои NFT"
         navigationItem.leftBarButtonItem = backButton
         navigationItem.rightBarButtonItem = sortButton
@@ -110,10 +111,9 @@ final class MyNftViewController: UIViewController {
             view.translatesAutoresizingMaskIntoConstraints = false
             self.view.addSubview(view)
         }
-                
-        addConstraint()
         
-        noNftLabel.isHidden = !nfts.isEmpty
+        addConstraint()
+        updateNoNftLabelVisibility()
     }
     
     private func addConstraint() {
@@ -126,6 +126,10 @@ final class MyNftViewController: UIViewController {
             noNftLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor),
             noNftLabel.centerYAnchor.constraint(equalTo: view.centerYAnchor)
         ])
+    }
+    
+    private func updateNoNftLabelVisibility() {
+        noNftLabel.isHidden = !nfts.isEmpty
     }
 }
 
@@ -158,6 +162,6 @@ extension MyNftViewController: UITableViewDelegate {
     }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-            tableView.deselectRow(at: indexPath, animated: true)
-        }
+        tableView.deselectRow(at: indexPath, animated: true)
+    }
 }

@@ -169,12 +169,12 @@ final class ProfileViewController: UIViewController, WKNavigationDelegate {
         
         servicesAssembly.profileServiceInstance.fetchProfile { [weak self] result in
             DispatchQueue.main.async {
-                ProgressHUD.dismiss() 
+                ProgressHUD.dismiss()
                 switch result {
                 case .success(let profile):
+                    print("[ProfileViewController:loadProfile]: Данные профиля успешно отображены")
                     self?.currentProfile = profile
                     self?.loadNfts(for: profile)
-                    print("[ProfileViewController:loadProfile]: Данные профиля успешно отображены")
                     self?.updateDisplayProfile(with: profile)
                     self?.setUIElementsVisible(true)
                     
@@ -190,7 +190,6 @@ final class ProfileViewController: UIViewController, WKNavigationDelegate {
         descriptionLabel.text = profile.description
         websiteLabel.text = profile.website
         updateAvatar(url: profile.avatar)
-        
         nftCount = profile.nfts.count
         tableView.reloadData()
     }
@@ -203,6 +202,7 @@ final class ProfileViewController: UIViewController, WKNavigationDelegate {
     private func loadNfts(for profile: Profile) {
         servicesAssembly.nftListInstanse.fetchNfts { result in
             switch result {
+                
             case .success(let nfts):
                 self.userNfts = nfts.filter { profile.nfts.contains($0.id) }
                 DispatchQueue.main.async {
@@ -239,7 +239,6 @@ extension ProfileViewController: UITableViewDataSource {
         guard let cell = tableView.dequeueReusableCell(withIdentifier: "ProfileTableViewCell", for: indexPath) as? ProfileTableViewCell else { return UITableViewCell() }
         
         cell.configure(with: cellText(for: indexPath.row))
-        
         return cell
     }
     
@@ -261,7 +260,6 @@ extension ProfileViewController: UITableViewDelegate {
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
-        
         handleCellSelection(at: indexPath.row)
     }
     
@@ -271,7 +269,7 @@ extension ProfileViewController: UITableViewDelegate {
             if let currentProfile = currentProfile {
                 let myNftVC = MyNftViewController(servicesAssembly: servicesAssembly)
                 myNftVC.profile = currentProfile
-                myNftVC.nfts = userNfts 
+                myNftVC.nfts = userNfts
                 navigationController?.pushViewController(myNftVC, animated: true)
             }
         case 1:
@@ -290,13 +288,18 @@ extension ProfileViewController: UITableViewDelegate {
     }
 }
 
+// MARK: - EditProfileDelegate
 extension ProfileViewController: EditProfileDelegate {
     func didUpdateProfile(with profile: Profile) {
         self.currentProfile = profile
         
+        setAvatar(with: profile)
         nameLabel.text = profile.name
         descriptionLabel.text = profile.description
         websiteLabel.text = profile.website
+    }
+    
+    func setAvatar(with profile: Profile) {
         if let url = URL(string: profile.avatar) {
             self.profileImageView.kf.setImage(with: url)
         } else {

@@ -21,10 +21,10 @@ final class NftListService {
         networkClient.send(request: request) { result in
             switch result {
             case .success(let data):
-                print("[NftListService: fetchNfts]: Запрос завершен успешно, получены данные.")
+                print("[NftListService: fetchNfts]: Запрос NFT завершен успешно.")
                 do {
                     let nfts = try JSONDecoder().decode([NFT].self, from: data)
-                    print("[NftListService: fetchNfts]: Данные успешно декодированы, количество: \(nfts.count)")
+                    print("[NftListService: fetchNfts]: Данные NFT успешно декодированы, количество: \(nfts.count)")
                     completion(.success(nfts))
                 } catch {
                     print("[NftListService: fetchNfts]: Ошибка декодирования данных: \(error.localizedDescription)")

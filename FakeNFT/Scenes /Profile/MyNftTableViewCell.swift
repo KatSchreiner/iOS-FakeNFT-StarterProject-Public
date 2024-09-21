@@ -11,7 +11,6 @@ import Kingfisher
 final class MyNftTableViewCell: UITableViewCell {
     let nftImageView: UIImageView = {
         let imageView = UIImageView()
-        imageView.translatesAutoresizingMaskIntoConstraints = false
         imageView.contentMode = .scaleAspectFill
         imageView.clipsToBounds = true
         imageView.layer.cornerRadius = 12
@@ -22,6 +21,7 @@ final class MyNftTableViewCell: UITableViewCell {
     let nameLabel: UILabel = {
         let label = UILabel()
         label.font = .bodyBold
+        label.textColor = .nBlack
         return label
     }()
     
@@ -30,6 +30,7 @@ final class MyNftTableViewCell: UITableViewCell {
     let authorLabel: UILabel = {
         let label = UILabel()
         label.font = .caption2
+        label.textColor = .nBlack
         label.numberOfLines = 0
         label.lineBreakMode = .byWordWrapping
         return label
@@ -38,13 +39,14 @@ final class MyNftTableViewCell: UITableViewCell {
     let priceLabel: UILabel = {
         let label = UILabel()
         label.font = .bodyBold
-        label.textColor = .black
+        label.textColor = .nBlack
         return label
     }()
     
     let priceTextLabel: UILabel = {
         let label = UILabel()
         label.font = .caption2
+        label.textColor = .nBlack
         label.text = "Цена"
         return label
     }()
@@ -58,21 +60,21 @@ final class MyNftTableViewCell: UITableViewCell {
     
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
-        
-        let subviews = [nftImageView, nameLabel, ratingView, authorLabel, priceLabel, priceTextLabel]
-        
-        for subview in subviews {
-            subview.translatesAutoresizingMaskIntoConstraints = false
-            contentView.addSubview(subview)
-        }
-        
-        nftImageView.addSubview(favoriteButton)
-        
+        setupSubviews()
         addConstraints()
     }
     
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
+    }
+    
+    private func setupSubviews() {
+        [nftImageView, nameLabel, ratingView, authorLabel, priceLabel, priceTextLabel].forEach { contentView in
+            contentView.translatesAutoresizingMaskIntoConstraints = false
+            self.contentView.addSubview(contentView)
+        }
+        
+        nftImageView.addSubview(favoriteButton)
     }
     
     private func addConstraints() {
@@ -108,16 +110,19 @@ final class MyNftTableViewCell: UITableViewCell {
     }
     
     func configure(with nft: NFT) {
+        setImage(with: nft)
         nameLabel.text = nft.name
         ratingView.setRating(nft.rating)
         authorLabel.text = "От: \(nft.author)"
         priceLabel.text = "\(nft.price) ETH"
-        
+    }
+    
+    private func setImage(with nft: NFT) {
         if let imageUrlString = nft.images.first, let url = URL(string: imageUrlString) {
             nftImageView.kf.setImage(with: url)
         } else {
             print("Нет доступных изображений для NFT: \(nft.name)")
-            self.nftImageView.image = nil 
+            self.nftImageView.image = nil
         }
     }
 }
