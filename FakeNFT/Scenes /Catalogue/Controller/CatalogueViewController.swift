@@ -9,18 +9,23 @@ final class CatalogueViewController: UIViewController {
     private let filterStorage: FilterStorageProtocol
     private let catalogueView: CatalogueViewProtocol
     private let catalogueService: CatalogueServiceProtocol
-    var router: CatalogueRouterProtocol!
+    private let router: CatalogueRouterProtocol
     private var collections: [NFTCollections] = []
     
     // MARK: Initialization
     init(catalogueView: CatalogueViewProtocol,
          catalogueService: CatalogueServiceProtocol,
-         filterStorage: FilterStorageProtocol
+         filterStorage: FilterStorageProtocol,
+         router: CatalogueRouterProtocol
     ) {
         self.catalogueView = catalogueView
         self.catalogueService = catalogueService
         self.filterStorage = filterStorage
+        self.router = router
         super.init(nibName: nil, bundle: nil)
+        if let catalogueRouter = router as? CatalogueRouter {
+            catalogueRouter.viewController = self
+        }
     }
     @available(*, unavailable)
     required init?(coder: NSCoder) {

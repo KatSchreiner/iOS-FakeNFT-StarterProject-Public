@@ -13,12 +13,10 @@ protocol CatalogueRouterProtocol {
 final class CatalogueRouter: CatalogueRouterProtocol {
 
     // MARK: Properties
-    private weak var viewController: UIViewController?
+    weak var viewController: UIViewController?
     
     // MARK: Initialization
-    init(viewController: UIViewController) {
-        self.viewController = viewController
-    }
+    init() {}
     
     // MARK: Public functions
     func navigateToDetail(with nfts: [String], catalogueService: CatalogueService) {

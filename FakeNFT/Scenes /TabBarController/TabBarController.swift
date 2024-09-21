@@ -17,16 +17,15 @@ final class TabBarController: UITabBarController {
         let networkClient = DefaultNetworkClient()
         let catalogueService = CatalogueService(networkClient: networkClient)
         let filterStorage = FilterStorage()
+        let catalogueRouter = CatalogueRouter()
         
         let catalogueViewController = CatalogueViewController(
             catalogueView: catalogueView,
             catalogueService: catalogueService,
-            filterStorage: filterStorage
+            filterStorage: filterStorage,
+            router: catalogueRouter
         )
-        
-        let catalogueRouter = CatalogueRouter(viewController: catalogueViewController)
-        catalogueViewController.router = catalogueRouter
-        
+
         let catalogueNavigationController = UINavigationController(rootViewController: catalogueViewController)
         
         catalogueViewController.tabBarItem = catalogueTabBarItem
