@@ -19,7 +19,7 @@ final class StatisticsViewController: UIViewController {
         fatalError("init(coder:) has not been implemented")
     }
     
-    // MARK: Life Cycle
+    // MARK: - Life Cycle
     override func loadView() {
         view = statisticsView as? UIView
     }
@@ -31,7 +31,7 @@ final class StatisticsViewController: UIViewController {
         getUsers()
     }
     
-    // MARK: Setup View
+    // MARK: - Setup View
     private func setupView() {
         statisticsView.setTableViewDelegate(self)
         statisticsView.setTableViewDataSource(self)
@@ -52,7 +52,7 @@ final class StatisticsViewController: UIViewController {
         navigationItem.backBarButtonItem = backButton
     }
     
-    // MARK: Data Fetching
+    // MARK: - Data Fetching
     private func getUsers(){
         view.isUserInteractionEnabled = false
         ProgressHUD.show()
@@ -63,25 +63,21 @@ final class StatisticsViewController: UIViewController {
             switch result {
             case .success(let users):
                 self.userData = users
-                print("In main \(userData)")
             case .failure(let error):
-                print("Error: \(error)")
-                self.userData = []
+                print(error.localizedDescription)
             }
             statisticsView.updateTable()
         }
     }
     
-    // MARK: Actions
+    // MARK: - Actions
     @objc private func sortButtonTapped() {
         let alert = UIAlertController(title: nil, message: "Сортировка", preferredStyle: .actionSheet)
         alert.addAction(UIAlertAction(title: "По имени", style: .default, handler: { [weak self] _ in
-            print("User click to sort by name button")
             self?.userData.sort(by: { $0.name < $1.name })
             self?.statisticsView.updateTable()
         }))
         alert.addAction(UIAlertAction(title: "По рейтингу", style: .default, handler: { [weak self] _ in
-            print("User click to sort by rating button")
             self?.userData.sort(by: { $0.nfts.count > $1.nfts.count })
             self?.statisticsView.updateTable()
         }))
@@ -114,8 +110,9 @@ extension StatisticsViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         statisticsView.deselectRow(indexPath: indexPath, animated: true)
         let user = userData[indexPath.row]
-        let userViewController = StatisticsUserPageViewController()
+        let userViewController = StatisticsUserPageViewController(userId: user.id)
         userViewController.modalPresentationStyle = .fullScreen
+        userViewController.hidesBottomBarWhenPushed = true
         navigationController?.pushViewController(userViewController, animated: true)
     }
 }

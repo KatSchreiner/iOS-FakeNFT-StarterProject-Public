@@ -20,7 +20,7 @@ final class StatisticsView: UIView, StatisticsViewProtocol {
         return tableView
     }()
 
-    // MARK: Initialization
+    // MARK: - Initialization
     override init(frame: CGRect) {
         super.init(frame: frame)
         setupView()
@@ -31,7 +31,7 @@ final class StatisticsView: UIView, StatisticsViewProtocol {
         super.init(coder: coder)
     }
     
-    // MARK: Private methods
+    // MARK: - Private methods
     private func setupView() {
         addSubview(tableView)
         NSLayoutConstraint.activate([

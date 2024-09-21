@@ -1,10 +1,9 @@
 import UIKit
 
-final class StatisticsUserPageViewController: UIViewController {
-    //to do in epik 2-3
+final class StatisticsNftCollection: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
-        print("To do")
         view.backgroundColor = .white
+        //TO-DO: - In epik 3/3
     }
 }
