@@ -1,29 +1,40 @@
 import UIKit
 import ProgressHUD
 
-// MARK: CatalogueViewController
+// MARK: - CatalogueViewController
 
 final class CatalogueViewController: UIViewController {
     
     // MARK: Properties
-    private let catalogView: CatalogueViewProtocol
-    private var collections: [NFTCollection] = []
-    private var sortedByNameAscending = false
-    private var sortedByAmountAscending = false
+    private let filterStorage: FilterStorageProtocol
+    private let catalogueView: CatalogueViewProtocol
+    private let catalogueService: CatalogueServiceProtocol
+    private let router: CatalogueRouterProtocol
+    private var collections: [NFTCollections] = []
     
-    // MARK: - Initialization
-    init(catalogView: CatalogueViewProtocol) {
-        self.catalogView = catalogView
+    // MARK: Initialization
+    init(catalogueView: CatalogueViewProtocol,
+         catalogueService: CatalogueServiceProtocol,
+         filterStorage: FilterStorageProtocol,
+         router: CatalogueRouterProtocol
+    ) {
+        self.catalogueView = catalogueView
+        self.catalogueService = catalogueService
+        self.filterStorage = filterStorage
+        self.router = router
         super.init(nibName: nil, bundle: nil)
+        if let catalogueRouter = router as? CatalogueRouter {
+            catalogueRouter.viewController = self
+        }
     }
     @available(*, unavailable)
     required init?(coder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
+        return nil
     }
     
     // MARK: Life Cycle
     override func loadView() {
-        self.view = catalogView as? UIView
+        self.view = catalogueView as? UIView
     }
     
     override func viewDidLoad() {
@@ -35,9 +46,9 @@ final class CatalogueViewController: UIViewController {
     
     // MARK: Setup View
     private func setupView() {
-        catalogView.setTableViewDelegate(self)
-        catalogView.setTableViewDataSource(self)
-        catalogView.addRefreshTarget(self, action: #selector(refreshData))
+        catalogueView.setTableViewDelegate(self)
+        catalogueView.setTableViewDataSource(self)
+        catalogueView.addRefreshTarget(self, action: #selector(refreshData))
     }
     
     private func setupNavigationBar() {
@@ -55,26 +66,66 @@ final class CatalogueViewController: UIViewController {
     private func fetchCollections() {
         ProgressHUD.show()
         let oldCollections = collections
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) { [weak self] in
-            print("Данные загружены")
-            ProgressHUD.dismiss()
-            self?.collections = CollectionMockData.collections
-            self?.updateTableViewAnimated(oldCollections: oldCollections)
+        catalogueService.fetchCollections { [weak self] result in
+            DispatchQueue.main.async {
+                ProgressHUD.dismiss()
+                switch result {
+                case .success(let newCollections):
+                    self?.collections = newCollections
+                    self?.updateTableViewAnimated(oldCollections: oldCollections)
+                    self?.loadFilter()
+                case .failure(let error):
+                    print("Ошибка: \(error)")
+                }
+            }
         }
     }
     
     // MARK: Actions
     @objc private func sortTapped() {
+        router.presentSortOptions(
+            sortByNameAction: { [weak self] in
+                self?.sortByName()
+                self?.filterStorage.saveFilter(.name)
+            },
+            sortByAmountAction: { [weak self] in
+                self?.sortByAmount()
+                self?.filterStorage.saveFilter(.amount)
+            }
+        )
     }
     
     @objc private func refreshData() {
         fetchCollections()
-        catalogView.endRefreshing()
-        //catalogView.refreshControl.endRefreshing()
+        catalogueView.endRefreshing()
+    }
+    
+    // MARK: Data sorting
+    private func loadFilter() {
+        let savedFilter = filterStorage.loadFilter()
+        
+        switch savedFilter {
+        case .amount:
+            sortByAmount()
+        case .name:
+            sortByName()
+        }
+    }
+    
+    private func sortByAmount() {
+        let oldCollections = collections
+        collections.sort { $0.nfts.count < $1.nfts.count }
+        updateTableViewAnimated(oldCollections: oldCollections)
+    }
+
+    private func sortByName() {
+        let oldCollections = collections
+        collections.sort { $0.name.localizedCompare($1.name) == .orderedAscending }
+        updateTableViewAnimated(oldCollections: oldCollections)
     }
     
     // MARK: Table View Updates
-    private func updateTableViewAnimated(oldCollections: [NFTCollection]) {
+    private func updateTableViewAnimated(oldCollections: [NFTCollections]) {
         let newCollections = collections
         
         let oldIndexPaths = oldCollections.indices.map { IndexPath(row: $0, section: 0) }
@@ -84,7 +135,7 @@ final class CatalogueViewController: UIViewController {
         let deletedIndexPaths = oldIndexPaths.filter { !newIndexPaths.contains($0) }
         let reloadedIndexPaths = newIndexPaths.filter { oldIndexPaths.contains($0) }
         
-        catalogView.updateTable(
+        catalogueView.updateTable(
             deletedRows: deletedIndexPaths,
             insertedRows: insertedIndexPaths,
             reloadedRows: reloadedIndexPaths,
@@ -96,13 +147,18 @@ final class CatalogueViewController: UIViewController {
 // MARK: - UITableViewDelegate
 extension CatalogueViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        catalogView.deselectRow(indexPath: indexPath, animated: true)
+        catalogueView.deselectRow(indexPath: indexPath, animated: true)
         
         if collections.indices.contains(indexPath.row) {
-            let detailVC = NewViewController()
-            navigationController?.pushViewController(detailVC, animated: true)
+            let nfts = collections[indexPath.row].nfts
+            let newViewControllerClient = DefaultNetworkClient()
+            let newViewControllerService = CatalogueService(networkClient: newViewControllerClient)
+
+            router.navigateToDetail(with: nfts, catalogueService: newViewControllerService)
+   
         } else {
             print("⚠️ Индекс вне диапазона.")
+            return
         }
     }
 }
@@ -128,13 +184,14 @@ extension CatalogueViewController: UITableViewDataSource {
                 case .success:
                     tableView.reloadRows(at: [indexPath], with: .automatic)
                 case .failure:
-                    print("Не удалось загрузить изображение")
+                    print("⚠️ Не удалось загрузить изображение")
+                    return
                 }
             }
         } else {
             print("⚠️ Индекс вне диапазона.")
+            return UITableViewCell()
         }
-        
         return cell
     }
     
