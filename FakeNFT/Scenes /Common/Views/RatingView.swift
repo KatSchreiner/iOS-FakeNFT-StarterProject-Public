@@ -25,14 +25,13 @@ class RatingView: UIView {
             let starImageView = UIImageView()
             starImageView.contentMode = .scaleAspectFit
             starImageView.translatesAutoresizingMaskIntoConstraints = false
-            starImageView.image = UIImage(systemName: "star")
-            starImageView.tintColor = .secondary
+            starImageView.image = UIImage(named: "star.full")
             
             addSubview(starImageView)
             stars.append(starImageView)
             
             NSLayoutConstraint.activate([
-                starImageView.leadingAnchor.constraint(equalTo: star == 0 ? self.leadingAnchor : stars[star - 1].trailingAnchor, constant: 4),
+                starImageView.leadingAnchor.constraint(equalTo: star == 0 ? self.leadingAnchor : stars[star - 1].trailingAnchor, constant: 3),
                 starImageView.centerYAnchor.constraint(equalTo: self.centerYAnchor),
                 starImageView.widthAnchor.constraint(equalToConstant: 12),
                 starImageView.heightAnchor.constraint(equalToConstant: 12)
@@ -43,10 +42,9 @@ class RatingView: UIView {
     func setRating(_ rating: Int) {
         for (index, star) in stars.enumerated() {
             if index < rating {
-                star.image = UIImage(systemName: "star.fill")
+                star.image = UIImage(named: "star.full")
             } else {
-                star.image = UIImage(systemName: "star.fill")
-                star.tintColor = .nGray
+                star.image = UIImage(named: "star")
             }
         }
     }

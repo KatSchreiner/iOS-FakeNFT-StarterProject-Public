@@ -23,7 +23,7 @@ final class ServicesAssembly {
         NftServiceImpl(
             networkClient: networkClient,
             storage: nftStorage
-        ) as! NftService
+        ) as NftService
     }
     
     var profileServiceInstance: ProfileService {

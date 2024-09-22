@@ -9,7 +9,8 @@ import UIKit
 import Kingfisher
 
 final class MyNftTableViewCell: UITableViewCell {
-    let nftImageView: UIImageView = {
+    // MARK: - Private Properties
+    private lazy var nftImageView: UIImageView = {
         let imageView = UIImageView()
         imageView.contentMode = .scaleAspectFill
         imageView.clipsToBounds = true
@@ -18,16 +19,16 @@ final class MyNftTableViewCell: UITableViewCell {
         return imageView
     }()
     
-    let nameLabel: UILabel = {
+    private lazy var nameLabel: UILabel = {
         let label = UILabel()
         label.font = .bodyBold
         label.textColor = .nBlack
         return label
     }()
     
-    let ratingView = RatingView()
+    private lazy var ratingView = RatingView()
     
-    let authorLabel: UILabel = {
+    private lazy var authorLabel: UILabel = {
         let label = UILabel()
         label.font = .caption2
         label.textColor = .nBlack
@@ -36,14 +37,14 @@ final class MyNftTableViewCell: UITableViewCell {
         return label
     }()
     
-    let priceLabel: UILabel = {
+    private lazy var priceLabel: UILabel = {
         let label = UILabel()
         label.font = .bodyBold
         label.textColor = .nBlack
         return label
     }()
     
-    let priceTextLabel: UILabel = {
+    private lazy var priceTextLabel: UILabel = {
         let label = UILabel()
         label.font = .caption2
         label.textColor = .nBlack
@@ -58,6 +59,7 @@ final class MyNftTableViewCell: UITableViewCell {
         return favoriteButton
     }()
     
+    // MARK: - Overrides Methods
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
         setupSubviews()
@@ -68,6 +70,16 @@ final class MyNftTableViewCell: UITableViewCell {
         fatalError("init(coder:) has not been implemented")
     }
     
+    // MARK: - Public Methods
+    func configure(with nft: NFT) {
+        setImage(with: nft)
+        nameLabel.text = nft.name
+        ratingView.setRating(nft.rating)
+        authorLabel.text = "От: \(nft.author)"
+        priceLabel.text = "\(nft.price) ETH"
+    }
+    
+    // MARK: - Private Methods
     private func setupSubviews() {
         [nftImageView, nameLabel, ratingView, authorLabel, priceLabel, priceTextLabel].forEach { contentView in
             contentView.translatesAutoresizingMaskIntoConstraints = false
@@ -107,14 +119,6 @@ final class MyNftTableViewCell: UITableViewCell {
             priceLabel.leadingAnchor.constraint(equalTo: ratingView.leadingAnchor, constant: 150),
             priceLabel.topAnchor.constraint(equalTo: priceTextLabel.bottomAnchor, constant: 5)
         ])
-    }
-    
-    func configure(with nft: NFT) {
-        setImage(with: nft)
-        nameLabel.text = nft.name
-        ratingView.setRating(nft.rating)
-        authorLabel.text = "От: \(nft.author)"
-        priceLabel.text = "\(nft.price) ETH"
     }
     
     private func setImage(with nft: NFT) {

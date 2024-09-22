@@ -28,10 +28,7 @@ extension UIColor {
     // Ниже приведены примеры цветов, настоящие цвета надо взять из фигмы
 
     // Primary Colors
-    static let primary = UIColor(red: 10 / 255.0, green: 132 / 255.0, blue: 255 / 255.0, alpha: 1.0)
-
-    // Secondary Colors
-    static let secondary = UIColor(red: 254/255, green: 239/255, blue: 13/255, alpha: 1)
+//    static let primary = UIColor(red: 10 / 255.0, green: 132 / 255.0, blue: 255 / 255.0, alpha: 1.0)
 
     // Background Colors
     static let background = UIColor.white

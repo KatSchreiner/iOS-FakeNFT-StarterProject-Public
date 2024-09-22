@@ -51,7 +51,7 @@ final class ProfileViewController: UIViewController, WKNavigationDelegate {
         let label = UILabel()
         label.isUserInteractionEnabled = true
         label.font = .caption1
-        label.textColor = .primary
+        label.textColor = .systemBlue
         
         let tapGesture = UITapGestureRecognizer(target: self, action: #selector(didTapWebsiteLabel))
         label.addGestureRecognizer(tapGesture)
