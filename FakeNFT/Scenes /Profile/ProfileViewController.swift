@@ -273,7 +273,9 @@ extension ProfileViewController: UITableViewDelegate {
                 navigationController?.pushViewController(myNftVC, animated: true)
             }
         case 1:
-            navigationController?.pushViewController(FavoritesNFTViewController(), animated: true)
+            let favoritesVC = FavoriteNftViewController(servicesAssembly: servicesAssembly)
+            favoritesVC.profile = self.currentProfile
+            navigationController?.pushViewController(favoritesVC, animated: true)
         case 2:
             navigateToDeveloperInfo()
         default: break
