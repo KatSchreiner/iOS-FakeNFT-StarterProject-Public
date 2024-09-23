@@ -8,8 +8,18 @@
 import UIKit
 import Kingfisher
 
+protocol MyNftCellLikeDelegate: AnyObject {
+    func didUpdateFavoriteStatus(isLiked: Bool, for nftId: String, profileId: String)
+}
+
 final class MyNftTableViewCell: UITableViewCell {
+    // MARK: - Public Properties
+    weak var delegate: MyNftCellLikeDelegate?
+
     // MARK: - Private Properties
+    private var nft: NFT?
+    private var profile: Profile?
+    
     private lazy var nftImageView: UIImageView = {
         let imageView = UIImageView()
         imageView.contentMode = .scaleAspectFill
@@ -54,8 +64,10 @@ final class MyNftTableViewCell: UITableViewCell {
     
     private lazy var favoriteButton: UIButton = {
         let favoriteButton = UIButton()
-        favoriteButton.setImage(UIImage(named: "favorite"), for: .normal)
+        favoriteButton.setImage(UIImage(named: "favorite.active"), for: .selected)
+        favoriteButton.setImage(UIImage(named: "favorite.no.active"), for: .normal)
         favoriteButton.translatesAutoresizingMaskIntoConstraints = false
+        favoriteButton.addTarget(self, action: #selector(didTapFavoriteButton), for: .touchUpInside)
         return favoriteButton
     }()
     
@@ -70,23 +82,37 @@ final class MyNftTableViewCell: UITableViewCell {
         fatalError("init(coder:) has not been implemented")
     }
     
+    // MARK: - IB Actions
+    @objc
+    private func didTapFavoriteButton() {
+        guard let nftId = nft?.id, let profileId = profile?.id else { return }
+        
+        if let profileLikes = profile?.likes {
+            let isLiked = !profileLikes.contains(nftId)
+            delegate?.didUpdateFavoriteStatus(isLiked: isLiked, for: nftId, profileId: profileId)
+        }
+    }
+    
     // MARK: - Public Methods
-    func configure(with nft: NFT) {
+    func configure(with nft: NFT, profile: Profile) {
+        self.nft = nft
+        self.profile = profile
+        
         setImage(with: nft)
         nameLabel.text = nft.name
         ratingView.setRating(nft.rating)
         authorLabel.text = "От: \(nft.author)"
         priceLabel.text = "\(nft.price) ETH"
+        
+        favoriteButton.isSelected = profile.likes.contains(nft.id)
     }
     
     // MARK: - Private Methods
     private func setupSubviews() {
-        [nftImageView, nameLabel, ratingView, authorLabel, priceLabel, priceTextLabel].forEach { contentView in
+        [nftImageView, nameLabel, ratingView, authorLabel, priceLabel, priceTextLabel, favoriteButton].forEach { contentView in
             contentView.translatesAutoresizingMaskIntoConstraints = false
             self.contentView.addSubview(contentView)
         }
-        
-        nftImageView.addSubview(favoriteButton)
     }
     
     private func addConstraints() {

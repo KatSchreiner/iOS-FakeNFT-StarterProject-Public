@@ -162,7 +162,12 @@ extension MyNftViewController: UITableViewDataSource {
         }
         
         let nft = nfts[indexPath.row]
-        cell.configure(with: nft)
+        guard let profile = profile else {
+            print("Профиль не найден, не удается настроить ячейку.")
+            return cell 
+        }
+        cell.configure(with: nft, profile: profile)
+        cell.delegate = self
         
         return cell
     }
@@ -176,6 +181,47 @@ extension MyNftViewController: UITableViewDelegate {
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
+    }
+}
+
+// MARK: - MyNftCellLikeDelegate
+extension MyNftViewController: MyNftCellLikeDelegate {
+    func didUpdateFavoriteStatus(isLiked: Bool, for nftId: String, profileId: String) {
+        FavoritesService().updateFavoriteNft(profileId: profileId, nftId: nftId, isLiked: isLiked) { [weak self] result in
+            switch result {
+            case .success:
+                self?.updateProfileLikes(isLiked: isLiked, nftId: nftId)
+            case .failure(let error):
+                print("Ошибка при \(isLiked ? "добавлении" : "удалении") из избранного: \(error)")
+            }
+        }
+    }
+    
+    private func updateProfileLikes(isLiked: Bool, nftId: String) {
+        guard var profile = profile else { return }
+        
+        if isLiked {
+            profile.likes.append(nftId)
+        } else {
+            profile.likes.removeAll { $0 == nftId }
+        }
+        
+        updateProfileOnServer(with: profile)
+    }
+    
+    private func updateProfileOnServer(with profile: Profile) {
+        let likesProfile = FavoritesService(networkClient: DefaultNetworkClient())
+        
+        likesProfile.updateLikesProfile(likes: profile.likes) { result in
+            switch result {
+            case .success(let updateLikesProfile):
+                self.profile = updateLikesProfile
+                self.tableView.reloadData()
+                print("Список favoriteNft успешно обновлен: \(profile.likes)")
+            case .failure(let error):
+                print("Ошибка при обновлении: \(error.localizedDescription)")
+            }
+        }
     }
 }
 
