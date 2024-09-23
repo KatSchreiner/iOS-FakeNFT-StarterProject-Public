@@ -16,10 +16,8 @@ final class WebViewController: UIViewController, WKNavigationDelegate {
     // MARK: - Private Properties
     private var webView: WKWebView
     
-    private lazy var backButton: UIBarButtonItem = {
-        let backButton = UIBarButtonItem(title: "", style: .plain, target: self, action: #selector(didTapBack))
-        backButton.tintColor = .nBlack
-        backButton.image = UIImage(systemName: "chevron.left")
+    private lazy var backButton: BackButton = {
+        let backButton = BackButton(target: self, action: #selector(didTapBack))
         return backButton
     }()
     
