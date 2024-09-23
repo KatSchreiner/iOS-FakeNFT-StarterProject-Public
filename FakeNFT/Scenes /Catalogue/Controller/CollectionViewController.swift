@@ -5,15 +5,21 @@ import ProgressHUD
 final class CollectionViewController: UIViewController {
     
     // MARK: Properties
-    private let catalogueService: CatalogueService
+    private let collectionView: CollectionViewProtocol
+    private let collectionService: CatalogueService
+    
     private let nfts: [String]
     private var nftsList: [NFT] = []
     private let dispatchGroup = DispatchGroup()
     private let nftsListQueue = DispatchQueue(label: "nftsListQueue", attributes: .concurrent)
     
     // MARK: Initialization
-    init(nfts: [String], catalogueService: CatalogueService) {
-        self.catalogueService = catalogueService
+    init(nfts: [String], 
+         service: CatalogueService,
+         view: CollectionView
+    ) {
+        self.collectionView = view
+        self.collectionService = service
         self.nfts = nfts
         super.init(nibName: nil, bundle: nil)
     }
@@ -23,9 +29,13 @@ final class CollectionViewController: UIViewController {
     }
     
     // MARK: Life Cycle
+    override func loadView() {
+        self.view = collectionView as? UIView
+    }
+    
     override func viewDidLoad() {
         super.viewDidLoad()
-        view.backgroundColor = .yellow
+        
         print("ℹ️ nfts:", nfts)
         fetchAllNFTs()
     }
@@ -36,7 +46,7 @@ final class CollectionViewController: UIViewController {
         
         for id in nfts {
             dispatchGroup.enter()
-            catalogueService.fetchNFT(id: id) { [weak self] result in
+            collectionService.fetchNFT(id: id) { [weak self] result in
                 defer {
                     self?.dispatchGroup.leave()
                 }

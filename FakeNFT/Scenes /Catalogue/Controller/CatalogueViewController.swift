@@ -151,10 +151,12 @@ extension CatalogueViewController: UITableViewDelegate {
         
         if collections.indices.contains(indexPath.row) {
             let nfts = collections[indexPath.row].nfts
-            let newViewControllerClient = DefaultNetworkClient()
-            let newViewControllerService = CatalogueService(networkClient: newViewControllerClient)
+            let networkClient = DefaultNetworkClient()
+            let collectionService = CatalogueService(networkClient: networkClient)
+            let collectionViewRouter = CollectionRouter()
+            let collectionView = CollectionView(frame: .zero, router: collectionViewRouter)
 
-            router.navigateToDetail(with: nfts, catalogueService: newViewControllerService)
+            router.navigateToDetail(with: nfts, service: collectionService, view: collectionView)
    
         } else {
             print("⚠️ Индекс вне диапазона.")
