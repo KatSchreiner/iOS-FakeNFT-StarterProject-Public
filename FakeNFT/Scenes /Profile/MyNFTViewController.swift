@@ -163,8 +163,8 @@ extension MyNftViewController: UITableViewDataSource {
         
         let nft = nfts[indexPath.row]
         guard let profile = profile else {
-            print("Профиль не найден, не удается настроить ячейку.")
-            return cell 
+            print("[MyNftViewController:cellForRowAt]: Профиль не найден, не удается настроить ячейку.")
+            return cell
         }
         cell.configure(with: nft, profile: profile)
         cell.delegate = self
@@ -192,7 +192,7 @@ extension MyNftViewController: MyNftCellLikeDelegate {
             case .success:
                 self?.updateProfileLikes(isLiked: isLiked, nftId: nftId)
             case .failure(let error):
-                print("Ошибка при \(isLiked ? "добавлении" : "удалении") из избранного: \(error)")
+                print("[MyNftViewController:didUpdateFavoriteStatus]: Ошибка при \(isLiked ? "добавлении" : "удалении") из избранного: \(error)")
             }
         }
     }
@@ -217,9 +217,9 @@ extension MyNftViewController: MyNftCellLikeDelegate {
             case .success(let updateLikesProfile):
                 self.profile = updateLikesProfile
                 self.tableView.reloadData()
-                print("Список favoriteNft успешно обновлен: \(profile.likes)")
+                print("[MyNftViewController:updateProfileOnServer]: Список favoriteNft успешно обновлен: \(profile.likes)")
             case .failure(let error):
-                print("Ошибка при обновлении: \(error.localizedDescription)")
+                print("[MyNftViewController:updateProfileOnServer]: Ошибка при обновлении favoriteNft: \(error.localizedDescription)")
             }
         }
     }

@@ -55,7 +55,6 @@ class FavoriteCollectionViewCell: UICollectionViewCell {
     }
     
     @objc private func didTapFavoriteButton() {
-        print(" тап по сердцу ")
         guard let nftId = nft?.id else { return }
         delegate?.didTapRemoveFromFavorites(nftId: nftId)
         favoriteButton.isSelected.toggle()
@@ -109,7 +108,7 @@ class FavoriteCollectionViewCell: UICollectionViewCell {
         if let imageUrlString = nft.images.first, let url = URL(string: imageUrlString) {
             FavoriteImageView.kf.setImage(with: url)
         } else {
-            print("Нет доступных изображений для NFT: \(nft.name)")
+            print("[FavoriteCollectionViewCell:setImage]: Нет доступных изображений для NFT: \(nft.name)")
             self.FavoriteImageView.image = nil
         }
     }

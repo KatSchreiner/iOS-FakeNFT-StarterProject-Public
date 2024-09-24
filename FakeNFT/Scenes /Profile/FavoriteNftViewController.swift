@@ -76,27 +76,27 @@ final class FavoriteNftViewController: UIViewController {
     
     private func loadLikedNfts() {
         guard let profile = profile else {
-            print("Профиль не инициализирован.")
+            print("[FavoriteNftViewController:loadLikedNfts]: Профиль не инициализирован.")
             return
         }
         
         let ids = profile.likes
-        print("Загрузка избранных NFT с ID: \(ids)")
+        print("[FavoriteNftViewController:loadLikedNfts]: Загрузка избранных NFT с ID: \(ids)")
         
         servicesAssembly.nftListInstanse.fetchNfts { [weak self] result in
             switch result {
             case .success(let nfts):
                 self?.likedNfts = nfts.filter { ids.contains($0.id) }
-                print("Получены избранные NFT: \(self?.likedNfts ?? [])")
+                print("[FavoriteNftViewController:loadLikedNfts]: Получены избранные NFT: \(self?.likedNfts ?? [])")
                 self?.collection.reloadData()
             case .failure(let error):
-                print("Ошибка получения избранных NFT: \(error)")
+                print("[FavoriteNftViewController:loadLikedNfts]: Ошибка получения избранных NFT: \(error)")
             }
         }
     }
     
     func removeNftFromFavorites(nftId: String) {
-        print("Пытаемся удалить NFT с ID: \(nftId)")
+        print("[FavoriteNftViewController:removeNftFromFavorites]: Удаляем из избранного NFT с ID: \(nftId)")
         guard var profile = profile else { return }
         
         profile.likes.removeAll() { $0 == nftId }
@@ -107,9 +107,26 @@ final class FavoriteNftViewController: UIViewController {
             case .success:
                 self?.likedNfts.removeAll { $0.id == nftId }
                 self?.collection.reloadData()
-                print("NFT удален из избранного: \(nftId)")
+                print("[FavoriteNftViewController:removeNftFromFavorites]: NFT успешно удален из избранного: \(nftId)")
             case .failure(let error):
-                print("Ошибка при удалении NFT из избранного: \(error)")
+                print("[FavoriteNftViewController:removeNftFromFavorites]: Ошибка при удалении NFT из избранного: \(error)")
+            }
+        }
+        
+        updateProfileOnServer(with: profile)
+    }
+    
+    private func updateProfileOnServer(with profile: Profile) {
+        let likesProfile = FavoritesService(networkClient: DefaultNetworkClient())
+        
+        likesProfile.updateLikesProfile(likes: profile.likes) { result in
+            switch result {
+            case .success(let updateLikesProfile):
+                self.profile = updateLikesProfile
+                self.collection.reloadData()
+                print("[FavoriteNftViewController:updateProfileOnServer]: Список favoriteNft успешно обновлен: \(profile.likes)")
+            case .failure(let error):
+                print("[FavoriteNftViewController:updateProfileOnServer]: Ошибка при обновлении favoriteNft: \(error.localizedDescription)")
             }
         }
     }
@@ -126,7 +143,7 @@ extension FavoriteNftViewController: UICollectionViewDataSource {
         
         let nft = likedNfts[indexPath.item]
         guard let profile = profile else {
-            print("Профиль не найден, не удается настроить ячейку.")
+            print("[FavoriteNftViewController:cellForItemAt]: Профиль не найден, не удается настроить ячейку.")
             return cell
         }
         
