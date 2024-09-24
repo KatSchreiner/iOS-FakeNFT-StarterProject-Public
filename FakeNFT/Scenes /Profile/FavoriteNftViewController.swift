@@ -79,17 +79,18 @@ final class FavoriteNftViewController: UIViewController {
             print("Профиль не инициализирован.")
             return
         }
+        
         let ids = profile.likes
-        print("Загрузка NFT с ID: \(ids)")
+        print("Загрузка избранных NFT с ID: \(ids)")
         
         servicesAssembly.nftListInstanse.fetchNfts { [weak self] result in
             switch result {
             case .success(let nfts):
                 self?.likedNfts = nfts.filter { ids.contains($0.id) }
-                print("Полученные NFT после фильтрации: \(self?.likedNfts ?? [])")
+                print("Получены избранные NFT: \(self?.likedNfts ?? [])")
                 self?.collection.reloadData()
             case .failure(let error):
-                print("Ошибка получения NFT: \(error)")
+                print("Ошибка получения избранных NFT: \(error)")
             }
         }
     }

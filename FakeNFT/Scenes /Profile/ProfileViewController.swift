@@ -14,9 +14,11 @@ final class ProfileViewController: UIViewController, WKNavigationDelegate {
     // MARK: - Private Properties
     private let servicesAssembly: ServicesAssembly
     private let webView = WKWebView()
+    
     private var currentProfile: Profile?
     private var userNfts: [NFT] = []
     private var nftCount: Int = 0
+    private var favoriteNftCount: Int = 0
     
     private lazy var editButton: UIBarButtonItem = {
         let image = UIImage(named: "square.and.pencil")
@@ -190,7 +192,10 @@ final class ProfileViewController: UIViewController, WKNavigationDelegate {
         descriptionLabel.text = profile.description
         websiteLabel.text = profile.website
         updateAvatar(url: profile.avatar)
+        
         nftCount = profile.nfts.count
+        favoriteNftCount = profile.likes.count
+        
         tableView.reloadData()
     }
     
@@ -245,7 +250,7 @@ extension ProfileViewController: UITableViewDataSource {
     private func cellText(for row: Int) -> String {
         switch row {
         case 0: return "Мои NFT (\(nftCount))"
-        case 1: return "Избранные NFT (11)"
+        case 1: return "Избранные NFT (\(favoriteNftCount))"
         case 2: return "О разработчике"
         default: return ""
         }
