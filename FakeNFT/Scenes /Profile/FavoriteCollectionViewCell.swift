@@ -7,8 +7,14 @@
 
 import UIKit
 
+protocol FavoriteCellDelegate: AnyObject {
+    func didTapRemoveFromFavorites(nftId: String)
+}
+
 class FavoriteCollectionViewCell: UICollectionViewCell {
+    weak var delegate: FavoriteCellDelegate?
     private var nft: NFT?
+    private var profile: Profile?
 
     private lazy var FavoriteImageView: UIImageView = {
         let image = UIImageView()
@@ -49,7 +55,9 @@ class FavoriteCollectionViewCell: UICollectionViewCell {
     }
     
     @objc private func didTapFavoriteButton() {
-        print("Favorite button tapped")
+        print(" тап по сердцу ")
+        guard let nftId = nft?.id else { return }
+        delegate?.didTapRemoveFromFavorites(nftId: nftId)
         favoriteButton.isSelected.toggle()
     }
     
@@ -85,11 +93,16 @@ class FavoriteCollectionViewCell: UICollectionViewCell {
         ])
     }
     
-    func configure(with nft: NFT) {
+    func configure(with nft: NFT, profile: Profile) {
+        self.nft = nft
+        self.profile = profile
+        
         setImage(nft: nft)
         nameLabel.text = nft.name
         ratingView.setRating(nft.rating)
         priceLabel.text = "\(nft.price) ETH"
+        
+        favoriteButton.isSelected = profile.likes.contains(nft.id)
     }
     
     private func setImage(nft: NFT) {

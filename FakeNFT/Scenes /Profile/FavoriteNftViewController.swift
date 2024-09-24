@@ -94,6 +94,25 @@ final class FavoriteNftViewController: UIViewController {
             }
         }
     }
+    
+    func removeNftFromFavorites(nftId: String) {
+        print("Пытаемся удалить NFT с ID: \(nftId)")
+        guard var profile = profile else { return }
+        
+        profile.likes.removeAll() { $0 == nftId }
+        
+        servicesAssembly.favoritesServiceInstanse.updateFavoriteNft(profileId: profile.id, nftId: nftId, isLiked: false) { [weak self] result in
+           
+            switch result {
+            case .success:
+                self?.likedNfts.removeAll { $0.id == nftId }
+                self?.collection.reloadData()
+                print("NFT удален из избранного: \(nftId)")
+            case .failure(let error):
+                print("Ошибка при удалении NFT из избранного: \(error)")
+            }
+        }
+    }
 }
 
 // MARK: - UIUICollectionViewDataSource
@@ -106,8 +125,14 @@ extension FavoriteNftViewController: UICollectionViewDataSource {
         guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "favoriteCell", for: indexPath) as? FavoriteCollectionViewCell else { return UICollectionViewCell() }
         
         let nft = likedNfts[indexPath.item]
-        cell.configure(with: nft)
-        print("Настраиваю ячейку для NFT: \(nft.name)") 
+        guard let profile = profile else {
+            print("Профиль не найден, не удается настроить ячейку.")
+            return cell
+        }
+        
+        cell.configure(with: nft, profile: profile)
+        cell.delegate = self
+        
         return cell
     }
 }
@@ -128,5 +153,11 @@ extension FavoriteNftViewController: UICollectionViewDelegateFlowLayout {
 
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumInteritemSpacingForSectionAt section: Int) -> CGFloat {
         return 16
+    }
+}
+
+extension FavoriteNftViewController: FavoriteCellDelegate {
+    func didTapRemoveFromFavorites(nftId: String) {
+        removeNftFromFavorites(nftId: nftId)
     }
 }
