@@ -193,7 +193,10 @@ extension MyNftViewController: UITableViewDelegate {
 // MARK: - MyNftCellLikeDelegate
 extension MyNftViewController: MyNftCellLikeDelegate {
     func didUpdateFavoriteStatus(isLiked: Bool, for nftId: String, profileId: String) {
+        ProgressHUD.show()
         FavoritesService().updateFavoriteNft(profileId: profileId, nftId: nftId, isLiked: isLiked) { [weak self] result in
+            ProgressHUD.dismiss()
+            
             switch result {
             case .success:
                 self?.updateProfileLikes(isLiked: isLiked, nftId: nftId)

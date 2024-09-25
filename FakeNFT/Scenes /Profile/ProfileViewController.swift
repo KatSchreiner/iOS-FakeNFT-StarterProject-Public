@@ -177,6 +177,7 @@ final class ProfileViewController: UIViewController, WKNavigationDelegate {
         servicesAssembly.profileServiceInstance.fetchProfile { [weak self] result in
             DispatchQueue.main.async {
                 ProgressHUD.dismiss()
+                
                 switch result {
                 case .success(let profile):
                     print("[ProfileViewController:loadProfile]: Данные профиля успешно отображены")
@@ -210,9 +211,11 @@ final class ProfileViewController: UIViewController, WKNavigationDelegate {
     }
     
     private func loadNfts(for profile: Profile) {
+        ProgressHUD.show()
         servicesAssembly.nftListInstanse.fetchNfts { result in
+            ProgressHUD.dismiss()
+            
             switch result {
-                
             case .success(let nfts):
                 self.userNfts = nfts.filter { profile.nfts.contains($0.id) }
                 DispatchQueue.main.async {

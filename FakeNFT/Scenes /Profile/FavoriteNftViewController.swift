@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import ProgressHUD
 
 final class FavoriteNftViewController: UIViewController {
     // MARK: - Public Properties
@@ -27,6 +28,14 @@ final class FavoriteNftViewController: UIViewController {
     
     private lazy var backButton: BackButton = {
         return BackButton(target: self, action: #selector(didTapBack))
+    }()
+    
+    private lazy var noFavoriteNftLabel: UILabel = {
+        let noNftLabel = UILabel()
+        noNftLabel.font = .bodyBold
+        noNftLabel.textColor = .nBlack
+        noNftLabel.text = "У Вас ещё нет избранных NFT"
+        return noNftLabel
     }()
     
     // MARK: - Initializers
@@ -59,10 +68,13 @@ final class FavoriteNftViewController: UIViewController {
         navigationItem.title = "Избранные NFT"
         navigationItem.leftBarButtonItem = backButton
         
-        view.addSubview(collection)
-        collection.translatesAutoresizingMaskIntoConstraints = false
+        [collection, noFavoriteNftLabel].forEach { view in
+            view.translatesAutoresizingMaskIntoConstraints = false
+            self.view.addSubview(view)
+        }
         
         addConstraint()
+        updateNoFavoriteNftLabelVisibility()
     }
     
     private func addConstraint() {
@@ -70,11 +82,16 @@ final class FavoriteNftViewController: UIViewController {
             collection.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             collection.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             collection.topAnchor.constraint(equalTo: view.topAnchor),
-            collection.bottomAnchor.constraint(equalTo: view.bottomAnchor)
+            collection.bottomAnchor.constraint(equalTo: view.bottomAnchor),
+            
+            noFavoriteNftLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            noFavoriteNftLabel.centerYAnchor.constraint(equalTo: view.centerYAnchor)
         ])
     }
     
     private func loadLikedNfts() {
+        ProgressHUD.show()
+        
         guard let profile = profile else {
             print("[FavoriteNftViewController:loadLikedNfts]: Профиль не инициализирован.")
             return
@@ -84,11 +101,14 @@ final class FavoriteNftViewController: UIViewController {
         print("[FavoriteNftViewController:loadLikedNfts]: Загрузка избранных NFT с ID: \(ids)")
         
         servicesAssembly.nftListInstanse.fetchNfts { [weak self] result in
+            ProgressHUD.dismiss()
+            
             switch result {
             case .success(let nfts):
                 self?.likedNfts = nfts.filter { ids.contains($0.id) }
                 print("[FavoriteNftViewController:loadLikedNfts]: Получены избранные NFT: \(self?.likedNfts ?? [])")
                 self?.collection.reloadData()
+                self?.updateNoFavoriteNftLabelVisibility()
             case .failure(let error):
                 print("[FavoriteNftViewController:loadLikedNfts]: Ошибка получения избранных NFT: \(error)")
             }
@@ -97,16 +117,20 @@ final class FavoriteNftViewController: UIViewController {
     
     func removeNftFromFavorites(nftId: String) {
         print("[FavoriteNftViewController:removeNftFromFavorites]: Удаляем из избранного NFT с ID: \(nftId)")
+        ProgressHUD.show()
+        
         guard var profile = profile else { return }
         
         profile.likes.removeAll() { $0 == nftId }
         
         servicesAssembly.favoritesServiceInstanse.updateFavoriteNft(profileId: profile.id, nftId: nftId, isLiked: false) { [weak self] result in
-           
+            ProgressHUD.dismiss()
+            
             switch result {
             case .success:
                 self?.likedNfts.removeAll { $0.id == nftId }
                 self?.collection.reloadData()
+                self?.updateNoFavoriteNftLabelVisibility() 
                 print("[FavoriteNftViewController:removeNftFromFavorites]: NFT успешно удален из избранного: \(nftId)")
             case .failure(let error):
                 print("[FavoriteNftViewController:removeNftFromFavorites]: Ошибка при удалении NFT из избранного: \(error)")
@@ -133,6 +157,10 @@ final class FavoriteNftViewController: UIViewController {
                 print("[FavoriteNftViewController:updateProfileOnServer]: Ошибка при обновлении favoriteNft: \(error.localizedDescription)")
             }
         }
+    }
+    
+    private func updateNoFavoriteNftLabelVisibility() {
+        noFavoriteNftLabel.isHidden = !likedNfts.isEmpty
     }
 }
 
