@@ -8,8 +8,14 @@
 import UIKit
 import ProgressHUD
 
+protocol MyNftViewControllerDelegate: AnyObject {
+    func didUpdateLikes(_ likes: [String])
+}
+
 final class MyNftViewController: UIViewController {
     // MARK: - Public Properties
+    weak var delegate: MyNftViewControllerDelegate?
+
     var profile: Profile?
     var nfts: [NFT] = []
     
@@ -207,6 +213,9 @@ extension MyNftViewController: MyNftCellLikeDelegate {
         }
         
         updateProfileOnServer(with: profile)
+        
+        delegate?.didUpdateLikes(profile.likes)
+
     }
     
     private func updateProfileOnServer(with profile: Profile) {

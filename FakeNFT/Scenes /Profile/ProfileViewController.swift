@@ -91,6 +91,11 @@ final class ProfileViewController: UIViewController, WKNavigationDelegate {
         loadProfile()
     }
     
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        loadProfile()
+    }
+    
     // MARK: - IB Actions
     @objc
     func didTapEditProfile() {
@@ -273,13 +278,16 @@ extension ProfileViewController: UITableViewDelegate {
         case 0:
             if let currentProfile = currentProfile {
                 let myNftVC = MyNftViewController(servicesAssembly: servicesAssembly)
+                myNftVC.delegate = self 
+
                 myNftVC.profile = currentProfile
                 myNftVC.nfts = userNfts
                 navigationController?.pushViewController(myNftVC, animated: true)
             }
         case 1:
             let favoritesVC = FavoriteNftViewController(servicesAssembly: servicesAssembly)
-            favoritesVC.profile = self.currentProfile
+            favoritesVC.profile = currentProfile
+            
             navigationController?.pushViewController(favoritesVC, animated: true)
         case 2:
             navigateToDeveloperInfo()
@@ -311,6 +319,16 @@ extension ProfileViewController: EditProfileDelegate {
             self.profileImageView.kf.setImage(with: url)
         } else {
             self.profileImageView.image = UIImage(named: "placeholder_avatar")
+        }
+    }
+}
+
+extension ProfileViewController: MyNftViewControllerDelegate {
+    func didUpdateLikes(_ likes: [String]) {
+        func didUpdateLikes(_ likes: [String]) {
+            currentProfile?.likes = likes
+            favoriteNftCount = likes.filter { $0 == currentProfile?.id }.count
+            tableView.reloadData()
         }
     }
 }

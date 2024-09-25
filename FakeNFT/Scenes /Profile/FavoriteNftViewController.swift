@@ -113,7 +113,11 @@ final class FavoriteNftViewController: UIViewController {
             }
         }
         
-        updateProfileOnServer(with: profile)
+        if !profile.likes.isEmpty {
+            updateProfileOnServer(with: profile)
+        } else {
+            print("[FavoriteNftViewController:removeNftFromFavorites]: Список likes пуст, обновление профиля не требуется.")
+        }
     }
     
     private func updateProfileOnServer(with profile: Profile) {
