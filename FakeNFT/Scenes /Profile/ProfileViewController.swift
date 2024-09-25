@@ -115,7 +115,7 @@ final class ProfileViewController: UIViewController, WKNavigationDelegate {
             )
             editProfileVC.profile = currentProfileData
         } else {
-            print("[ProfileViewController:didTapEditProfile]: Текущий профиль отсутствует")
+            print("❌ [ProfileViewController:didTapEditProfile]: Текущий профиль отсутствует")
         }
         
         let navigationController = UINavigationController(rootViewController: editProfileVC)
@@ -168,6 +168,7 @@ final class ProfileViewController: UIViewController, WKNavigationDelegate {
         ])
     }
     
+    // MARK: - Load Profile
     private func loadProfile() {
         print("[ProfileViewController:loadProfile]: Загрузка данных профиля...")
         ProgressHUD.show()
@@ -180,14 +181,14 @@ final class ProfileViewController: UIViewController, WKNavigationDelegate {
                 
                 switch result {
                 case .success(let profile):
-                    print("[ProfileViewController:loadProfile]: Данные профиля успешно отображены")
+                    print("✅ [ProfileViewController:loadProfile]: Данные профиля успешно отображены")
                     self?.currentProfile = profile
                     self?.loadNfts(for: profile)
                     self?.updateDisplayProfile(with: profile)
                     self?.setUIElementsVisible(true)
                     
                 case .failure(let error):
-                    print("Ошибка при получении данных профиля: \(error.localizedDescription)")
+                    print("❌ [ProfileViewController:loadProfile]: Ошибка при получении данных профиля: \(error.localizedDescription)")
                 }
             }
         }
@@ -210,6 +211,7 @@ final class ProfileViewController: UIViewController, WKNavigationDelegate {
         profileImageView.kf.setImage(with: avatarUrl)
     }
     
+    // MARK: - Load NFT
     private func loadNfts(for profile: Profile) {
         ProgressHUD.show()
         servicesAssembly.nftListInstanse.fetchNfts { result in
@@ -219,12 +221,12 @@ final class ProfileViewController: UIViewController, WKNavigationDelegate {
             case .success(let nfts):
                 self.userNfts = nfts.filter { profile.nfts.contains($0.id) }
                 DispatchQueue.main.async {
-                    print("[ProfileViewController:loadNfts]: Найдено NFT для пользователя: \(self.userNfts.count)")
+                    print("✅ [ProfileViewController:loadNfts]: Найдено NFT для пользователя: \(self.userNfts.count)")
                     self.nftCount = self.userNfts.count
                     self.tableView.reloadData()
                 }
             case .failure(let error):
-                print("Ошибка получения NFT: \(error)")
+                print("❌ [ProfileViewController:loadNfts]: Ошибка получения NFT: \(error)")
             }
         }
     }
@@ -281,8 +283,8 @@ extension ProfileViewController: UITableViewDelegate {
         case 0:
             if let currentProfile = currentProfile {
                 let myNftVC = MyNftViewController(servicesAssembly: servicesAssembly)
-                myNftVC.delegate = self 
-
+                myNftVC.delegate = self
+                
                 myNftVC.profile = currentProfile
                 myNftVC.nfts = userNfts
                 navigationController?.pushViewController(myNftVC, animated: true)
@@ -326,6 +328,7 @@ extension ProfileViewController: EditProfileDelegate {
     }
 }
 
+// MARK: - MyNftViewControllerDelegate
 extension ProfileViewController: MyNftViewControllerDelegate {
     func didUpdateLikes(_ likes: [String]) {
         func didUpdateLikes(_ likes: [String]) {

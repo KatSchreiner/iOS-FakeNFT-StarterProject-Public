@@ -12,10 +12,13 @@ protocol FavoriteCellDelegate: AnyObject {
 }
 
 class FavoriteCollectionViewCell: UICollectionViewCell {
+    // MARK: - Public Properties
     weak var delegate: FavoriteCellDelegate?
+    
+    // MARK: - Private Properties
     private var nft: NFT?
     private var profile: Profile?
-
+    
     private lazy var FavoriteImageView: UIImageView = {
         let image = UIImageView()
         image.layer.cornerRadius = 12
@@ -49,11 +52,13 @@ class FavoriteCollectionViewCell: UICollectionViewCell {
         return label
     }()
     
+    // MARK: - Overrides Methods
     override init(frame: CGRect) {
         super.init(frame: frame)
         setupView()
     }
     
+    // MARK: - IB Actions
     @objc private func didTapFavoriteButton() {
         guard let nftId = nft?.id else { return }
         delegate?.didTapRemoveFromFavorites(nftId: nftId)
@@ -64,10 +69,24 @@ class FavoriteCollectionViewCell: UICollectionViewCell {
         fatalError("init(coder:) has not been implemented")
     }
     
+    // MARK: - Public Methods
+    func configure(with nft: NFT, profile: Profile) {
+        self.nft = nft
+        self.profile = profile
+        
+        setImage(nft: nft)
+        nameLabel.text = nft.name
+        ratingView.setRating(nft.rating)
+        priceLabel.text = "\(nft.price) ETH"
+        
+        favoriteButton.isSelected = profile.likes.contains(nft.id)
+    }
+    
+    // MARK: - Private Methods
     private func setupView() {
         [FavoriteImageView, favoriteButton, nameLabel, ratingView, priceLabel].forEach {
             $0.translatesAutoresizingMaskIntoConstraints = false
-            contentView.addSubview($0) 
+            contentView.addSubview($0)
         }
         
         addConstraint()
@@ -92,23 +111,11 @@ class FavoriteCollectionViewCell: UICollectionViewCell {
         ])
     }
     
-    func configure(with nft: NFT, profile: Profile) {
-        self.nft = nft
-        self.profile = profile
-        
-        setImage(nft: nft)
-        nameLabel.text = nft.name
-        ratingView.setRating(nft.rating)
-        priceLabel.text = "\(nft.price) ETH"
-        
-        favoriteButton.isSelected = profile.likes.contains(nft.id)
-    }
-    
     private func setImage(nft: NFT) {
         if let imageUrlString = nft.images.first, let url = URL(string: imageUrlString) {
             FavoriteImageView.kf.setImage(with: url)
         } else {
-            print("[FavoriteCollectionViewCell:setImage]: Нет доступных изображений для NFT: \(nft.name)")
+            print("⚠️ [FavoriteCollectionViewCell:setImage]: Нет доступных изображений для NFT: \(nft.name)")
             self.FavoriteImageView.image = nil
         }
     }

@@ -166,7 +166,7 @@ final class EditProfileViewController: UIViewController, UITextViewDelegate, UIT
                         self.dismiss(animated: true, completion: nil)
                     }
                 case .failure(let error):
-                    print("[EditProfileViewController:didTapCloseEditProfile]: Ошибка обновления профиля: \(error.localizedDescription)")
+                    print("❌ [EditProfileViewController:didTapCloseEditProfile]: Ошибка обновления профиля: \(error.localizedDescription)")
                 }
             }
     }

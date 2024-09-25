@@ -61,7 +61,6 @@ final class FavoriteNftViewController: UIViewController {
         self.navigationController?.popViewController(animated: true)
     }
     
-    // MARK: - Public Methods
     // MARK: - Private Methods
     private func setupView() {
         view.backgroundColor = .systemBackground
@@ -89,11 +88,12 @@ final class FavoriteNftViewController: UIViewController {
         ])
     }
     
+    // MARK: - Load Favorite NFT
     private func loadLikedNfts() {
         ProgressHUD.show()
         
         guard let profile = profile else {
-            print("[FavoriteNftViewController:loadLikedNfts]: Профиль не инициализирован.")
+            print("⚠️ [FavoriteNftViewController:loadLikedNfts]: Профиль не инициализирован.")
             return
         }
         
@@ -115,7 +115,7 @@ final class FavoriteNftViewController: UIViewController {
         }
     }
     
-    func removeNftFromFavorites(nftId: String) {
+    private func removeNftFromFavorites(nftId: String) {
         ProgressHUD.show()
         
         guard var profile = profile else { return }
@@ -129,7 +129,7 @@ final class FavoriteNftViewController: UIViewController {
             case .success:
                 self?.likedNfts.removeAll { $0.id == nftId }
                 self?.collection.reloadData()
-                self?.updateNoFavoriteNftLabelVisibility() 
+                self?.updateNoFavoriteNftLabelVisibility()
                 print("✅ [FavoriteNftViewController:removeNftFromFavorites]: NFT успешно удален из избранного: \(nftId)")
             case .failure(let error):
                 print("❌ [FavoriteNftViewController:removeNftFromFavorites]: Ошибка при удалении NFT из избранного: \(error)")
@@ -173,7 +173,7 @@ extension FavoriteNftViewController: UICollectionViewDataSource {
         
         let nft = likedNfts[indexPath.item]
         guard let profile = profile else {
-            print("[FavoriteNftViewController:cellForItemAt]: Профиль не найден, не удается настроить ячейку.")
+            print("⚠️ [FavoriteNftViewController:cellForItemAt]: Профиль не найден, не удается настроить ячейку.")
             return cell
         }
         
@@ -193,16 +193,17 @@ extension FavoriteNftViewController: UICollectionViewDelegateFlowLayout {
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, insetForSectionAt section: Int) -> UIEdgeInsets {
         return UIEdgeInsets(top: 16, left: 16, bottom: 16, right: 16)
     }
-
+    
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumLineSpacingForSectionAt section: Int) -> CGFloat {
         return 16
     }
-
+    
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumInteritemSpacingForSectionAt section: Int) -> CGFloat {
         return 16
     }
 }
 
+// MARK: - FavoriteCellDelegate
 extension FavoriteNftViewController: FavoriteCellDelegate {
     func didTapRemoveFromFavorites(nftId: String) {
         removeNftFromFavorites(nftId: nftId)

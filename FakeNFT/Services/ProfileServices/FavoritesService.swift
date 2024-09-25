@@ -22,7 +22,7 @@ final class FavoritesService {
         networkClient.send(request: request) { result in
             switch result {
             case .success:
-                print("✅ [FavoritesService:updateFavoriteNft]: NFT успешно \(isLiked ? "добавлен" : "удален") из избранного.")
+                print("✅ [FavoritesService:updateFavoriteNft]: NFT успешно \(isLiked ? "добавлен" : "удален")")
                 completion(.success(()))
             case .failure(let error):
                 print("❌ [FavoritesService:updateFavoriteNft]: Ошибка при \(action) NFT из избранного. Ошибка: \(error.localizedDescription)")
@@ -39,13 +39,12 @@ final class FavoritesService {
         
         let dto = UpdateLikesDto(likes: likes ?? [])
         let request = UpdateLikesRequest(profileId: profileId, dto: dto)
-
         print("[FavoritesService:updateLikesProfile]: Запрос на сервер для обновление списка избранных NFT: \(dto)")
         
         networkClient.send(request: request, type: Profile.self) { result in
             switch result {
             case .success(let response):
-                print("✅ [FavoritesService:updateLikesProfile]: Список избранных NFT успешно обновлен на сервере. Ответ: \(response)")
+                print("✅ [FavoritesService:updateLikesProfile]: Список избранных NFT успешно обновлен на сервере: \(likes ?? [])")
                 completion(.success(response))
             case .failure(let error):
                 print("❌ [FavoritesService:updateLikesProfile]: Ошибка при обновлении списка избранных NFT на сервере: \(error.localizedDescription)")
