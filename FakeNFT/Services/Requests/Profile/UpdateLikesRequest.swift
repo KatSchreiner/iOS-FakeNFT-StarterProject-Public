@@ -13,8 +13,10 @@ struct UpdateLikesRequest: NetworkRequest {
     }
     var httpMethod: HttpMethod = .put
     var dto: Dto?
+    private let profileId: String
     
-    init(dto: UpdateLikesDto) {
+    init(profileId: String, dto: UpdateLikesDto) {
+        self.profileId = profileId
         self.dto = dto
     }
 }
@@ -27,6 +29,10 @@ struct UpdateLikesDto: Dto {
     }
     
     func asDictionary() -> [String : String] {
-        [CodingKeys.likes.rawValue: likes.joined(separator: ",")]
+        if !likes.isEmpty {
+            return [CodingKeys.likes.rawValue: likes.joined(separator: ",")]
+        } else {
+            return [CodingKeys.likes.rawValue: "null"]
+        }
     }
 }

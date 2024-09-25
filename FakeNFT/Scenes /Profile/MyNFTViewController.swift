@@ -224,7 +224,7 @@ extension MyNftViewController: MyNftCellLikeDelegate {
     private func updateProfileOnServer(with profile: Profile) {
         let likesProfile = FavoritesService(networkClient: DefaultNetworkClient())
         
-        likesProfile.updateLikesProfile(likes: profile.likes) { result in
+        likesProfile.updateLikesProfile(profileId: profile.id, likes: profile.likes) { result in
             switch result {
             case .success(let updateLikesProfile):
                 self.profile = updateLikesProfile
