@@ -4,7 +4,6 @@ protocol StatisticsServiceProtocol {
     func fetchStatistics(completion: @escaping (Result<[Statistics], NetworkClientError>) -> Void)
 }
 
-
 final class StatisticsService: StatisticsServiceProtocol{
     static let shared = StatisticsService()
 
