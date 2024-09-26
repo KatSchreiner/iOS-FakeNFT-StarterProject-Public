@@ -150,13 +150,13 @@ extension CatalogueViewController: UITableViewDelegate {
         catalogueView.deselectRow(indexPath: indexPath, animated: true)
         
         if collections.indices.contains(indexPath.row) {
-            let nfts = collections[indexPath.row].nfts
+            let collection = collections[indexPath.row]
             let networkClient = DefaultNetworkClient()
             let collectionService = CatalogueService(networkClient: networkClient)
             let collectionViewRouter = CollectionRouter()
             let collectionView = CollectionView(frame: .zero, router: collectionViewRouter)
 
-            router.navigateToDetail(with: nfts, service: collectionService, view: collectionView)
+            router.navigateToDetail(with: collection, service: collectionService, view: collectionView)
    
         } else {
             print("⚠️ Индекс вне диапазона.")

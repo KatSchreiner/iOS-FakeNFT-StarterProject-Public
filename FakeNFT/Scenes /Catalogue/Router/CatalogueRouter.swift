@@ -2,7 +2,7 @@ import UIKit
 
 // MARK: - CatalogueRouterProtocol
 protocol CatalogueRouterProtocol {
-    func navigateToDetail(with nfts: [String], service: CatalogueService, view: CollectionView)
+    func navigateToDetail(with collection: NFTCollections, service: CatalogueService, view: CollectionView)
     func presentSortOptions(
         sortByNameAction: @escaping () -> Void,
         sortByAmountAction: @escaping () -> Void
@@ -19,12 +19,20 @@ final class CatalogueRouter: CatalogueRouterProtocol {
     init() {}
     
     // MARK: Public functions
-    func navigateToDetail(with nfts: [String], service: CatalogueService, view: CollectionView) {
+    func navigateToDetail(
+        with collection: NFTCollections,
+        service: CatalogueService,
+        view: CollectionView
+    ) {
         
         guard let viewController else { return }
         
-        let controller = CollectionViewController(nfts: nfts, service: service, view: view)
-        configureNavigationBar(for: viewController) 
+        let controller = CollectionViewController(
+            with: collection,
+            service: service,
+            view: view
+        )
+        configureNavigationBar(for: viewController)
         
         viewController.navigationController?.pushViewController(controller, animated: true)
     }
