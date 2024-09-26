@@ -83,7 +83,7 @@ extension StatisticsNftCollectionController: UICollectionViewDataSource {
 // MARK: - UICollectionViewDelegateFlowLayout
 extension StatisticsNftCollectionController: UICollectionViewDelegateFlowLayout {
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
-        CGSize(width: (collectionView.bounds.width - 16 - 16 - 16) / 3, height: 192)
+        CGSize(width: 108, height: 192)
     }
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, insetForSectionAt section: Int) -> UIEdgeInsets {

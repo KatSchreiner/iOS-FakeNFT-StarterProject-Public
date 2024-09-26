@@ -9,7 +9,8 @@ final class StatisticsNftCell: UICollectionViewCell {
     // MARK: - Private Properties
     private lazy var likeButton: UIButton = {
         let button = UIButton()
-        button.setImage(UIImage(named: "like"), for: .normal)
+        let image = UIImage(named: "like")?.withRenderingMode(.alwaysTemplate)
+        button.setImage(image, for: .normal)
         button.tintColor = .white
         button.addTarget(self, action: #selector(likeDidTap), for: .touchUpInside)
         button.translatesAutoresizingMaskIntoConstraints = false
@@ -53,6 +54,9 @@ final class StatisticsNftCell: UICollectionViewCell {
     }()
     
     private let ratingView = RatingView()
+    private let networkClient = DefaultNetworkClient()
+    private var nft: NftById?
+    private var isNftInOrder = false
     
     // MARK: - Initializers
     override init(frame: CGRect) {
@@ -69,6 +73,7 @@ final class StatisticsNftCell: UICollectionViewCell {
     // MARK: - Public Methods
     func configureCell(with nft: NftById?) {
         guard let nft = nft else { return }
+        self.nft = nft
         nameLabel.text = nft.name.contains(" ") ? nft.name.components(separatedBy: " ").first : nft.name
         ratingView.setRating(nft.rating)
         print("Rating is \(nft.rating)")
@@ -88,6 +93,14 @@ final class StatisticsNftCell: UICollectionViewCell {
                                         .scaleFactor(UIScreen.main.scale),
                                         .cacheOriginalImage
                                     ])
+        let likedNFTs = UserDefaults.standard.array(forKey: "likedNFTs") as? [String] ?? []
+        print(UserDefaults.standard.array(forKey: "likedNFTs") ?? "no liked nfts")
+        if likedNFTs.contains(nft.id) {
+            likeButton.tintColor = .red
+        } else {
+            likeButton.tintColor = .white
+        }
+        checkIfNftInOrder(nft: nft)
     }
     
     // MARK: - Private Methods
@@ -129,13 +142,88 @@ final class StatisticsNftCell: UICollectionViewCell {
         ])
     }
     
+    private func checkIfNftInOrder(nft: NftById) {
+        let fetchOrderRequest = StatisticsOrderRequest()
+        networkClient.send(request: fetchOrderRequest, type: Order.self, completionQueue: .main) { [weak self] result in
+            switch result {
+            case .success(let order):
+                if order.nfts.contains(nft.id) {
+                    self?.isNftInOrder = true
+                    self?.bucketButton.setImage(UIImage(named: "bucketFull"), for: .normal)
+                } else {
+                    self?.isNftInOrder = false
+                    self?.bucketButton.setImage(UIImage(named: "bucket"), for: .normal)
+                }
+            case .failure(let error):
+                print("Failed to fetch order: \(error)")
+            }
+        }
+    }
+    
     // MARK: - Actions
     @objc private func likeDidTap() {
-        print("likeDidTap")
+        guard let nftId = nft?.id else { return }
+        var likedNFTs = UserDefaults.standard.array(forKey: "likedNFTs") as? [String] ?? []
+        print(UserDefaults.standard.array(forKey: "likedNFTs") ?? "No nfts")
+        if likedNFTs.contains(nftId) {
+            likedNFTs.removeAll { $0 == nftId }
+            likeButton.tintColor = .white
+            print("Unliked NFT with id: \(nftId)")
+        } else {
+            likedNFTs.append(nftId)
+            likeButton.tintColor = .red
+            print("Liked NFT with id: \(nftId)")
+        }
+        UserDefaults.standard.setValue(likedNFTs, forKey: "likedNFTs")
+        UserDefaults.standard.synchronize()
     }
     
     @objc private func bucketDidTap() {
-        print("bucketDidTap")
+        guard let nft = nft else { return }
+        if isNftInOrder {
+            let fetchOrderRequest = StatisticsOrderRequest()
+            networkClient.send(request: fetchOrderRequest, type: Order.self, completionQueue: .main) { [weak self] result in
+                switch result {
+                case .success(var order):
+                    print("Fetched order: \(order)")
+                    order.removeNft(nft.id)
+                    let updateOrderRequest = StatisticsOrderUpdate(order: order)
+                    self?.networkClient.send(request: updateOrderRequest, completionQueue: .main) { result in
+                        switch result {
+                        case .success(_):
+                            print("Successfully removed the NFT from the order.")
+                            self?.isNftInOrder = false
+                            self?.bucketButton.setImage(UIImage(named: "bucket"), for: .normal)
+                        case .failure(let failure):
+                            print("Failed to update the order: \(failure)")
+                        }
+                    }
+                case .failure(let failure):
+                    print("Failed to fetch order: \(failure)")
+                }
+            }
+        } else {
+            let fetchOrderRequest = StatisticsOrderRequest()
+            networkClient.send(request: fetchOrderRequest, type: Order.self, completionQueue: .main) { [weak self] result in
+                switch result {
+                case .success(var order):
+                    print("Fetched order: \(order)")
+                    order.addNft(nft.id)
+                    let updateOrderRequest = StatisticsOrderUpdate(order: order)
+                    self?.networkClient.send(request: updateOrderRequest, completionQueue: .main) { result in
+                        switch result {
+                        case .success(_):
+                            print("Successfully updated the order with NFT.")
+                            self?.isNftInOrder = true
+                            self?.bucketButton.setImage(UIImage(named: "bucketFull"), for: .normal)
+                        case .failure(let failure):
+                            print("Failed to update the order: \(failure)")
+                        }
+                    }
+                case .failure(let failure):
+                    print("Failed to fetch order: \(failure)")
+                }
+            }
+        }
     }
 }
-
