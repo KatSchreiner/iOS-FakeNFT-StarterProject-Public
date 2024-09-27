@@ -259,9 +259,9 @@ extension ProfileViewController: UITableViewDataSource {
     
     private func cellText(for row: Int) -> String {
         switch row {
-        case 0: return "Мои NFT (\(nftCount))"
-        case 1: return "Избранные NFT (\(favoriteNftCount))"
-        case 2: return "О разработчике"
+        case 0: return "\(String("My.nft").localized()) (\(nftCount))"
+        case 1: return "\(String("Love.nft").localized()) (\(favoriteNftCount))"
+        case 2: return "About".localized()
         default: return ""
         }
     }

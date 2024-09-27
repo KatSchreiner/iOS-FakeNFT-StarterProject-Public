@@ -50,7 +50,7 @@ final class MyNftViewController: UIViewController {
         let noNftLabel = UILabel()
         noNftLabel.font = .bodyBold
         noNftLabel.textColor = .nBlack
-        noNftLabel.text = "У Вас ещё нет NFT"
+        noNftLabel.text = "Placeholder.noNft".localized()
         return noNftLabel
     }()
     
@@ -78,21 +78,21 @@ final class MyNftViewController: UIViewController {
     
     @objc
     private func didTapSort() {
-        let alertController = UIAlertController(title: "Сортировка", message: "", preferredStyle: .actionSheet)
+        let alertController = UIAlertController(title: "Sorting".localized(), message: "", preferredStyle: .actionSheet)
         
-        let priceSortAction = UIAlertAction(title: "По цене", style: .default) { _ in
+        let priceSortAction = UIAlertAction(title: "By.price".localized(), style: .default) { _ in
             self.sortNFTs(by: .price)
         }
         
-        let ratingSortAction = UIAlertAction(title: "По рейтингу", style: .default) { _ in
+        let ratingSortAction = UIAlertAction(title: "By.rating".localized(), style: .default) { _ in
             self.sortNFTs(by: .rating)
         }
         
-        let nameSortAction = UIAlertAction(title: "По названию", style: .default) { _ in
+        let nameSortAction = UIAlertAction(title: "By.name".localized(), style: .default) { _ in
             self.sortNFTs(by: .name)
         }
         
-        let cancelAction = UIAlertAction(title: "Закрыть", style: .cancel, handler: nil)
+        let cancelAction = UIAlertAction(title: "Close".localized(), style: .cancel, handler: nil)
         
         alertController.addAction(priceSortAction)
         alertController.addAction(ratingSortAction)
@@ -106,7 +106,7 @@ final class MyNftViewController: UIViewController {
     private func setupView() {
         view.backgroundColor = .systemBackground
         
-        navigationItem.title = "Мои NFT"
+        navigationItem.title = "My.nft".localized()
         navigationItem.leftBarButtonItem = backButton
         navigationItem.rightBarButtonItem = sortButton
         

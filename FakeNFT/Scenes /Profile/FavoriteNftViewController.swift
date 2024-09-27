@@ -34,7 +34,7 @@ final class FavoriteNftViewController: UIViewController {
         let noNftLabel = UILabel()
         noNftLabel.font = .bodyBold
         noNftLabel.textColor = .nBlack
-        noNftLabel.text = "У Вас ещё нет избранных NFT"
+        noNftLabel.text = "Placeholder.noLoveNft".localized()
         return noNftLabel
     }()
     
@@ -64,7 +64,7 @@ final class FavoriteNftViewController: UIViewController {
     // MARK: - Private Methods
     private func setupView() {
         view.backgroundColor = .systemBackground
-        navigationItem.title = "Избранные NFT"
+        navigationItem.title = "Love.nft".localized()
         navigationItem.leftBarButtonItem = backButton
         
         [collection, noFavoriteNftLabel].forEach { view in
