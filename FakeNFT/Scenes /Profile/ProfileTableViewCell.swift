@@ -24,6 +24,13 @@ final class ProfileTableViewCell: UITableViewCell {
         fatalError("init(coder:) has not been implemented")
     }
     
+    func configure(with text: String) {
+        titleLabel.text = text
+        accessoryView = UIImageView(image: UIImage(systemName: "chevron.right"))
+        accessoryView?.tintColor = .nBlack
+        selectionStyle = .none
+    }
+    
     private func setupView() {
         contentView.addSubview(titleLabel)
         titleLabel.translatesAutoresizingMaskIntoConstraints = false
@@ -34,12 +41,5 @@ final class ProfileTableViewCell: UITableViewCell {
             titleLabel.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 8),
             titleLabel.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -8)
         ])
-    }
-    
-    func configure(with text: String) {
-        titleLabel.text = text
-        accessoryView = UIImageView(image: UIImage(systemName: "chevron.right"))
-        accessoryView?.tintColor = .nBlack
-        selectionStyle = .none
     }
 }

@@ -23,16 +23,15 @@ final class UpdateProfileService {
     ) {
         let dto = UpdateProfileDto(avatar: avatar, name: name, description: description, website: website)
         let request = UpdateProfileRequest(dto: dto)
-        
         print("[UpdateProfileService:updateProfile]: Запрос на сервер для обновление профиля: \(dto)")
         
         networkClient.send(request: request, type: Profile.self) { result in
             switch result {
             case .success(let response):
-                print("[UpdateProfileService:updateProfile]: Профиль обновлен на сервере успешно. Ответ: \(response)")
+                print("✅ [UpdateProfileService:updateProfile]: Профиль обновлен на сервере успешно: \(response)")
                 completion(.success(response))
             case .failure(let error):
-                print("[UpdateProfileService:updateProfile]: Ошибка при обновлении профиля на сервере: \(error.localizedDescription)")
+                print("❌ [UpdateProfileService:updateProfile]: Ошибка при обновлении профиля на сервере: \(error.localizedDescription)")
                 completion(.failure(error))
             }
         }
