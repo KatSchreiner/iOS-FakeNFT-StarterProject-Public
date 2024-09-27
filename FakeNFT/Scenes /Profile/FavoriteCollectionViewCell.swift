@@ -11,7 +11,7 @@ protocol FavoriteCellDelegate: AnyObject {
     func didTapRemoveFromFavorites(nftId: String)
 }
 
-class FavoriteCollectionViewCell: UICollectionViewCell {
+final class FavoriteCollectionViewCell: UICollectionViewCell {
     // MARK: - Public Properties
     weak var delegate: FavoriteCellDelegate?
     
