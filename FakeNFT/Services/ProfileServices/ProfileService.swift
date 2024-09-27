@@ -13,7 +13,6 @@ final class ProfileService {
     
     init(networkClient: NetworkClient = DefaultNetworkClient()) {
         self.networkClient = networkClient
-        print("[ProfileService:fetchProfile]: Инициализация сетевого клиента NetworkClient")
     }
     
     func fetchProfile(completion: @escaping (Result<Profile, NetworkClientError>) -> Void) {
@@ -23,19 +22,18 @@ final class ProfileService {
         networkClient.send(request: request) { result in
             switch result {
             case .success(let data):
-                print("[ProfileService:fetchProfile]: Запрос профиля завершен успешно.")
                 do {
                     let profile = try JSONDecoder().decode(Profile.self, from: data)
                     self.profile = profile
                     completion(.success(profile))
-                    print("[ProfileService:fetchProfile]: Профиль успешно декодирован: \(profile)")
+                    print("✅ [ProfileService:fetchProfile]: Запрос профиля завершен успешно: \(profile)")
                 } catch {
                     completion(.failure(.parsingError))
-                    print("[ProfileService:fetchProfile]: Ошибка декодирования данных: \(error.localizedDescription)")
+                    print("❌ [ProfileService:fetchProfile]: Ошибка декодирования данных: \(error.localizedDescription)")
                 }
             case .failure(let error):
                 completion(.failure(error as? NetworkClientError ?? NetworkClientError.urlSessionError))
-                print("[ProfileService:fetchProfile]: Ошибка при получении профиля: \(error)")
+                print("❌ [ProfileService:fetchProfile]: Ошибка при получении профиля: \(error)")
             }
         }
     }

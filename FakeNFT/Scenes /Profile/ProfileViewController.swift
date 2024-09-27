@@ -14,9 +14,11 @@ final class ProfileViewController: UIViewController, WKNavigationDelegate {
     // MARK: - Private Properties
     private let servicesAssembly: ServicesAssembly
     private let webView = WKWebView()
+    
     private var currentProfile: Profile?
     private var userNfts: [NFT] = []
     private var nftCount: Int = 0
+    private var favoriteNftCount: Int = 0
     
     private lazy var editButton: UIBarButtonItem = {
         let image = UIImage(named: "square.and.pencil")
@@ -89,6 +91,11 @@ final class ProfileViewController: UIViewController, WKNavigationDelegate {
         loadProfile()
     }
     
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        loadProfile()
+    }
+    
     // MARK: - IB Actions
     @objc
     func didTapEditProfile() {
@@ -108,7 +115,7 @@ final class ProfileViewController: UIViewController, WKNavigationDelegate {
             )
             editProfileVC.profile = currentProfileData
         } else {
-            print("[ProfileViewController:didTapEditProfile]: Текущий профиль отсутствует")
+            print("❌ [ProfileViewController:didTapEditProfile]: Текущий профиль отсутствует")
         }
         
         let navigationController = UINavigationController(rootViewController: editProfileVC)
@@ -161,6 +168,7 @@ final class ProfileViewController: UIViewController, WKNavigationDelegate {
         ])
     }
     
+    // MARK: - Load Profile
     private func loadProfile() {
         print("[ProfileViewController:loadProfile]: Загрузка данных профиля...")
         ProgressHUD.show()
@@ -170,16 +178,17 @@ final class ProfileViewController: UIViewController, WKNavigationDelegate {
         servicesAssembly.profileServiceInstance.fetchProfile { [weak self] result in
             DispatchQueue.main.async {
                 ProgressHUD.dismiss()
+                
                 switch result {
                 case .success(let profile):
-                    print("[ProfileViewController:loadProfile]: Данные профиля успешно отображены")
+                    print("✅ [ProfileViewController:loadProfile]: Данные профиля успешно отображены")
                     self?.currentProfile = profile
                     self?.loadNfts(for: profile)
                     self?.updateDisplayProfile(with: profile)
                     self?.setUIElementsVisible(true)
                     
                 case .failure(let error):
-                    print("Ошибка при получении данных профиля: \(error.localizedDescription)")
+                    print("❌ [ProfileViewController:loadProfile]: Ошибка при получении данных профиля: \(error.localizedDescription)")
                 }
             }
         }
@@ -190,7 +199,10 @@ final class ProfileViewController: UIViewController, WKNavigationDelegate {
         descriptionLabel.text = profile.description
         websiteLabel.text = profile.website
         updateAvatar(url: profile.avatar)
+        
         nftCount = profile.nfts.count
+        favoriteNftCount = profile.likes.count
+        
         tableView.reloadData()
     }
     
@@ -199,19 +211,22 @@ final class ProfileViewController: UIViewController, WKNavigationDelegate {
         profileImageView.kf.setImage(with: avatarUrl)
     }
     
+    // MARK: - Load NFT
     private func loadNfts(for profile: Profile) {
+        ProgressHUD.show()
         servicesAssembly.nftListInstanse.fetchNfts { result in
+            ProgressHUD.dismiss()
+            
             switch result {
-                
             case .success(let nfts):
                 self.userNfts = nfts.filter { profile.nfts.contains($0.id) }
                 DispatchQueue.main.async {
-                    print("[ProfileViewController:loadNfts]: Найдено NFT для пользователя: \(self.userNfts.count)")
+                    print("✅ [ProfileViewController:loadNfts]: Найдено NFT для пользователя: \(self.userNfts.count)")
                     self.nftCount = self.userNfts.count
                     self.tableView.reloadData()
                 }
             case .failure(let error):
-                print("Ошибка получения NFT: \(error)")
+                print("❌ [ProfileViewController:loadNfts]: Ошибка получения NFT: \(error)")
             }
         }
     }
@@ -245,7 +260,7 @@ extension ProfileViewController: UITableViewDataSource {
     private func cellText(for row: Int) -> String {
         switch row {
         case 0: return "Мои NFT (\(nftCount))"
-        case 1: return "Избранные NFT (11)"
+        case 1: return "Избранные NFT (\(favoriteNftCount))"
         case 2: return "О разработчике"
         default: return ""
         }
@@ -268,12 +283,17 @@ extension ProfileViewController: UITableViewDelegate {
         case 0:
             if let currentProfile = currentProfile {
                 let myNftVC = MyNftViewController(servicesAssembly: servicesAssembly)
+                myNftVC.delegate = self
+                
                 myNftVC.profile = currentProfile
                 myNftVC.nfts = userNfts
                 navigationController?.pushViewController(myNftVC, animated: true)
             }
         case 1:
-            navigationController?.pushViewController(FavoritesNFTViewController(), animated: true)
+            let favoritesVC = FavoriteNftViewController(servicesAssembly: servicesAssembly)
+            favoritesVC.profile = currentProfile
+            
+            navigationController?.pushViewController(favoritesVC, animated: true)
         case 2:
             navigateToDeveloperInfo()
         default: break
@@ -304,6 +324,17 @@ extension ProfileViewController: EditProfileDelegate {
             self.profileImageView.kf.setImage(with: url)
         } else {
             self.profileImageView.image = UIImage(named: "placeholder_avatar")
+        }
+    }
+}
+
+// MARK: - MyNftViewControllerDelegate
+extension ProfileViewController: MyNftViewControllerDelegate {
+    func didUpdateLikes(_ likes: [String]) {
+        func didUpdateLikes(_ likes: [String]) {
+            currentProfile?.likes = likes
+            favoriteNftCount = likes.filter { $0 == currentProfile?.id }.count
+            tableView.reloadData()
         }
     }
 }
