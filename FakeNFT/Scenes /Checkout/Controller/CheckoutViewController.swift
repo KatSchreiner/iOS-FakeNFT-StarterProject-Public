@@ -6,7 +6,7 @@ final class CheckoutViewController: UIViewController, CheckoutViewProtocol {
     private let currenciesService: CurrenciesService = .shared
     private let orderService = OrderService.shared
     private var selectedCurrencyId: String?
-    
+    private var action: () -> ()
     private lazy var backButton: UIBarButtonItem = {
         UIBarButtonItem(image: UIImage(systemName: "chevron.left"), style: .plain, target: self, action: #selector(didTapBackButton))
     }()
@@ -25,7 +25,8 @@ final class CheckoutViewController: UIViewController, CheckoutViewProtocol {
         view = checkoutView
     }
     
-    init() {
+    init(action: @escaping () -> ()) {
+        self.action = action
         super.init(nibName: nil, bundle: nil)
         checkoutView.setDelegate(self)
     }
@@ -112,10 +113,9 @@ extension CheckoutViewController: PayViewDelegate {
             if success {
                 let content: ResultsViewController.Content =
                     .init(image: UIImage(named: "paymentSuccess"), title: "Успех! Оплата прошла, поздравляем с покупкой!", buttonTitle: "Вернуться в каталог") { [weak self] in
-                        self?.tabBarController?.selectedIndex = 1
+                        self?.action()
                         self?.dismiss(animated: true)
                     }
-                
                 let resultsViewController = ResultsViewController()
                 resultsViewController.configure(with: content)
                 navigationController?.pushViewController(resultsViewController, animated: true)

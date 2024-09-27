@@ -147,7 +147,9 @@ extension BasketViewController: RemoveNFTViewControllerDelegate {
 
 extension BasketViewController: SumViewDelegate {
     func didTapPayButton() {
-        let checkoutViewController = CheckoutViewController()
+        let checkoutViewController = CheckoutViewController {
+            self.tabBarController?.selectedIndex = 0
+        }
         let navigationController = UINavigationController(rootViewController: checkoutViewController)
         navigationController.modalPresentationStyle = .overFullScreen
         present(navigationController, animated: true, completion: nil)

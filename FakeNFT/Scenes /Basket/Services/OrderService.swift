@@ -8,6 +8,7 @@ final class OrderService: OrderServiceProtocol {
     static let shared = OrderService()
     private let networkClient: NetworkClient
     private var currencyTask: NetworkTask?
+    private var anotherTask: NetworkTask?
 
     private init(networkClient: NetworkClient = DefaultNetworkClient()) {
         self.networkClient = networkClient
@@ -79,19 +80,19 @@ final class OrderService: OrderServiceProtocol {
     func updateOrder(with nftIds: [String], completion: @escaping (Result<[String], Error>) -> Void) {
         assert(Thread.isMainThread)
 
-        if currencyTask != nil {
+        if anotherTask != nil {
             return
         }
         
         let putOrderRequest = PutOrderRequest(nftIds: nftIds)
-        currencyTask = networkClient.send(request: putOrderRequest, type: OrderModel.self) { result in
+        anotherTask = networkClient.send(request: putOrderRequest, type: OrderModel.self) { result in
             switch result {
             case .success(let order):
                 completion(.success(order.nfts))
             case .failure(let error):
                 completion(.failure(error))
             }
-            self.currencyTask = nil
+            self.anotherTask = nil
         }
     }
     
