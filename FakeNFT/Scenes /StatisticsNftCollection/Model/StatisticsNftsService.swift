@@ -1,7 +1,7 @@
 import Foundation
 
 final class StatisticsNftsService {
-        
+    
     // MARK: - Public Properties
     static let shared = StatisticsNftsService()
     
@@ -31,6 +31,31 @@ final class StatisticsNftsService {
         }
         dispatchGroup.notify(queue: .main) {
             completion(.success(nftCollection))
+        }
+    }
+    
+    func checkIfNftInOrder(nftId: String, completion: @escaping (Bool) -> Void) {
+        let fetchOrderRequest = StatisticsOrderRequest()
+        defaultNetwork.send(request: fetchOrderRequest, type: Order.self) { result in
+            switch result {
+            case .success(let order):
+                completion(order.nfts.contains(nftId))
+            case .failure(let error):
+                print("Failed to fetch order: \(error)")
+                completion(false)
+            }
+        }
+    }
+    
+    func addToOrder(nftId: String, completion: @escaping (Result<Void, Error>) -> Void) {
+        let updateOrderRequest = StatisticsOrderUpdate(nftId: nftId)
+        defaultNetwork.send(request: updateOrderRequest, completionQueue: .main) { result in
+            switch result {
+            case .success:
+                completion(.success(()))
+            case .failure(let error):
+                completion(.failure(error))
+            }
         }
     }
 }

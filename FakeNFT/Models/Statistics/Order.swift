@@ -2,7 +2,7 @@ import Foundation
 
 struct Order: Codable {
     var nfts: [String]
-    var id: String
+    let id: String
     
     mutating func addNft(_ nftId: String) {
         if !nfts.contains(nftId) {

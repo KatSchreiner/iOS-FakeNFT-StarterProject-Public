@@ -1,10 +1,16 @@
 import UIKit
 import Kingfisher
 
+protocol StatisticsNftCellDelegate: AnyObject {
+    func likeButtonTapped(for nft: NftById)
+    func bucketButtonTapped(for nft: NftById, isInOrder: Bool)
+}
+
 final class StatisticsNftCell: UICollectionViewCell {
     
     // MARK: - Public Properties
     static let reuseIdentifier = "StatisticsNftCell"
+    weak var delegate: StatisticsNftCellDelegate?
     
     // MARK: - Private Properties
     private lazy var likeButton: UIButton = {
@@ -53,8 +59,8 @@ final class StatisticsNftCell: UICollectionViewCell {
         return label
     }()
     
+    private lazy var favouritesStorage: FavoritesStorage = FavoritesStorage.shared
     private let ratingView = RatingView()
-    private let networkClient = DefaultNetworkClient()
     private var nft: NftById?
     private var isNftInOrder = false
     
@@ -71,9 +77,10 @@ final class StatisticsNftCell: UICollectionViewCell {
     }
     
     // MARK: - Public Methods
-    func configureCell(with nft: NftById?) {
+    func configureCell(with nft: NftById?, isInOrder: Bool) {
         guard let nft = nft else { return }
         self.nft = nft
+        self.isNftInOrder = isInOrder
         nameLabel.text = nft.name.contains(" ") ? nft.name.components(separatedBy: " ").first : nft.name
         ratingView.setRating(nft.rating)
         print("Rating is \(nft.rating)")
@@ -93,14 +100,8 @@ final class StatisticsNftCell: UICollectionViewCell {
                                         .scaleFactor(UIScreen.main.scale),
                                         .cacheOriginalImage
                                     ])
-        let likedNFTs = UserDefaults.standard.array(forKey: "likedNFTs") as? [String] ?? []
-        print(UserDefaults.standard.array(forKey: "likedNFTs") ?? "no liked nfts")
-        if likedNFTs.contains(nft.id) {
-            likeButton.tintColor = .red
-        } else {
-            likeButton.tintColor = .white
-        }
-        checkIfNftInOrder(nft: nft)
+        updateLikeButton()
+        updateBucketButton()
     }
     
     // MARK: - Private Methods
@@ -142,71 +143,28 @@ final class StatisticsNftCell: UICollectionViewCell {
         ])
     }
     
-    private func checkIfNftInOrder(nft: NftById) {
-        let fetchOrderRequest = StatisticsOrderRequest()
-        networkClient.send(request: fetchOrderRequest, type: Order.self, completionQueue: .main) { [weak self] result in
-            guard let self else { return }
-            switch result {
-            case .success(let order):
-                if order.nfts.contains(nft.id) {
-                    self.isNftInOrder = true
-                    self.bucketButton.setImage(UIImage(named: "bucketFull"), for: .normal)
-                } else {
-                    self.isNftInOrder = false
-                    self.bucketButton.setImage(UIImage(named: "bucket"), for: .normal)
-                }
-            case .failure(let error):
-                print("Failed to fetch order: \(error)")
-            }
-        }
+    private func updateBucketButton() {
+        let image = self.isNftInOrder ? UIImage(named: "bucketFull") : UIImage(named: "bucket")
+        bucketButton.setImage(image, for: .normal)
+    }
+    
+    private func updateLikeButton() {
+        guard let nft = nft else { return }
+        let isLiked = favouritesStorage.isNftLiked(nftId: nft.id)
+        print(favouritesStorage.getFavoriteNfts())
+        likeButton.tintColor = isLiked ? UIColor(red: 245/255, green: 107/255, blue: 108/255, alpha: 1) : .white
     }
     
     // MARK: - Actions
     @objc private func likeDidTap() {
-        guard let nftId = nft?.id else { return }
-        var likedNFTs = UserDefaults.standard.array(forKey: "likedNFTs") as? [String] ?? []
-        print(UserDefaults.standard.array(forKey: "likedNFTs") ?? "No nfts")
-        if likedNFTs.contains(nftId) {
-            likedNFTs.removeAll { $0 == nftId }
-            likeButton.tintColor = .white
-            print("Unliked NFT with id: \(nftId)")
-        } else {
-            likedNFTs.append(nftId)
-            likeButton.tintColor = .red
-            print("Liked NFT with id: \(nftId)")
-        }
-        UserDefaults.standard.setValue(likedNFTs, forKey: "likedNFTs")
-        UserDefaults.standard.synchronize()
+        guard let nft = nft else { return }
+        delegate?.likeButtonTapped(for: nft)
+        updateLikeButton()
     }
     
     @objc private func bucketDidTap() {
         guard let nft = nft else { return }
-        if isNftInOrder {
-            let fetchOrderRequest = StatisticsOrderRequest()
-            self.bucketButton.setImage(UIImage(named: "bucket"), for: .normal)
-        } else {
-            let fetchOrderRequest = StatisticsOrderRequest()
-            networkClient.send(request: fetchOrderRequest, type: Order.self, completionQueue: .main) { [weak self] result in
-                guard let self else {return}
-                switch result {
-                case .success(var order):
-                    print("Fetched order: \(order)")
-                    order.addNft(nft.id)
-                    let updateOrderRequest = StatisticsOrderUpdate(nftId: nft.id)
-                    self.networkClient.send(request: updateOrderRequest, completionQueue: .main) { result in
-                        switch result {
-                        case .success(_):
-                            print("Successfully updated the order with NFT.")
-                            self.isNftInOrder = true
-                            self.bucketButton.setImage(UIImage(named: "bucketFull"), for: .normal)
-                        case .failure(let failure):
-                            print("Failed to update the order: \(failure)")
-                        }
-                    }
-                case .failure(let failure):
-                    print("Failed to fetch order: \(failure)")
-                }
-            }
-        }
+        self.isNftInOrder = true
+        delegate?.bucketButtonTapped(for: nft, isInOrder: isNftInOrder)
     }
 }

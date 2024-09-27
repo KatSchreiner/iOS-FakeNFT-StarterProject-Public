@@ -5,6 +5,7 @@ final class StatisticsNftCollectionController: UIViewController {
     // MARK: - Private Properties
     private let statisticsNftView: StatisticsNftViewProtocol
     private let statisticsNftService: StatisticsNftsService
+    private lazy var favouritesStorage: FavoritesStorage = FavoritesStorage.shared
     private var nftIds: [String]?
     private var nfts: [NftById] {
         didSet {
@@ -74,8 +75,9 @@ extension StatisticsNftCollectionController: UICollectionViewDataSource {
             assertionFailure("Cell is null for StatisticsNftCell")
             return UICollectionViewCell()
         }
+        statisticsNftCell.delegate = self
         let nft = nfts[indexPath.row]
-        statisticsNftCell.configureCell(with: nft)
+        statisticsNftCell.configureCell(with: nft, isInOrder: false)
         return statisticsNftCell
     }
 }
@@ -96,5 +98,27 @@ extension StatisticsNftCollectionController: UICollectionViewDelegateFlowLayout 
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumLineSpacingForSectionAt section: Int) -> CGFloat {
         20
+    }
+}
+
+//MARK: - StatisticsNftCellDelegate protocol implementation
+extension StatisticsNftCollectionController: StatisticsNftCellDelegate {
+    func likeButtonTapped(for nft: NftById) {
+        favouritesStorage.toggleFavoriteNft(nftId: nft.id)
+        statisticsNftView.updateCollection()
+    }
+    
+    func bucketButtonTapped(for nft: NftById, isInOrder: Bool) {
+        if isInOrder == false {
+            statisticsNftService.addToOrder(nftId: nft.id) { result in
+                switch result {
+                case .success:
+                    print("NFT added to order")
+                    self.statisticsNftView.updateCollection()
+                case .failure(let error):
+                    print("Failed to add NFT to order: \(error)")
+                }
+            }
+        }
     }
 }
