@@ -5,7 +5,7 @@ final class TabBarController: UITabBarController {
     var servicesAssembly: ServicesAssembly
     
     private let profileTabBarItem = UITabBarItem(
-        title: NSLocalizedString("Tab.profile", comment: ""),
+        title: ("Tab.profile".localized()),
         image: UIImage(named: "profile_tb"),
         tag: 0
     )

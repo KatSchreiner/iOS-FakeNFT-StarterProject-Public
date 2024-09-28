@@ -58,7 +58,7 @@ final class MyNftTableViewCell: UITableViewCell {
         let label = UILabel()
         label.font = .caption2
         label.textColor = .nBlack
-        label.text = "Цена"
+        label.text = "Price".localized()
         return label
     }()
     
@@ -101,7 +101,7 @@ final class MyNftTableViewCell: UITableViewCell {
         setImage(with: nft)
         nameLabel.text = nft.name
         ratingView.setRating(nft.rating)
-        authorLabel.text = "От: \(nft.author)"
+        authorLabel.text = "\(String("From:").localized()) \(nft.author)"
         priceLabel.text = "\(nft.price) ETH"
         
         favoriteButton.isSelected = profile.likes.contains(nft.id)

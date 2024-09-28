@@ -49,7 +49,8 @@ final class EditProfileViewController: UIViewController, UITextViewDelegate, UIT
     }()
     
     private lazy var label: UILabel = {
-        let label = createLabel(with: "Сменить\nфото")
+        let label = createLabel()
+        label.text = "Edit.change".localized()
         label.font = .caption3
         label.textColor = .white
         label.numberOfLines = 2
@@ -58,7 +59,8 @@ final class EditProfileViewController: UIViewController, UITextViewDelegate, UIT
     }()
     
     private lazy var changePhotoLabel: UILabel = {
-        let label = createLabel(with: "Загрузить изображение")
+        let label = createLabel()
+        label.text = "Edit.download".localized()
         label.font = .bodyRegular
         label.textColor = .nBlack
         label.textAlignment = .center
@@ -104,10 +106,26 @@ final class EditProfileViewController: UIViewController, UITextViewDelegate, UIT
         return button
     }()
     
-    private lazy var nameLabel: UILabel = createLabel(with: "Имя")
+    private lazy var nameLabel: UILabel = {
+        let label = createLabel()
+        label.text = "Edit.name".localized()
+        return label
+    }()
+    
     private lazy var nameTextField: UITextField = createTextField()
-    private lazy var descriptionLabel: UILabel = createLabel(with: "Описание")
-    private lazy var websiteLabel: UILabel = createLabel(with: "Сайт")
+    
+    private lazy var descriptionLabel: UILabel = {
+        let label = createLabel()
+        label.text = "Edit.description".localized()
+        return label
+    }()
+    
+    private lazy var websiteLabel: UILabel = {
+        let label = createLabel()
+        label.text = "Edit.website".localized()
+        return label
+    }()
+    
     private lazy var websiteTextField: UITextField = createTextField()
     
     private lazy var stackView: UIStackView = {
@@ -204,7 +222,7 @@ final class EditProfileViewController: UIViewController, UITextViewDelegate, UIT
             }
         }))
         
-        alert.addAction(UIAlertAction(title: "Отмена", style: .cancel, handler: nil))
+        alert.addAction(UIAlertAction(title: "Cancel".localized(), style: .cancel, handler: nil))
         
         present(alert, animated: true, completion: nil)
     }
@@ -324,9 +342,8 @@ final class EditProfileViewController: UIViewController, UITextViewDelegate, UIT
         profileImageView.kf.setImage(with: avatarUrl)
     }
     
-    private func createLabel(with text: String) -> UILabel {
+    private func createLabel() -> UILabel {
         let label = UILabel()
-        label.text = text
         label.font = .headline3
         return label
     }

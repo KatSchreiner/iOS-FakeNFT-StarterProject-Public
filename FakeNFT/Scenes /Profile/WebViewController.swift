@@ -56,7 +56,7 @@ final class WebViewController: UIViewController, WKNavigationDelegate {
         webView.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(webView)
         
-        navigationItem.title = "О разработчике"
+        navigationItem.title = "About".localized()
         navigationItem.leftBarButtonItem = backButton
         
         NSLayoutConstraint.activate([
