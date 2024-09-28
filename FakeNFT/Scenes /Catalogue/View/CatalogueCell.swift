@@ -5,6 +5,8 @@ import Kingfisher
 final class CatalogueCell: UITableViewCell {
     
     // MARK: Properties
+    static let identifier = "CatalogueCell"
+    
     private lazy var cellImageView: UIImageView = {
         let imageView = UIImageView()
         imageView.contentMode = .top

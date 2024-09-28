@@ -64,18 +64,16 @@ final class CatalogueViewController: UIViewController {
     
     // MARK: Data Fetching
     private func fetchCollections() {
-        ProgressHUD.show()
         let oldCollections = collections
         catalogueService.fetchCollections { [weak self] result in
             DispatchQueue.main.async {
-                ProgressHUD.dismiss()
                 switch result {
                 case .success(let newCollections):
                     self?.collections = newCollections
                     self?.updateTableViewAnimated(oldCollections: oldCollections)
                     self?.loadFilter()
                 case .failure(let error):
-                    print("Ошибка: \(error)")
+                    print("Ошибка при загрузке коллекций: \(error)")
                 }
             }
         }

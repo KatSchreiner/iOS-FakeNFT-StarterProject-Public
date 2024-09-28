@@ -123,7 +123,7 @@ final class CollectionView: UIView, CollectionViewProtocol {
                     coverImageView.image = image
                     setHeightForCoverImage(image: image)
                 case.failure(let error):
-                    print("⚠️ Ошибка", error)
+                    print("⚠️ Ошибка загрузки изображения:", error)
                 }
             }
         }

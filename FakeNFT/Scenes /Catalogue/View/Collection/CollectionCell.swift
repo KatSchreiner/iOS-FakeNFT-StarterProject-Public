@@ -1,11 +1,24 @@
 import UIKit
 import Kingfisher
 
-// MARK: - CatalogueCell
+// MARK: - CollectionCellDelegate
+protocol CollectionCellDelegate: AnyObject {
+    func cartButtonClicked(nft: String)
+    func likeButtonClicked(nft: String)
+}
+
+// MARK: - CollectionCell
 final class CollectionCell: UICollectionViewCell {
     
     // MARK: Properties
     static let identifier = "CollectionCell"
+    private var isLiked: Bool = false
+    private var inCart: Bool = false
+    private var nft: String?
+    private var cart: [String]?
+    private var likes: [String]?
+    
+    weak var delegate: CollectionCellDelegate?
     
     private lazy var imageView: UIImageView = {
         let imageView = UIImageView()
@@ -90,9 +103,60 @@ final class CollectionCell: UICollectionViewCell {
     }
     
     // MARK: Public methods
-    func configure(with nft: NFT, completion: @escaping (Result<RetrieveImageResult, KingfisherError>) -> Void) {
+    func configure(with nft: NFT, cart: [String], likes: [String]) -> Void {
         
-        if let imageURL = nft.images.first {
+        
+        
+        self.nft = nft.id
+        self.cart = cart
+        self.likes = likes
+        
+        guard let imageURL = nft.images.first else { return }
+        downloadImage(from: imageURL)
+        
+        let imageNames = ["Stars 0", "Stars 1", "Stars 2", "Stars 3", "Stars 4", "Stars 5"]
+        ratingView.image = UIImage(named: imageNames[nft.rating])
+        
+        nameLabel.text = nft.name
+        priceLabel.text = "\(nft.price) ETH"
+        
+        guard let cart = self.cart, let nft = self.nft, let likes = self.likes else { return }
+        inCart = cart.contains(nft)
+        cartButton(state: inCart)
+        isLiked = likes.contains(nft)
+        likeButton(state: isLiked)
+    }
+    
+    // MARK: Actions
+    @objc
+    private func cartButtonClicked() {
+        inCart.toggle()
+        cartButton(state: inCart)
+        guard let nft = nft else { return }
+        delegate?.cartButtonClicked(nft: nft)
+    }
+    
+    @objc
+    private func likeButtonClicked() {
+        isLiked.toggle()
+        likeButton(state: isLiked)
+        guard let nft = nft else { return }
+        delegate?.likeButtonClicked(nft: nft)
+    }
+    
+    // MARK: Private methods
+    private func likeButton(state: Bool) {
+        likeButton.isSelected = state
+        likeButton.setImage(UIImage(named: isLiked ? "Like pressed" : "Like default"), for: .normal)
+    }
+    
+    private func cartButton(state: Bool) {
+        cartButton.isSelected = state
+        cartButton.setImage(UIImage(named: inCart ? "Cart delete" : "Cart add"), for: .normal)
+    }
+    
+    private func downloadImage(from imageURL: String) {
+        
             let url = URL (string: imageURL)
             imageView.kf.indicatorType = .activity
             imageView.kf.setImage(with: url,
@@ -101,55 +165,10 @@ final class CollectionCell: UICollectionViewCell {
                 switch result {
                 case.success(let value):
                     self.imageView.image = value.image
-                    completion(.success(value))
                 case.failure(let error):
-                    completion(.failure(error))
+                    print("⚠️ Ошибка загрузки изображения ячейки", error)
                 }
             })
-        }
-        let imageNames = ["Stars 0", "Stars 1", "Stars 2", "Stars 3", "Stars 4", "Stars 5"]
-        let imageName = imageNames[nft.rating]
-        ratingView.image = UIImage(named: imageName)
-        nameLabel.text = nft.name
-        priceLabel.text = "\(nft.price) ETH"
-    }
-    
-    // MARK: Actions
-    @objc
-    private func likeButtonClicked() {
-        likeButton.isSelected.toggle()
-        if likeButton.isSelected {
-            print("❤️ Кнопка нажата: true")
-            changeLikeButtonImageFor(state: true)
-        } else {
-            print("❤️ Кнопка нажата: false")
-            changeLikeButtonImageFor(state: false)
-        }
-        //delegate?.likeButtonClicked(self)
-    }
-    
-    @objc
-    private func cartButtonClicked() {
-        cartButton.isSelected.toggle()
-        if cartButton.isSelected {
-            print("🛒 Кнопка нажата: true")
-            changeCartButtonImageFor(state: true)
-        } else {
-            print("🛒 Кнопка нажата: false")
-            changeCartButtonImageFor(state: false)
-        }
-        //delegate?.cartButtonClicked(self)
-    }
-    
-    // MARK: Private methods
-    private func changeLikeButtonImageFor(state isLiked: Bool) {
-        let imageName = isLiked ? "Like default" : "Like pressed"
-        likeButton.setImage(UIImage(named: imageName), for: .normal)
-    }
-    
-    private func changeCartButtonImageFor(state isLiked: Bool) {
-        let imageName = isLiked ? "Cart add" : "Cart delete"
-        cartButton.setImage(UIImage(named: imageName), for: .normal)
     }
 }
 

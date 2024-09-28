@@ -6,12 +6,13 @@ final class CollectionViewController: UIViewController {
     
     // MARK: Properties
     private let collectionView: CollectionViewProtocol
-    private let collectionService: CatalogueService
+    private let collectionService: CatalogueServiceProtocol
     
     private let collection: NFTCollections
     private var nftsList: [NFT] = []
+    private var cart: [String]?
+    private var likes: [String]?
     private let dispatchGroup = DispatchGroup()
-    private let nftsListQueue = DispatchQueue(label: "nftsListQueue", attributes: .concurrent)
     
     // MARK: Initialization
     init(with collection: NFTCollections,
@@ -36,9 +37,7 @@ final class CollectionViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         setupView()
-        print("ℹ️ Загружены данные: collection:", collection)
-        print("ℹ️ Загружены данные: nfts:", collection.nfts)
-        fetchAllNFTs()
+        fetchData()
     }
     
     // MARK: Setup View
@@ -49,85 +48,167 @@ final class CollectionViewController: UIViewController {
     }
     
     // MARK: Data Fetching
-    private func fetchAllNFTs() {
-        ProgressHUD.show()
-        let nftsForLoad = collection.nfts
-        
-        for id in nftsForLoad {
-            dispatchGroup.enter()
-            collectionService.fetchNFT(id: id) { [weak self] result in
-                defer {
-                    self?.dispatchGroup.leave()
-                }
-                
+//    private func fetchData() {
+//        dispatchGroup.enter()
+//        collectionService.fetchAllNFTs(for: collection.nfts) { [weak self] result in
+//            guard let self = self else {
+//                self?.dispatchGroup.leave()
+//                return
+//            }
+//
+//            defer {
+//                self.dispatchGroup.leave()
+//            }
+//            
+//            switch result {
+//            case .success(let nfts):
+//                self.nftsList = nfts
+//            case .failure(let error):
+//                print("⚠️ Ошибка загрузки NFTs: \(error)")
+//            }
+//        }
+//        
+//        dispatchGroup.enter()
+//        collectionService.fetchCart { [weak self] result in
+//            guard let self = self else {
+//                self?.dispatchGroup.leave()
+//                return
+//            }
+//
+//            defer {
+//                self.dispatchGroup.leave()
+//            }
+//            switch result {
+//            case .success(let cart):
+//                self.cart = cart
+//            case .failure(let error):
+//                print("⚠️ Ошибка загрузки корзины: \(error)")
+//            }
+//        }
+//        
+//        dispatchGroup.enter()
+//        collectionService.fetchUserProfile() { [weak self] result in
+//            guard let self = self else {
+//                self?.dispatchGroup.leave()
+//                return
+//            }
+//
+//            defer {
+//                self.dispatchGroup.leave()
+//            }
+//            
+//            switch result {
+//            case .success(let user):
+//                self.likes = user.likes
+//            case .failure(let error):
+//                print("⚠️ Ошибка загрузки лайков: ", error)
+//            }
+//        }
+//        
+//        dispatchGroup.notify(queue: .main) { [weak self] in
+//            guard let self = self else { return }
+//            self.updateUI()
+//        }
+//    }
+    
+    private func fetchData() {
+        fetchAllNFTs { [weak self] _ in
+            guard let self = self else { return }
+            
+            self.fetchCart { [weak self] _ in
                 guard let self = self else { return }
                 
-                switch result {
-                case .success(let nft):
-                    print("✅ Успех: \(nft)")
-                    self.nftsListQueue.async(flags: .barrier) {
-                        self.nftsList.append(nft)
+                self.fetchUserProfile { [weak self] _ in
+                    guard let self = self else { return }
+                    
+                    DispatchQueue.main.async {
+                        self.updateUI()
                     }
-                case .failure(let error):
-                    print("⚠️ Ошибка при загрузке NFT с id \(id): \(error)")
                 }
             }
         }
-        
-        dispatchGroup.notify(queue: .main) { [weak self] in
-            guard let self = self else { return }
-            ProgressHUD.dismiss()
-            print("✅ Все NFT загружены: \(self.nftsList.count)")
-            self.updateUI()
+    }
+    
+    private func fetchAllNFTs(completion: @escaping (Bool) -> Void) {
+        collectionService.fetchAllNFTs(for: collection.nfts) { [weak self] result in
+            guard let self = self else { return completion(false) }
+            
+            switch result {
+            case .success(let nfts):
+                self.nftsList = nfts
+                completion(true)
+            case .failure(let error):
+                print("⚠️ Ошибка загрузки NFTs: \(error)")
+                completion(false)
+            }
+        }
+    }
+
+    private func fetchCart(completion: @escaping (Bool) -> Void) {
+        collectionService.fetchCart { [weak self] result in
+            guard let self = self else { return completion(false) }
+            
+            switch result {
+            case .success(let cart):
+                self.cart = cart.nfts
+                completion(true)
+            case .failure(let error):
+                
+                print("⚠️ Ошибка загрузки корзины: \(error)")
+                completion(false)
+            }
+        }
+    }
+
+    private func fetchUserProfile(completion: @escaping (Bool) -> Void) {
+        collectionService.fetchUserProfile { [weak self] result in
+            guard let self = self else { return completion(false) }
+            
+            switch result {
+            case .success(let user):
+                self.likes = user.likes
+                completion(true)
+            case .failure(let error):
+                print("⚠️ Ошибка загрузки профиля: \(error)")
+                completion(false)
+            }
         }
     }
     
     // MARK: View Updates
     private func updateUI() {
-        collectionView.configureView(with: collection)
+        self.collectionView.configureView(with: self.collection)
         self.collectionView.reloadData()
-        print("✅ UI обновлен")
+        UIBlockingProgressHUD.dismiss()
     }
 }
 
 // MARK: - UICollectionViewDelegate
 extension CollectionViewController: UICollectionViewDelegate {
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        print("ℹ️ Выбран элемент \(indexPath)")
+        return
     }
 }
 
 // MARK: UICollectionViewDataSource
 extension CollectionViewController: UICollectionViewDataSource {
     
-    // Количество строк
     func numberOfSections(in collectionView: UICollectionView) -> Int {
         return 1
     }
     
-    // Количество ячеек в строке
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         return nftsList.count
     }
     
-    // Ячейка
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "CollectionCell", for: indexPath) as? CollectionCell else {
-            print("⚠️ Ячейка коллекции не загружена")
+        guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: CollectionCell.identifier, for: indexPath) as? CollectionCell else {
             return UICollectionViewCell()
         }
         
         let nft = nftsList[indexPath.row]
-        print("✅ Загружаем ячейку с NFT:", nft)
-        cell.configure(with: nft) { result in
-            switch result {
-            case .success:
-                print("✅ Элемент коллекции", indexPath, "обновлен!")
-            case .failure:
-                print("⚠️ Не удалось загрузить изображение")
-                return
-            }
-        }
+        cell.configure(with: nft, cart: cart ?? [""], likes: likes ?? [""])
+        cell.delegate = self
         return cell
     }
 }
@@ -135,18 +216,10 @@ extension CollectionViewController: UICollectionViewDataSource {
 // MARK: - Extension UICollectionViewDelegate
 extension CollectionViewController: UICollectionViewDelegateFlowLayout {
     
-    // Размер каждой ячейки в коллекции
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
-        
-        let collectionWidth = collectionView.bounds.width            // полная ширина коллекции
-        let cellSpacing = CGFloat(9)                                 // отступ между ячейками
-        let cellCount = CGFloat(3)                                   // количество ячеек в строке
-        let cellHeight = CGFloat(192)                                // Высота каждой ячейки
-        let cellWidth = CGFloat(108) /*(collectionWidth - cellSpacing*2) / cellCount*/
-        return CGSize(width: cellWidth, height: cellHeight)  // Высоту не менять
+        return CGSize(width: 108, height: 192)
     }
     
-    // 2. Добавление отступов коллекции от краев экрана
     func collectionView(_ collectionView: UICollectionView,
                         layout collectionViewLayout: UICollectionViewLayout,
                         insetForSectionAt section: Int
@@ -154,7 +227,6 @@ extension CollectionViewController: UICollectionViewDelegateFlowLayout {
         return UIEdgeInsets(top: 0, left: 0, bottom: 20, right: 0)
     }
     
-    // 3. Минимальное расстояние между ячейками (внутри коллекции) - вертикальные отступы
     func collectionView(_ collectionView: UICollectionView,
                         layout collectionViewLayout: UICollectionViewLayout,
                         minimumLineSpacingForSectionAt section: Int
@@ -162,11 +234,39 @@ extension CollectionViewController: UICollectionViewDelegateFlowLayout {
         return 8
     }
     
-    // 4. Минимальное расстояние между ячейками (внутри коллекции) - горизонтальные отступы
     func collectionView(_ collectionView: UICollectionView,
                         layout collectionViewLayout: UICollectionViewLayout,
                         minimumInteritemSpacingForSectionAt section: Int
     ) -> CGFloat {
         return 9
+    }
+}
+
+//MARK: - CollectionCellDelegate
+extension CollectionViewController: CollectionCellDelegate {
+    func cartButtonClicked(nft: String) {
+        guard let cart else { return }
+        UIBlockingProgressHUD.show()
+        collectionService.updateCart(with: nft, in: cart) { result in
+            switch result {
+            case .success(_): break
+            case .failure(let error):
+                print("⚠️ Ошибка при обновлении корзины: \(error)")
+            }
+            UIBlockingProgressHUD.dismiss()
+        }
+    }
+    
+    func likeButtonClicked(nft: String) {
+        guard let likes else { return }
+        UIBlockingProgressHUD.show()
+        collectionService.updateLike(with: nft, in: likes) { result in
+            switch result {
+            case .success(_): break
+            case .failure(let error):
+                print("⚠️ Ошибка при обновлении лайков: \(error)")
+            }
+            UIBlockingProgressHUD.dismiss()
+        }
     }
 }
