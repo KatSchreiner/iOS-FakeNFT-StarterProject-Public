@@ -29,12 +29,13 @@ final class CollectionCell: UICollectionViewCell {
         return imageView
     }()
     
-    private lazy var ratingView: UIImageView = {
-        let imageView = UIImageView()
-        imageView.image = UIImage(named: "Stars 0")
-        imageView.contentMode = .scaleAspectFit
-        imageView.translatesAutoresizingMaskIntoConstraints = false
-        return imageView
+    private lazy var ratingStack: UIStackView = {
+        let stackView = UIStackView()
+        stackView.spacing = 0
+        stackView.backgroundColor = .systemBackground
+        stackView.axis = .horizontal
+        stackView.translatesAutoresizingMaskIntoConstraints = false
+        return stackView
     }()
     
     private lazy var nameLabel: UILabel = {
@@ -105,8 +106,6 @@ final class CollectionCell: UICollectionViewCell {
     // MARK: Public methods
     func configure(with nft: NFT, cart: [String], likes: [String]) -> Void {
         
-        
-        
         self.nft = nft.id
         self.cart = cart
         self.likes = likes
@@ -114,8 +113,7 @@ final class CollectionCell: UICollectionViewCell {
         guard let imageURL = nft.images.first else { return }
         downloadImage(from: imageURL)
         
-        let imageNames = ["Stars 0", "Stars 1", "Stars 2", "Stars 3", "Stars 4", "Stars 5"]
-        ratingView.image = UIImage(named: imageNames[nft.rating])
+        setRating(rating: nft.rating)
         
         nameLabel.text = nft.name
         priceLabel.text = "\(nft.price) ETH"
@@ -157,18 +155,29 @@ final class CollectionCell: UICollectionViewCell {
     
     private func downloadImage(from imageURL: String) {
         
-            let url = URL (string: imageURL)
-            imageView.kf.indicatorType = .activity
-            imageView.kf.setImage(with: url,
-                                  placeholder: UIImage(),
-                                  completionHandler: { result in
-                switch result {
-                case.success(let value):
-                    self.imageView.image = value.image
-                case.failure(let error):
-                    print("⚠️ Ошибка загрузки изображения ячейки", error)
-                }
-            })
+        let url = URL (string: imageURL)
+        imageView.kf.indicatorType = .activity
+        imageView.kf.setImage(with: url,
+                              placeholder: UIImage(),
+                              completionHandler: { result in
+            switch result {
+            case.success(let value):
+                self.imageView.image = value.image
+            case.failure(let error):
+                print("⚠️ Ошибка загрузки изображения ячейки", error)
+            }
+        })
+    }
+    
+    private func setRating(rating: Int) {
+        for number in 0..<5 {
+            let ratingImage = UIImageView()
+            ratingStack.addArrangedSubview(ratingImage)
+            switch number < rating {
+            case true: ratingImage.image = UIImage(named: "Star active")
+            case false: ratingImage.image = UIImage(named: "Star no active")
+            }
+        }
     }
 }
 
@@ -185,10 +194,10 @@ extension CollectionCell {
             imageView.widthAnchor.constraint(equalToConstant: 108)
         ])
         
-        contentView.addSubview(ratingView)
+        contentView.addSubview(ratingStack)
         NSLayoutConstraint.activate([
-            ratingView.topAnchor.constraint(equalTo: imageView.bottomAnchor, constant: 8),
-            ratingView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor)
+            ratingStack.topAnchor.constraint(equalTo: imageView.bottomAnchor, constant: 8),
+            ratingStack.leadingAnchor.constraint(equalTo: contentView.leadingAnchor)
         ])
         
         contentView.addSubview(likeButton)
@@ -207,7 +216,7 @@ extension CollectionCell {
         
         contentView.addSubview(stackView)
         NSLayoutConstraint.activate([
-            stackView.topAnchor.constraint(equalTo: ratingView.bottomAnchor, constant: 5),
+            stackView.topAnchor.constraint(equalTo: ratingStack.bottomAnchor, constant: 5),
             stackView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
             stackView.trailingAnchor.constraint(equalTo: cartButton.leadingAnchor)
         ])

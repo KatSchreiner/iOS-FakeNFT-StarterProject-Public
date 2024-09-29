@@ -115,7 +115,7 @@ final class CatalogueViewController: UIViewController {
         collections.sort { $0.nfts.count < $1.nfts.count }
         updateTableViewAnimated(oldCollections: oldCollections)
     }
-
+    
     private func sortByName() {
         let oldCollections = collections
         collections.sort { $0.name.localizedCompare($1.name) == .orderedAscending }
@@ -152,10 +152,10 @@ extension CatalogueViewController: UITableViewDelegate {
             let networkClient = DefaultNetworkClient()
             let collectionService = CatalogueService(networkClient: networkClient)
             let collectionViewRouter = CollectionRouter()
-            let collectionView = CollectionView(frame: .zero, router: collectionViewRouter)
-
-            router.navigateToDetail(with: collection, service: collectionService, view: collectionView)
-   
+            let collectionView = CollectionView(frame: .zero)
+            
+            router.navigateToDetail(with: collection, service: collectionService, view: collectionView, router: collectionViewRouter)
+            
         } else {
             print("⚠️ Индекс вне диапазона.")
             return

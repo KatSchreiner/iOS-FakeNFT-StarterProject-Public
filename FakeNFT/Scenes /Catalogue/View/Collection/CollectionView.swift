@@ -3,6 +3,8 @@ import Kingfisher
 
 // MARK: - CollectionViewProtocol
 protocol CollectionViewProtocol: AnyObject {
+    var delegate: CollectionViewDelegate? { get set }
+    
     func setCollectionViewDelegate(_ delegate: UICollectionViewDelegate)
     func setCollectionViewDataSource(_ dataSource: UICollectionViewDataSource)
     func register(cellType: UICollectionViewCell.Type, reuseIdentifier: String)
@@ -10,14 +12,18 @@ protocol CollectionViewProtocol: AnyObject {
     func reloadData()
 }
 
+// MARK: - CollectionViewDelegate
+protocol CollectionViewDelegate: AnyObject {
+    func didTapAuthorLabel()
+}
+
 // MARK: - CollectionView
 final class CollectionView: UIView, CollectionViewProtocol {
     
     // MARK: Properties
+    weak var delegate: CollectionViewDelegate?
     private var aspectRatioConstraint: NSLayoutConstraint?
     private var collectionViewHeightConstraint: NSLayoutConstraint?
-    private var urlToOpen = "https://practicum.yandex.ru/ios-developer/"
-    private var router: CollectionRouterProtocol?
     
     // MARK: View
     private lazy var scrollView: UIScrollView = {
@@ -95,10 +101,8 @@ final class CollectionView: UIView, CollectionViewProtocol {
     }()
     
     // MARK: Initialization
-    init(frame: CGRect,
-         router: CollectionRouterProtocol?
+    override init(frame: CGRect
     ) {
-        self.router = router
         super.init(frame: frame)
         backgroundColor = UIColor(named: "YP White")
         setupView()
@@ -152,8 +156,8 @@ final class CollectionView: UIView, CollectionViewProtocol {
     }
     
     func reloadData() {
-        collectionView.reloadData()
         DispatchQueue.main.async {
+            self.collectionView.reloadData()
             self.collectionViewHeightConstraint?.constant = self.collectionView.collectionViewLayout.collectionViewContentSize.height
         }
     }
@@ -168,8 +172,7 @@ final class CollectionView: UIView, CollectionViewProtocol {
     
     // MARK: Actions
     @objc private func linkTapped() {
-        guard let url = URL(string: urlToOpen) else { return }
-        router?.navigateToWebViewController(from: parentViewController() ?? UIViewController(), url: url)
+        delegate?.didTapAuthorLabel()
     }
     
     private func parentViewController() -> UIViewController? {

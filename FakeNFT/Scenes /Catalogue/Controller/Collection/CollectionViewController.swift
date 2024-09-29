@@ -7,7 +7,8 @@ final class CollectionViewController: UIViewController {
     // MARK: Properties
     private let collectionView: CollectionViewProtocol
     private let collectionService: CatalogueServiceProtocol
-    
+    private var router: CollectionRouterProtocol
+    private let urlToOpen = "https://practicum.yandex.ru/ios-developer/"
     private let collection: NFTCollections
     private var nftsList: [NFT] = []
     private var cart: [String]?
@@ -17,12 +18,16 @@ final class CollectionViewController: UIViewController {
     // MARK: Initialization
     init(with collection: NFTCollections,
          service: CatalogueService,
-         view: CollectionViewProtocol
+         view: CollectionViewProtocol,
+         router: CollectionRouterProtocol
     ) {
         self.collectionView = view
         self.collection = collection
         self.collectionService = service
+        self.router = router
         super.init(nibName: nil, bundle: nil)
+        
+        self.collectionView.delegate = self
     }
     @available(*, unavailable)
     required init?(coder: NSCoder) {
@@ -48,84 +53,28 @@ final class CollectionViewController: UIViewController {
     }
     
     // MARK: Data Fetching
-//    private func fetchData() {
-//        dispatchGroup.enter()
-//        collectionService.fetchAllNFTs(for: collection.nfts) { [weak self] result in
-//            guard let self = self else {
-//                self?.dispatchGroup.leave()
-//                return
-//            }
-//
-//            defer {
-//                self.dispatchGroup.leave()
-//            }
-//            
-//            switch result {
-//            case .success(let nfts):
-//                self.nftsList = nfts
-//            case .failure(let error):
-//                print("⚠️ Ошибка загрузки NFTs: \(error)")
-//            }
-//        }
-//        
-//        dispatchGroup.enter()
-//        collectionService.fetchCart { [weak self] result in
-//            guard let self = self else {
-//                self?.dispatchGroup.leave()
-//                return
-//            }
-//
-//            defer {
-//                self.dispatchGroup.leave()
-//            }
-//            switch result {
-//            case .success(let cart):
-//                self.cart = cart
-//            case .failure(let error):
-//                print("⚠️ Ошибка загрузки корзины: \(error)")
-//            }
-//        }
-//        
-//        dispatchGroup.enter()
-//        collectionService.fetchUserProfile() { [weak self] result in
-//            guard let self = self else {
-//                self?.dispatchGroup.leave()
-//                return
-//            }
-//
-//            defer {
-//                self.dispatchGroup.leave()
-//            }
-//            
-//            switch result {
-//            case .success(let user):
-//                self.likes = user.likes
-//            case .failure(let error):
-//                print("⚠️ Ошибка загрузки лайков: ", error)
-//            }
-//        }
-//        
-//        dispatchGroup.notify(queue: .main) { [weak self] in
-//            guard let self = self else { return }
-//            self.updateUI()
-//        }
-//    }
     
     private func fetchData() {
-        fetchAllNFTs { [weak self] _ in
+        let dispatchGroup = DispatchGroup()
+        
+        dispatchGroup.enter()
+        fetchAllNFTs { _ in
+            dispatchGroup.leave()
+        }
+        
+        dispatchGroup.enter()
+        fetchCart { _ in
+            dispatchGroup.leave()
+        }
+        
+        dispatchGroup.enter()
+        fetchUserProfile { _ in
+            dispatchGroup.leave()
+        }
+        
+        dispatchGroup.notify(queue: .main) { [weak self] in
             guard let self = self else { return }
-            
-            self.fetchCart { [weak self] _ in
-                guard let self = self else { return }
-                
-                self.fetchUserProfile { [weak self] _ in
-                    guard let self = self else { return }
-                    
-                    DispatchQueue.main.async {
-                        self.updateUI()
-                    }
-                }
-            }
+            self.updateUI()
         }
     }
     
@@ -143,7 +92,7 @@ final class CollectionViewController: UIViewController {
             }
         }
     }
-
+    
     private func fetchCart(completion: @escaping (Bool) -> Void) {
         collectionService.fetchCart { [weak self] result in
             guard let self = self else { return completion(false) }
@@ -153,13 +102,12 @@ final class CollectionViewController: UIViewController {
                 self.cart = cart.nfts
                 completion(true)
             case .failure(let error):
-                
                 print("⚠️ Ошибка загрузки корзины: \(error)")
                 completion(false)
             }
         }
     }
-
+    
     private func fetchUserProfile(completion: @escaping (Bool) -> Void) {
         collectionService.fetchUserProfile { [weak self] result in
             guard let self = self else { return completion(false) }
@@ -268,5 +216,13 @@ extension CollectionViewController: CollectionCellDelegate {
             }
             UIBlockingProgressHUD.dismiss()
         }
+    }
+}
+
+//MARK: - CollectionCellDelegate
+extension CollectionViewController: CollectionViewDelegate {
+    func didTapAuthorLabel() {
+        guard let url = URL(string: urlToOpen) else { return }
+        router.navigateToWebViewController(from: self, url: url)
     }
 }

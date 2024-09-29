@@ -2,7 +2,7 @@ import UIKit
 
 // MARK: - CatalogueRouterProtocol
 protocol CatalogueRouterProtocol {
-    func navigateToDetail(with collection: NFTCollections, service: CatalogueService, view: CollectionView)
+    func navigateToDetail(with collection: NFTCollections, service: CatalogueService, view: CollectionView, router: CollectionRouterProtocol)
     func presentSortOptions(
         sortByNameAction: @escaping () -> Void,
         sortByAmountAction: @escaping () -> Void
@@ -22,7 +22,8 @@ final class CatalogueRouter: CatalogueRouterProtocol {
     func navigateToDetail(
         with collection: NFTCollections,
         service: CatalogueService,
-        view: CollectionView
+        view: CollectionView,
+        router: CollectionRouterProtocol
     ) {
         
         guard let viewController else { return }
@@ -30,8 +31,10 @@ final class CatalogueRouter: CatalogueRouterProtocol {
         let controller = CollectionViewController(
             with: collection,
             service: service,
-            view: view
+            view: view,
+            router: router
         )
+        controller.hidesBottomBarWhenPushed = true
         configureNavigationBar(for: viewController)
         
         viewController.navigationController?.pushViewController(controller, animated: true)
@@ -61,7 +64,6 @@ final class CatalogueRouter: CatalogueRouterProtocol {
         viewController.present(alert, animated: true)
     }
     
-    // Отдельный метод для настройки NavigationBar
     private func configureNavigationBar(for viewController: UIViewController) {
         let backButton = UIBarButtonItem()
         backButton.title = ""
