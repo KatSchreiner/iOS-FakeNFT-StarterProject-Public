@@ -34,28 +34,43 @@ final class StatisticsNftsService {
         }
     }
     
-    func checkIfNftInOrder(nftId: String, completion: @escaping (Bool) -> Void) {
-        let fetchOrderRequest = StatisticsOrderRequest()
-        defaultNetwork.send(request: fetchOrderRequest, type: Order.self) { result in
-            switch result {
-            case .success(let order):
-                completion(order.nfts.contains(nftId))
-            case .failure(let error):
-                print("Failed to fetch order: \(error)")
-                completion(false)
-            }
+    func fetchCart(completion: @escaping (Result<Order, Error>) -> Void) {
+        let request = StatisticsOrderRequest()
+        defaultNetwork.send(request: request, type: Order.self ) { result in
+            completion(result)
         }
     }
     
-    func addToOrder(nftId: String, completion: @escaping (Result<Void, Error>) -> Void) {
-        let updateOrderRequest = StatisticsOrderUpdate(nftId: nftId)
-        defaultNetwork.send(request: updateOrderRequest, completionQueue: .main) { result in
-            switch result {
-            case .success:
-                completion(.success(()))
-            case .failure(let error):
-                completion(.failure(error))
-            }
+    func fetchProfile( completion: @escaping (Result<UserProfile, Error>) -> Void) {
+        let request = StatisticsProfileRequest()
+        defaultNetwork.send(request: request, type: UserProfile.self) { result in
+            completion(result)
+        }
+    }
+    
+    func updateOrder(with nftId: String, in cart: [String], completion: @escaping (Result<Order, Error>) -> Void) {
+        var cart = cart
+        if cart.contains(nftId) {
+            cart = cart.filter { $0 != nftId }
+        } else {
+            cart.append(nftId)
+        }
+        let request = StatisticsOrderUpdate(cart: cart)
+        defaultNetwork.send(request: request, type: Order.self, completionQueue: .main) { result in
+            completion(result)
+        }
+    }
+    
+    func updateLike(with nft: String, in likes: [String], completion: @escaping (Result<UserProfile, Error>) -> Void) {
+        var likes = likes
+        if likes.contains(nft) {
+            likes = likes.filter { $0 != nft }
+        } else {
+            likes.append(nft)
+        }
+        let request = StatisticsLikeUpdate(likes: likes)
+        defaultNetwork.send(request: request, type: UserProfile.self, completionQueue: .main) { result in
+            completion(result)
         }
     }
 }

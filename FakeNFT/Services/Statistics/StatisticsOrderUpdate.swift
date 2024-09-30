@@ -1,18 +1,9 @@
 import Foundation
 
-struct OrderDto: Dto {
-    let nfts: String
-
-    func asDictionary() -> [String: String] {
-        return ["nfts": nfts]
-    }
-}
-
 struct StatisticsOrderUpdate: NetworkRequest {
-    var nftId: String
-    
-    init(nftId: String) {
-        self.nftId = nftId
+    var cart: [String]
+    init(cart: [String]) {
+        self.cart = cart
     }
     
     var endpoint: URL? {
@@ -26,6 +17,16 @@ struct StatisticsOrderUpdate: NetworkRequest {
     }
     
     var dto: Dto? {
-        return OrderDto(nfts: self.nftId)
+        if cart.isEmpty { return nil }
+        return OrderDto(cart: cart)
+    }
+}
+
+struct OrderDto: Dto {
+    let cart: [String]
+    
+    func asDictionary() -> [String: String] {
+        let nftsString = cart.joined(separator: "&nfts=")
+        return ["nfts": nftsString]
     }
 }

@@ -3,11 +3,10 @@ import Kingfisher
 
 protocol StatisticsNftCellDelegate: AnyObject {
     func likeButtonTapped(for nft: NftById)
-    func bucketButtonTapped(for nft: NftById, isInOrder: Bool)
+    func bucketButtonTapped(for nft: NftById)
 }
 
 final class StatisticsNftCell: UICollectionViewCell {
-    
     // MARK: - Public Properties
     static let reuseIdentifier = "StatisticsNftCell"
     weak var delegate: StatisticsNftCellDelegate?
@@ -59,10 +58,12 @@ final class StatisticsNftCell: UICollectionViewCell {
         return label
     }()
     
-    private lazy var favouritesStorage: FavoritesStorage = FavoritesStorage.shared
     private let ratingView = RatingView()
     private var nft: NftById?
-    private var isNftInOrder = false
+    private var isLiked: Bool = false
+    private var inCart: Bool = false
+    private var cart: [String]?
+    private var likes: [String]?
     
     // MARK: - Initializers
     override init(frame: CGRect) {
@@ -77,13 +78,13 @@ final class StatisticsNftCell: UICollectionViewCell {
     }
     
     // MARK: - Public Methods
-    func configureCell(with nft: NftById?, isInOrder: Bool) {
+    func configureCell(with nft: NftById?, cart: [String], likes: [String]) {
         guard let nft = nft else { return }
         self.nft = nft
-        self.isNftInOrder = isInOrder
+        self.cart = cart
+        self.likes = likes
         nameLabel.text = nft.name.contains(" ") ? nft.name.components(separatedBy: " ").first : nft.name
         ratingView.setRating(nft.rating)
-        print("Rating is \(nft.rating)")
         priceLabel.text = "\(nft.price) ETH"
         
         guard let validUrl = nft.getImageUrl() else {
@@ -100,8 +101,14 @@ final class StatisticsNftCell: UICollectionViewCell {
                                         .scaleFactor(UIScreen.main.scale),
                                         .cacheOriginalImage
                                     ])
-        updateLikeButton()
-        updateBucketButton()
+        guard let cart = self.cart, let nft = self.nft, let likes = self.likes else { return }
+        inCart = cart.contains(nft.id)
+        print("\(nft.id) in cart: \(inCart)")
+        cartButton(state: inCart)
+        isLiked = likes.contains(nft.id)
+        print("\(nft.id) in likes: \(isLiked)")
+        likeButton(state: isLiked)
+        
     }
     
     // MARK: - Private Methods
@@ -143,28 +150,31 @@ final class StatisticsNftCell: UICollectionViewCell {
         ])
     }
     
-    private func updateBucketButton() {
-        let image = self.isNftInOrder ? UIImage(named: "bucketFull") : UIImage(named: "bucket")
-        bucketButton.setImage(image, for: .normal)
-    }
-    
-    private func updateLikeButton() {
-        guard let nft = nft else { return }
-        let isLiked = favouritesStorage.isNftLiked(nftId: nft.id)
-        print(favouritesStorage.getFavoriteNfts())
+    private func likeButton(state: Bool) {
+        likeButton.isSelected = state
+        print("IS SELECTED like: \(isLiked)")
         likeButton.tintColor = isLiked ? UIColor(red: 245/255, green: 107/255, blue: 108/255, alpha: 1) : .white
+
+    }
+        
+    private func cartButton(state: Bool) {
+        bucketButton.isSelected = state
+        print("IS SELECTED bucket: \(inCart)")
+        bucketButton.setImage(UIImage(named: inCart ? "bucketFull" : "bucket"), for: .normal)
     }
     
     // MARK: - Actions
     @objc private func likeDidTap() {
-        guard let nft = nft else { return }
+        guard let nft = self.nft else { return }
+        isLiked.toggle()
+        likeButton(state: isLiked)
         delegate?.likeButtonTapped(for: nft)
-        updateLikeButton()
     }
     
     @objc private func bucketDidTap() {
-        guard let nft = nft else { return }
-        self.isNftInOrder = true
-        delegate?.bucketButtonTapped(for: nft, isInOrder: isNftInOrder)
+        guard let nft = self.nft else { return }
+        inCart.toggle()
+        cartButton(state: inCart)
+        delegate?.bucketButtonTapped(for: nft)
     }
 }

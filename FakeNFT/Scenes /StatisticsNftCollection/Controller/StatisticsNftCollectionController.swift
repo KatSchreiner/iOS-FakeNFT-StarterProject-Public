@@ -5,8 +5,9 @@ final class StatisticsNftCollectionController: UIViewController {
     // MARK: - Private Properties
     private let statisticsNftView: StatisticsNftViewProtocol
     private let statisticsNftService: StatisticsNftsService
-    private lazy var favouritesStorage: FavoritesStorage = FavoritesStorage.shared
     private var nftIds: [String]?
+    private var cart: [String]?
+    private var likes: [String]?
     private var nfts: [NftById] {
         didSet {
             statisticsNftView.updateCollection()
@@ -34,8 +35,8 @@ final class StatisticsNftCollectionController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .white
-        getUserNfts()
         setupView()
+        fetchData()
     }
     
     // MARK: - Setup View
@@ -45,7 +46,45 @@ final class StatisticsNftCollectionController: UIViewController {
     }
     
     // MARK: - Data Fetching
-    private func getUserNfts(){
+    private func fetchData() {
+        let dispatchGroup = DispatchGroup()
+        
+        dispatchGroup.enter()
+        getUserNfts { _ in
+            dispatchGroup.leave()
+        }
+        
+        dispatchGroup.enter()
+        fetchCart { _ in
+            dispatchGroup.leave()
+        }
+        
+        dispatchGroup.enter()
+        fetchUserProfile { _ in
+            dispatchGroup.leave()
+        }
+        
+        dispatchGroup.notify(queue: .main) { [weak self] in
+            guard let self = self else { return }
+            statisticsNftView.updateCollection()
+        }
+    }
+    
+    private func fetchUserProfile(completion: @escaping (Bool) -> Void) {
+        statisticsNftService.fetchProfile { [weak self] result in
+            guard let self = self else { return completion(false) }
+            switch result {
+            case .success(let user):
+                self.likes = user.likes
+                completion(true)
+            case .failure(let error):
+                print("⚠️ Ошибка загрузки профиля: \(error)")
+                completion(false)
+            }
+        }
+    }
+    
+    private func getUserNfts(completion: @escaping (Bool) -> Void){
         view.isUserInteractionEnabled = false
         ProgressHUD.show()
         statisticsNftService.fetchNfts(nftIds: nftIds ?? []) { [weak self] result in
@@ -55,8 +94,25 @@ final class StatisticsNftCollectionController: UIViewController {
             switch result {
             case .success(let nfts):
                 self.nfts = nfts
+                completion(true)
             case .failure(let error):
                 print(error.localizedDescription)
+                completion(false)
+            }
+        }
+    }
+    
+    private func fetchCart(completion: @escaping (Bool) -> Void) {
+        statisticsNftService.fetchCart { [weak self] result in
+            guard let self = self else { return completion(false) }
+            switch result {
+            case .success(let cart):
+                self.cart = cart.nfts
+                print("Cart: \(self.cart)")
+                completion(true)
+            case .failure(let error):
+                print("⚠️ Ошибка загрузки корзины: \(error)")
+                completion(false)
             }
         }
     }
@@ -77,7 +133,7 @@ extension StatisticsNftCollectionController: UICollectionViewDataSource {
         }
         statisticsNftCell.delegate = self
         let nft = nfts[indexPath.row]
-        statisticsNftCell.configureCell(with: nft, isInOrder: false)
+        statisticsNftCell.configureCell(with: nft, cart: cart ?? [""], likes: likes ?? [""])
         return statisticsNftCell
     }
 }
@@ -104,21 +160,30 @@ extension StatisticsNftCollectionController: UICollectionViewDelegateFlowLayout 
 //MARK: - StatisticsNftCellDelegate protocol implementation
 extension StatisticsNftCollectionController: StatisticsNftCellDelegate {
     func likeButtonTapped(for nft: NftById) {
-        favouritesStorage.toggleFavoriteNft(nftId: nft.id)
-        statisticsNftView.updateCollection()
+        guard let likes else { return }
+        ProgressHUD.show()
+        statisticsNftService.updateLike(with: nft.id, in: likes) { result in
+            switch result {
+            case .success(let result):
+                self.likes = result.likes
+            case .failure(let error):
+                print("⚠️ Ошибка при обновлении лайков: \(error)")
+            }
+            ProgressHUD.dismiss()
+        }
     }
     
-    func bucketButtonTapped(for nft: NftById, isInOrder: Bool) {
-        if isInOrder == false {
-            statisticsNftService.addToOrder(nftId: nft.id) { result in
-                switch result {
-                case .success:
-                    print("NFT added to order")
-                    self.statisticsNftView.updateCollection()
-                case .failure(let error):
-                    print("Failed to add NFT to order: \(error)")
-                }
+    func bucketButtonTapped(for nft: NftById) {
+        guard let cart else { return }
+        ProgressHUD.show()
+        statisticsNftService.updateOrder(with: nft.id, in: cart) { result in
+            switch result {
+            case .success(let result):
+                self.cart = result.nfts
+            case .failure(let error):
+                print("⚠️ Ошибка при обновлении корзины: \(error)")
             }
+            ProgressHUD.dismiss()
         }
     }
 }
