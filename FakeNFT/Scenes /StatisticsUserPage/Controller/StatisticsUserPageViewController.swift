@@ -84,7 +84,10 @@ extension StatisticsUserPageViewController: StatisticsUserPageViewDelegate {
     }
     
     func didTapOpenNFTCollection() {
-        let nftCollection = StatisticsNftCollection()
-        navigationController?.pushViewController(nftCollection, animated: true)
+        let nftCollectionController = StatisticsNftCollectionController(nfts: user?.nfts)
+        nftCollectionController.title = "Коллекция NFT"
+        nftCollectionController.modalPresentationStyle = .fullScreen
+        nftCollectionController.hidesBottomBarWhenPushed = true
+        navigationController?.pushViewController(nftCollectionController, animated: true)
     }
 }

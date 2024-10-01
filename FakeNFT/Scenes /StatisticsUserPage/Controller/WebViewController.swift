@@ -70,7 +70,7 @@ final class WebViewController: UIViewController & WKNavigationDelegate {
     
     func webView(_ webView: WKWebView, didFailProvisionalNavigation navigation: WKNavigation!, withError error: Error) {
         if let urlError = error as? URLError, urlError.code == .notConnectedToInternet || urlError.code == .timedOut {
-                showAlertAndPop(withMessage: "Сайт недоступен из-за интернета.")
+                showAlertAndPop(withMessage: "Не удалось получить данные")
             } else {
                 showAlertAndPop(withMessage: "\(error.localizedDescription)")
             }
