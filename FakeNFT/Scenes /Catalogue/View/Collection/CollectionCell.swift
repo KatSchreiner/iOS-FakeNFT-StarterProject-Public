@@ -86,6 +86,7 @@ final class CollectionCell: UICollectionViewCell {
     override init(frame: CGRect) {
         super.init(frame: frame)
         setView()
+        setupRatingStars()
     }
     
     @available(*, unavailable)
@@ -170,12 +171,9 @@ final class CollectionCell: UICollectionViewCell {
     }
     
     private func setRating(rating: Int) {
-        for number in 0..<5 {
-            let ratingImage = UIImageView()
-            ratingStack.addArrangedSubview(ratingImage)
-            switch number < rating {
-            case true: ratingImage.image = UIImage(named: "Star active")
-            case false: ratingImage.image = UIImage(named: "Star no active")
+        for (index, view) in ratingStack.arrangedSubviews.enumerated() {
+            if let ratingImage = view as? UIImageView {
+                ratingImage.image = UIImage(named: index < rating ? "Star active" : "Star no active")
             }
         }
     }
@@ -222,5 +220,12 @@ extension CollectionCell {
         ])
         
         NSLayoutConstraint.activate([cartButton.centerYAnchor.constraint(equalTo: stackView.centerYAnchor)])
+    }
+    
+    private func setupRatingStars() {
+        for _ in 0..<5 {
+            let ratingImage = UIImageView()
+            ratingStack.addArrangedSubview(ratingImage)
+        }
     }
 }
