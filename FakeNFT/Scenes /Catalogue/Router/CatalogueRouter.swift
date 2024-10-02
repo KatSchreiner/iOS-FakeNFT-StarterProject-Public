@@ -2,7 +2,7 @@ import UIKit
 
 // MARK: - CatalogueRouterProtocol
 protocol CatalogueRouterProtocol {
-    func navigateToDetail(with nfts: [String], catalogueService: CatalogueService)
+    func navigateToDetail(with collection: NFTCollections, service: CatalogueService, view: CollectionView, router: CollectionRouterProtocol)
     func presentSortOptions(
         sortByNameAction: @escaping () -> Void,
         sortByAmountAction: @escaping () -> Void
@@ -11,7 +11,7 @@ protocol CatalogueRouterProtocol {
 
 // MARK: - CatalogueRouter
 final class CatalogueRouter: CatalogueRouterProtocol {
-
+    
     // MARK: Properties
     weak var viewController: UIViewController?
     
@@ -19,9 +19,25 @@ final class CatalogueRouter: CatalogueRouterProtocol {
     init() {}
     
     // MARK: Public functions
-    func navigateToDetail(with nfts: [String], catalogueService: CatalogueService) {
-        let controller = CollectionViewController(nfts: nfts, catalogueService: catalogueService)
-        viewController?.navigationController?.pushViewController(controller, animated: true)
+    func navigateToDetail(
+        with collection: NFTCollections,
+        service: CatalogueService,
+        view: CollectionView,
+        router: CollectionRouterProtocol
+    ) {
+        
+        guard let viewController else { return }
+        
+        let controller = CollectionViewController(
+            with: collection,
+            service: service,
+            view: view,
+            router: router
+        )
+        controller.hidesBottomBarWhenPushed = true
+        configureNavigationBar(for: viewController)
+        
+        viewController.navigationController?.pushViewController(controller, animated: true)
     }
     
     func presentSortOptions(
@@ -44,6 +60,14 @@ final class CatalogueRouter: CatalogueRouterProtocol {
         alert.addAction(sortByAmountAction)
         alert.addAction(cancelAction)
         
-        viewController?.present(alert, animated: true)
+        guard let viewController else { return }
+        viewController.present(alert, animated: true)
+    }
+    
+    private func configureNavigationBar(for viewController: UIViewController) {
+        let backButton = UIBarButtonItem()
+        backButton.title = ""
+        viewController.navigationItem.backBarButtonItem = backButton
+        viewController.navigationController?.navigationBar.tintColor = .black
     }
 }

@@ -64,18 +64,16 @@ final class CatalogueViewController: UIViewController {
     
     // MARK: Data Fetching
     private func fetchCollections() {
-        ProgressHUD.show()
         let oldCollections = collections
         catalogueService.fetchCollections { [weak self] result in
             DispatchQueue.main.async {
-                ProgressHUD.dismiss()
                 switch result {
                 case .success(let newCollections):
                     self?.collections = newCollections
                     self?.updateTableViewAnimated(oldCollections: oldCollections)
                     self?.loadFilter()
                 case .failure(let error):
-                    print("Ошибка: \(error)")
+                    print("Ошибка при загрузке коллекций: \(error)")
                 }
             }
         }
@@ -117,7 +115,7 @@ final class CatalogueViewController: UIViewController {
         collections.sort { $0.nfts.count < $1.nfts.count }
         updateTableViewAnimated(oldCollections: oldCollections)
     }
-
+    
     private func sortByName() {
         let oldCollections = collections
         collections.sort { $0.name.localizedCompare($1.name) == .orderedAscending }
@@ -150,12 +148,14 @@ extension CatalogueViewController: UITableViewDelegate {
         catalogueView.deselectRow(indexPath: indexPath, animated: true)
         
         if collections.indices.contains(indexPath.row) {
-            let nfts = collections[indexPath.row].nfts
-            let newViewControllerClient = DefaultNetworkClient()
-            let newViewControllerService = CatalogueService(networkClient: newViewControllerClient)
-
-            router.navigateToDetail(with: nfts, catalogueService: newViewControllerService)
-   
+            let collection = collections[indexPath.row]
+            let networkClient = DefaultNetworkClient()
+            let collectionService = CatalogueService(networkClient: networkClient)
+            let collectionViewRouter = CollectionRouter()
+            let collectionView = CollectionView(frame: .zero)
+            
+            router.navigateToDetail(with: collection, service: collectionService, view: collectionView, router: collectionViewRouter)
+            
         } else {
             print("⚠️ Индекс вне диапазона.")
             return

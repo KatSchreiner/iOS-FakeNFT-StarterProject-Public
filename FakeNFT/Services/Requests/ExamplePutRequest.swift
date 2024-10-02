@@ -1,6 +1,10 @@
 import Foundation
 
 struct ExamplePutRequest: NetworkRequest {
+    var httpBody: Data?
+    
+    var contentType: String?
+    
    var endpoint: URL? {
        URL(string: "\(RequestConstants.baseURL)/api/v1/someMethod")
    }
