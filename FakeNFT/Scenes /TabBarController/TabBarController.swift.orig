@@ -10,15 +10,15 @@ final class TabBarController: UITabBarController {
         tag: 0
     )
     
+<<<<<<< HEAD
     private let basketTabBarItem = UITabBarItem(
         title: NSLocalizedString("Tab.basket", comment: ""),
         image: UIImage(named: "Tab.basket"),
-        tag: 1
-    )
-    
+=======
     private let statisticsTabBarItem = UITabBarItem(
         title: NSLocalizedString("Tab.statistics", comment: ""),
         image: UIImage(named: "statistics_tb"),
+>>>>>>> statistics
         tag: 1
     )
 
@@ -32,13 +32,16 @@ final class TabBarController: UITabBarController {
         let statisticsViewController = StatisticsViewController(statisticsService: StatisticsService.shared, statisticsView: statisticsView)
         let statisticsNavigationController = UINavigationController(rootViewController: statisticsViewController)
         catalogController.tabBarItem = catalogTabBarItem
+<<<<<<< HEAD
         
         let basketController = BasketViewController(servicesAssembly: servicesAssembly)
         basketController.tabBarItem = basketTabBarItem
 
         viewControllers = [catalogController, basketController]
+=======
         statisticsNavigationController.tabBarItem = statisticsTabBarItem
         viewControllers = [catalogController, statisticsNavigationController]
+>>>>>>> statistics
 
         view.backgroundColor = .systemBackground
     }
