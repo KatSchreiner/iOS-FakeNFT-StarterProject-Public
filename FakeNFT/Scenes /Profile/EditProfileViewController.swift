@@ -211,8 +211,9 @@ final class EditProfileViewController: UIViewController, UITextViewDelegate, UIT
         alert.addTextField { textField in
             textField.text = self.profile?.avatar
         }
-        ProgressHUD.show()
+        
         alert.addAction(UIAlertAction(title: "Ok", style: .default, handler: { _ in
+            ProgressHUD.show()
             if let textField = alert.textFields?.first, let text = textField.text {
                 if let url = URL(string: text) {
                     self.profileImageView.kf.setImage(with: url)

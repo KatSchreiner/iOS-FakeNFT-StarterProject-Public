@@ -81,7 +81,7 @@ final class FavoriteNftViewController: UIViewController {
             collection.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             collection.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             collection.topAnchor.constraint(equalTo: view.topAnchor),
-            collection.bottomAnchor.constraint(equalTo: view.bottomAnchor),
+            collection.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
             
             noFavoriteNftLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor),
             noFavoriteNftLabel.centerYAnchor.constraint(equalTo: view.centerYAnchor)

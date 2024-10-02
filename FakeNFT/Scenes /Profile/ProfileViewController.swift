@@ -94,6 +94,7 @@ final class ProfileViewController: UIViewController, WKNavigationDelegate {
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         loadProfile()
+        self.hidesBottomBarWhenPushed = false
     }
     
     // MARK: - IB Actions
@@ -287,12 +288,15 @@ extension ProfileViewController: UITableViewDelegate {
                 
                 myNftVC.profile = currentProfile
                 myNftVC.nfts = userNfts
+                
+                myNftVC.hidesBottomBarWhenPushed = true
                 navigationController?.pushViewController(myNftVC, animated: true)
             }
         case 1:
             let favoritesVC = FavoriteNftViewController(servicesAssembly: servicesAssembly)
             favoritesVC.profile = currentProfile
             
+            favoritesVC.hidesBottomBarWhenPushed = true
             navigationController?.pushViewController(favoritesVC, animated: true)
         case 2:
             navigateToDeveloperInfo()
@@ -304,6 +308,8 @@ extension ProfileViewController: UITableViewDelegate {
         guard let urlString = websiteLabel.text, let url = URL(string: urlString) else { return }
         let developerInfo = WebViewController(webView: webView)
         developerInfo.urlString = urlString
+        
+        developerInfo.hidesBottomBarWhenPushed = true
         navigationController?.pushViewController(developerInfo, animated: true)
     }
 }
