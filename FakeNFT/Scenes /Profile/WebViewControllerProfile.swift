@@ -1,5 +1,5 @@
 //
-//  WebViewController.swift
+//  WebViewControllerProfile.swift
 //  FakeNFT
 //
 //  Created by Екатерина Шрайнер on 09.09.2024.
@@ -9,7 +9,7 @@ import UIKit
 import WebKit
 import ProgressHUD
 
-final class WebViewController: UIViewController, WKNavigationDelegate {
+final class WebViewControllerProfile: UIViewController, WKNavigationDelegate {
     // MARK: - Public Properties
     var urlString: String?
     

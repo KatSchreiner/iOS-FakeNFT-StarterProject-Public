@@ -36,7 +36,7 @@ final class MyNftTableViewCell: UITableViewCell {
         return label
     }()
     
-    private lazy var ratingView = RatingView()
+    private lazy var ratingView = RatingViewProfile()
     
     private lazy var authorLabel: UILabel = {
         let label = UILabel()

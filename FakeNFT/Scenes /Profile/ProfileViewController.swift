@@ -306,7 +306,7 @@ extension ProfileViewController: UITableViewDelegate {
     
     private func navigateToDeveloperInfo() {
         guard let urlString = websiteLabel.text, let url = URL(string: urlString) else { return }
-        let developerInfo = WebViewController(webView: webView)
+        let developerInfo = WebViewControllerProfile(webView: webView)
         developerInfo.urlString = urlString
         
         developerInfo.hidesBottomBarWhenPushed = true

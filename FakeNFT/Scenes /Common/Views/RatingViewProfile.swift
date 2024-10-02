@@ -1,5 +1,5 @@
 //
-//  RatingView.swift
+//  RatingViewProfile.swift
 //  FakeNFT
 //
 //  Created by Екатерина Шрайнер on 18.09.2024.
@@ -7,7 +7,7 @@
 
 import UIKit
 
-class RatingView: UIView {
+class RatingViewProfile: UIView {
     var stars: [UIImageView] = []
     let totalStars: Int = 5
     

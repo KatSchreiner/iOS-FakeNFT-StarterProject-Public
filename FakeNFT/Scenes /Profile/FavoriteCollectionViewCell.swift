@@ -43,7 +43,7 @@ final class FavoriteCollectionViewCell: UICollectionViewCell {
         return label
     }()
     
-    private lazy var ratingView = RatingView()
+    private lazy var ratingView = RatingViewProfile()
     
     private lazy var priceLabel: UILabel = {
         let label = UILabel()
