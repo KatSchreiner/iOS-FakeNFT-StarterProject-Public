@@ -31,15 +31,11 @@ final class TabBarController: UITabBarController {
         let statisticsView = StatisticsView()
         let statisticsViewController = StatisticsViewController(statisticsService: StatisticsService.shared, statisticsView: statisticsView)
         let statisticsNavigationController = UINavigationController(rootViewController: statisticsViewController)
-        catalogController.tabBarItem = catalogTabBarItem
-        
         let basketController = BasketViewController(servicesAssembly: servicesAssembly)
+        catalogController.tabBarItem = catalogTabBarItem
         basketController.tabBarItem = basketTabBarItem
-
-        viewControllers = [catalogController, basketController]
         statisticsNavigationController.tabBarItem = statisticsTabBarItem
-        viewControllers = [catalogController, statisticsNavigationController]
-
+        viewControllers = [catalogController, statisticsNavigationController, basketController]
         view.backgroundColor = .systemBackground
     }
 }
