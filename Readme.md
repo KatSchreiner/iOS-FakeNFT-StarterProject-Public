@@ -1,4 +1,4 @@
-![H7ntBg3hDp0](https://github.com/user-attachments/assets/944a2968-1065-4365-bd89-da5098a6f534)# ТЗ мобильного приложения FakeNFT
+# ТЗ мобильного приложения FakeNFT
 
 [Скринкаст эпика "Корзина"](https://disk.yandex.ru/i/VB8QRuPmhNhniA)
 
