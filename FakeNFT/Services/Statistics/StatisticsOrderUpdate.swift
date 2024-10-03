@@ -1,6 +1,10 @@
 import Foundation
 
 struct StatisticsOrderUpdate: NetworkRequest {
+    var httpBody: Data?
+    
+    var contentType: String?
+    
     var cart: [String]
     init(cart: [String]) {
         self.cart = cart

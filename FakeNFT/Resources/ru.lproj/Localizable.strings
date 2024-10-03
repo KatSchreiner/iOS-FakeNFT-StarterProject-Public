@@ -5,8 +5,10 @@
   Created by Екатерина Шрайнер on 27.09.2024.
   
 */
-
+"Tab.catalog" = "Каталог";
+"Tab.basket" = "Корзина";
 "Tab.profile" = "Профиль";
+"Tab.statistic" = "Статистика";
 "My.nft" = "Мои NFT";
 "Love.nft" = "Избранные NFT";
 "About" = "О разработчике";

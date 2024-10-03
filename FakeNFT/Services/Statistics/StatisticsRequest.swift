@@ -1,6 +1,10 @@
 import Foundation
 
 struct StatisticsRequest: NetworkRequest {
+    var httpBody: Data?
+    
+    var contentType: String?
+    
     var endpoint: URL? {
         let baseURL = RequestConstants.baseURL
         let profileEndpoint = "/api/v1/users"

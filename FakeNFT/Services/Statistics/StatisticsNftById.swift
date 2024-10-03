@@ -1,6 +1,10 @@
 import Foundation
 
 struct StatisticsNftById: NetworkRequest {
+    var httpBody: Data?
+    
+    var contentType: String?
+    
     var nftId: String
     
     init(nftId: String) {

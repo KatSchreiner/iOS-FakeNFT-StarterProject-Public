@@ -1,6 +1,10 @@
 import Foundation
 
 struct StatisticsUserPageRequest: NetworkRequest {
+    var httpBody: Data?
+    
+    var contentType: String?
+    
     var userId: String
     
     init(userId: String) {

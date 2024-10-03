@@ -8,6 +8,10 @@
 import Foundation
 
 struct FavoriteStatusRequest: NetworkRequest {
+    var httpBody: Data?
+    
+    var contentType: String?
+    
     var endpoint: URL? {
         let baseURL = RequestConstants.baseURL
         let profileEndpoint = "/api/v1/profile/1"

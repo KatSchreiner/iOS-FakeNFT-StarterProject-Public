@@ -8,6 +8,10 @@
 import Foundation
 
 struct UpdateProfileRequest: NetworkRequest {
+    var httpBody: Data?
+    
+    var contentType: String?
+    
     var endpoint: URL? {
         URL(string: "\(RequestConstants.baseURL)/api/v1/profile/1")
     }

@@ -11,6 +11,8 @@ protocol NetworkRequest {
     var endpoint: URL? { get }
     var httpMethod: HttpMethod { get }
     var dto: Dto? { get }
+    var httpBody: Data? { get } 
+    var contentType: String? { get }
 }
 
 protocol Dto {

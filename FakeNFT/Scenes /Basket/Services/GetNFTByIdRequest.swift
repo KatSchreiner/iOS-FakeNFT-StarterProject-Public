@@ -1,6 +1,10 @@
 import Foundation
 
 final class GetNFTByIdRequest: NetworkRequest {
+    var httpBody: Data?
+    
+    var contentType: String?
+    
     var dto: (any Dto)?
     
     var httpMethod: HttpMethod

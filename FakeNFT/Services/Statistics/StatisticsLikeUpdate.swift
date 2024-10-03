@@ -1,6 +1,10 @@
 import Foundation
 
 struct StatisticsLikeUpdate: NetworkRequest {
+    var httpBody: Data?
+    
+    var contentType: String?
+    
     var likes: [String]
     init(likes: [String]) {
         self.likes = likes
