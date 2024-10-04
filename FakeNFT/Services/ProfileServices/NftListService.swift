@@ -14,17 +14,15 @@ final class NftListService {
         self.networkClient = networkClient
     }
     
-    func fetchNfts(completion: @escaping (Result<[NFT], NetworkClientError>) -> Void) {
-        print("[NftListService: fetchNfts]: Запрос на получение NFT начат...")
-        let request = NftRequest()
+    func fetchNfts(id: String, completion: @escaping (Result<NFT, NetworkClientError>) -> Void) {
+        let request = NftRequest(id: id)
         
         networkClient.send(request: request) { result in
             switch result {
             case .success(let data):
                 do {
-                    let nfts = try JSONDecoder().decode([NFT].self, from: data)
-                    print("✅ [NftListService: fetchNfts]: Запрос NFT завершен успешно. Данные NFT успешно декодированы, количество: \(nfts.count)")
-                    completion(.success(nfts))
+                    let nft = try JSONDecoder().decode(NFT.self, from: data)
+                    completion(.success(nft))
                 } catch {
                     print("❌ [NftListService: fetchNfts]: Ошибка декодирования данных: \(error.localizedDescription)")
                     completion(.failure(.parsingError))

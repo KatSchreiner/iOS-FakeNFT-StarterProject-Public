@@ -91,27 +91,36 @@ final class FavoriteNftViewController: UIViewController {
     // MARK: - Load Favorite NFT
     private func loadLikedNfts() {
         ProgressHUD.show()
-        
+
         guard let profile = profile else {
             print("⚠️ [FavoriteNftViewController:loadLikedNfts]: Профиль не инициализирован.")
             return
         }
-        
+
         let ids = profile.likes
         print("[FavoriteNftViewController:loadLikedNfts]: Загрузка избранных NFT с ID: \(ids)")
-        
-        servicesAssembly.nftListInstanse.fetchNfts { [weak self] result in
-            ProgressHUD.dismiss()
-            
-            switch result {
-            case .success(let nfts):
-                self?.likedNfts = nfts.filter { ids.contains($0.id) }
-                print("✅ [FavoriteNftViewController:loadLikedNfts]: Получены избранные NFT: \(self?.likedNfts ?? [])")
-                self?.collection.reloadData()
-                self?.updateNoFavoriteNftLabelVisibility()
-            case .failure(let error):
-                print("❌ [FavoriteNftViewController:loadLikedNfts]: Ошибка получения избранных NFT: \(error)")
+
+        var fetchedNfts: [NFT] = []
+
+        for nftID in ids {
+            servicesAssembly.nftListInstanse.fetchNfts(id: nftID) { result in
+                switch result {
+                case .success(let nft):
+                    fetchedNfts.append(nft)
+                    DispatchQueue.main.async {
+                        self.likedNfts = fetchedNfts
+                        self.collection.reloadData()
+                        self.updateNoFavoriteNftLabelVisibility()
+                    }
+
+                case .failure(let error):
+                    print("❌ [FavoriteNftViewController:loadLikedNfts]: Ошибка получения NFT с ID \(nftID): \(error)")
+                }
             }
+        }
+
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1) { 
+            ProgressHUD.dismiss()
         }
     }
     

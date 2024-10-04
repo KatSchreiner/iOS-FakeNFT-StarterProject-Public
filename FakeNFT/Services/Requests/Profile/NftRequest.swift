@@ -9,12 +9,12 @@ import Foundation
 
 struct NftRequest: NetworkRequest {
     var httpBody: Data?
-    
     var contentType: String?
+    let id: String
     
     var endpoint: URL? {
         let baseURL = RequestConstants.baseURL
-        return URL(string: "\(baseURL)/api/v1/nft")
+        return URL(string: "\(baseURL)/api/v1/nft/\(id)")
     }
     
     var httpMethod: HttpMethod {

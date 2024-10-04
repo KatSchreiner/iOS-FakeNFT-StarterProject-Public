@@ -19,6 +19,7 @@ final class ProfileViewController: UIViewController, WKNavigationDelegate {
     private var userNfts: [NFT] = []
     private var nftCount: Int = 0
     private var favoriteNftCount: Int = 0
+    private var isFirstLaunch = true
     
     private lazy var editButton: UIBarButtonItem = {
         let image = UIImage(named: "square.and.pencil")
@@ -184,8 +185,8 @@ final class ProfileViewController: UIViewController, WKNavigationDelegate {
                 case .success(let profile):
                     print("✅ [ProfileViewController:loadProfile]: Данные профиля успешно отображены")
                     self?.currentProfile = profile
-                    self?.loadNfts(for: profile)
                     self?.updateDisplayProfile(with: profile)
+                    self?.loadNfts(for: profile)
                     self?.setUIElementsVisible(true)
                     
                 case .failure(let error):
@@ -215,25 +216,46 @@ final class ProfileViewController: UIViewController, WKNavigationDelegate {
     // MARK: - Load NFT
     private func loadNfts(for profile: Profile) {
         ProgressHUD.show()
-        servicesAssembly.nftListInstanse.fetchNfts { result in
-            ProgressHUD.dismiss()
-            
-            switch result {
-            case .success(let nfts):
-                self.userNfts = nfts.filter { profile.nfts.contains($0.id) }
-                DispatchQueue.main.async {
-                    print("✅ [ProfileViewController:loadNfts]: Найдено NFT для пользователя: \(self.userNfts.count)")
-                    self.nftCount = self.userNfts.count
-                    self.tableView.reloadData()
+        
+        let nftIDs = profile.nfts
+        var fetchedNfts: [NFT] = []
+        
+        for nftID in nftIDs {
+            servicesAssembly.nftListInstanse.fetchNfts(id: nftID) { result in
+                switch result {
+                case .success(let nft):
+                    fetchedNfts.append(nft)
+                    DispatchQueue.main.async {
+                        self.userNfts = fetchedNfts
+                        self.nftCount = fetchedNfts.count
+                    }
+                    
+                case .failure(let error):
+                    print("❌ [ProfileViewController:loadNfts]: Ошибка получения NFT с ID \(nftID): \(error)")
                 }
-            case .failure(let error):
-                print("❌ [ProfileViewController:loadNfts]: Ошибка получения NFT: \(error)")
             }
+        }
+        
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+            ProgressHUD.dismiss()
         }
     }
     
     private func setUIElementsVisible(_ isVisible: Bool) {
-        uiElements.forEach { $0.isHidden = !isVisible }
+        if isVisible && isFirstLaunch {
+            UIView.animate(withDuration: 0.5) {
+                self.uiElements.forEach { element in
+                    element.alpha = 1
+                    element.isHidden = false
+                }
+            }
+            isFirstLaunch = false
+        } else {
+            uiElements.forEach { element in
+                element.alpha = isVisible ? 1 : 0
+                element.isHidden = !isVisible
+            }
+        }
     }
     
     private func createAttributedDescriptionText(_ text: String) -> NSAttributedString {
