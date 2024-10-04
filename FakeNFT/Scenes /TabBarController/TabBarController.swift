@@ -6,14 +6,14 @@ final class TabBarController: UITabBarController {
     
     private let catalogueTabBarItem = UITabBarItem(
         title: ("Tab.catalog".localized()),
-        image: UIImage(systemName: "square.stack.3d.up.fill"),
-        tag: 0
+        image: UIImage(systemName: "square.stack.fill"),
+        tag: 1
     )
     
     private let profileTabBarItem = UITabBarItem(
         title: ("Tab.profile".localized()),
         image: UIImage(named: "profile_tb"),
-        tag: 1
+        tag: 0
     )
     
     private let basketTabBarItem = UITabBarItem(
@@ -82,8 +82,8 @@ final class TabBarController: UITabBarController {
         catalogueNavigationController.tabBarItem = catalogueTabBarItem
         
         viewControllers = [
-            catalogueNavigationController, 
             profileController,
+            catalogueNavigationController,
             basketNavigationController,
             statisticsNavigationController
         ]
