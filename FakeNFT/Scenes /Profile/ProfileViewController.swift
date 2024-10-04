@@ -94,11 +94,7 @@ final class ProfileViewController: UIViewController, WKNavigationDelegate {
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        if currentProfile == nil {
-            loadProfile()
-        } else if let profile = currentProfile {
-            updateDisplayProfile(with: profile)
-        }
+        loadProfile()
         self.hidesBottomBarWhenPushed = false
     }
     
