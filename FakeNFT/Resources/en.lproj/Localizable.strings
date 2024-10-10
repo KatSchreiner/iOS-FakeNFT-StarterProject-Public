@@ -1,0 +1,32 @@
+/* 
+  Localizable.strings
+  FakeNFT
+
+  Created by Екатерина Шрайнер on 27.09.2024.
+  
+*/
+
+"Tab.profile" = "Profile";
+"My.nft" = "My NFTs";
+"Love.nft" = "Selected NFT";
+"About" = "About the developer";
+
+"Edit.change" = "Change\nPhoto";
+"Edit.download" = "Upload an image";
+"Edit.name" = "Name";
+"Edit.description" = "Description";
+"Edit.website" = "Website";
+
+"Placeholder.noNft" = "You don't have an NFT yet";
+"Placeholder.noLoveNft" = "You don't have any NFT favorites yet";
+
+"Sorting" = "Sorting";
+"By.price" = "By price";
+"By.rating" = "By rating";
+"By.name" = "By name";
+
+"Price" = "Price";
+"From:" = "From:";
+
+"Cancel" = "Cancel";
+"Close" = "To close";

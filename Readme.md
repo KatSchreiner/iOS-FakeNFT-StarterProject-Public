@@ -1,5 +1,10 @@
 # ТЗ мобильного приложения FakeNFT
 
+[Скринкаст эпика "Корзина"](https://disk.yandex.ru/i/VB8QRuPmhNhniA)
+[Скринкаст эпика "Статистика"](https://disk.yandex.ru/i/MiHUe8cPvPEfyw)
+[Скринкаст эпика "Каталог"](https://disk.yandex.ru/d/LmMkdEO3OXYwcQ)
+[Скринкаст эпика "Профиль"](https://disk.yandex.ru/i/NnONHbCKTZo3oA)
+
 # Ссылки
 
 [Дизайн Figma](https://www.figma.com/file/k1LcgXHGTHIeiCv4XuPbND/FakeNFT-(YP)?node-id=96-5542&t=YdNbOI8EcqdYmDeg-0)
